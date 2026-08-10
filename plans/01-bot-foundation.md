@@ -1361,7 +1361,7 @@ git commit -m "feat: add guild-scoped onboarding repository"
 - Consumes: `Env`, `migrate`, both repositories.
 - Produces: `createClient(): Client` and a running process that connects, opens the database, and registers a `guildCreate` handler that calls `guildConfig.ensure`. Plan 02 adds commands on top of this.
 
-- [ ] **Step 1: Write `src/discord/client.ts`**
+- [x] **Step 1: Write `src/discord/client.ts`**
 
 ```ts
 import { Client, GatewayIntentBits, Options } from 'discord.js'
@@ -1409,7 +1409,7 @@ export const createClient = (): Client =>
 	})
 ```
 
-- [ ] **Step 2: Write `src/discord/safe-handler.ts`**
+- [x] **Step 2: Write `src/discord/safe-handler.ts`**
 
 Every gateway listener goes through this. An unhandled rejection inside a listener terminates the Node process — which, for a bot serving many guilds, is an outage for all of them.
 
@@ -1430,7 +1430,7 @@ export const safeHandler =
 	}
 ```
 
-- [ ] **Step 3: Write `src/index.ts`**
+- [x] **Step 3: Write `src/index.ts`**
 
 ```ts
 import { mkdirSync } from 'node:fs'
@@ -1500,17 +1500,17 @@ await client.login(env.discordToken)
 
 Note `onboarding` is unused until plan 03. Keep the binding — the wiring belongs here and plan 03 consumes it.
 
-- [ ] **Step 4: Verify it compiles**
+- [x] **Step 4: Verify it compiles**
 
 Run: `pnpm typecheck`
 Expected: no errors. (If `onboarding` trips an unused-variable rule, that rule is not enabled in this tsconfig — `noUnusedLocals` is deliberately off.)
 
-- [ ] **Step 5: Verify it fails loudly with no token**
+- [x] **Step 5: Verify it fails loudly with no token**
 
 Run: `env -u DISCORD_TOKEN pnpm dev`
 Expected: exits with `Missing required environment variable: DISCORD_TOKEN`.
 
-- [ ] **Step 6: Verify it connects and records guilds**
+- [ ] **Step 6: Verify it connects and records guilds** _(requires a real bot token + a throwaway guild — yours to run)_
 
 Put a real token in `.env`, invite the bot to a throwaway guild, run `pnpm dev`.
 Expected: a `ready` log line reporting the guild count with `enabled: 0`. Invite it to a second guild while running and confirm a `guild-joined` line appears.

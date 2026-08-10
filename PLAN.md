@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 01, Task 7 (final) — client bootstrap. Tasks 1–6 (scaffold, domain types, env loading, schema + migration, both repositories) are complete and verified; awaiting commit.
+> Plan 01, Task 7 (final) — client bootstrap. Code, typecheck, and the no-token failure path are all verified; the last step (connect with a real bot token to a throwaway guild) is yours to run manually, then commit and plan 01 is done. Plan 02 (`/config` commands) starts after that.
 
 ## Blockers
 
