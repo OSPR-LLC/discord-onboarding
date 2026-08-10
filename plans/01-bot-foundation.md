@@ -101,6 +101,8 @@ Merge into the generated `package.json`. `typecheck` covers tests as well as sou
 
 `NodeNext` is deliberate: this code is executed by Node, not bundled, so the compiler should model Node's real ESM resolution and enforce the `.js` import extensions the runtime requires.
 
+_TypeScript 7.0.2's implicit `@types` scan does not pick up `@types/node` under this pnpm layout — confirmed via `tsc --explainFiles`, which omits it from the compile entirely, leaving `node:` imports and the global `NodeJS` namespace unresolved. Fixed by declaring `types: ["node"]` explicitly rather than relying on implicit inclusion. Included below._
+
 ```json
 {
 	"compilerOptions": {
@@ -117,7 +119,8 @@ Merge into the generated `package.json`. `typecheck` covers tests as well as sou
 		"verbatimModuleSyntax": true,
 		"skipLibCheck": true,
 		"resolveJsonModule": true,
-		"esModuleInterop": true
+		"esModuleInterop": true,
+		"types": ["node"]
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "dist"]
@@ -323,7 +326,7 @@ git commit -m "feat: add Result type and shared domain types"
 - Produces: `loadEnv(source?: NodeJS.ProcessEnv): Env` and the `Env` type. Throws on invalid input — a bot with no token must not half-start.
 - The env source is a parameter so tests never mutate `process.env`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -350,12 +353,12 @@ describe('loadEnv', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/env.test.ts`
 Expected: FAIL — cannot resolve `../src/env.js`.
 
-- [ ] **Step 3: Write `src/env.ts`**
+- [x] **Step 3: Write `src/env.ts`**
 
 ```ts
 import { env as processEnv } from 'node:process'
@@ -387,12 +390,12 @@ export const loadEnv = (source: NodeJS.ProcessEnv = processEnv): Env => {
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/env.test.ts`
 Expected: PASS, 4 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/env.ts tests/env.test.ts

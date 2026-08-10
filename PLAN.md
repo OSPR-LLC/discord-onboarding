@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 01, Task 3 — environment loading (`src/env.ts`). Tasks 1 (scaffold) and 2 (`Result<T,E>` + domain types) are complete and verified; awaiting commit.
+> Plan 01, Task 4 — database schema and migration (`src/db/schema.sql`, `src/db/migrate.ts`). Tasks 1–3 (scaffold, domain types, env loading) are complete and verified; awaiting commit.
 
 ## Blockers
 
