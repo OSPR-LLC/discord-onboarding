@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 01, Task 5 — guild config repository (`src/db/guild-config-repository.ts`). Tasks 1–4 (scaffold, domain types, env loading, schema + migration) are complete and verified; awaiting commit.
+> Plan 01, Task 6 — onboarding repository (`src/db/onboarding-repository.ts`). Tasks 1–5 (scaffold, domain types, env loading, schema + migration, guild config repository) are complete and verified; awaiting commit.
 
 ## Blockers
 

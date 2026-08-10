@@ -588,7 +588,7 @@ git commit -m "feat: add multi-guild SQLite schema and migration"
   `disable(guildId)`, `clearGrandfather(guildId)`, `listEnabled()`, `remove(guildId)`.
   Plan 02's `/config` command calls these exact names.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -691,15 +691,15 @@ describe('enable and disable', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/db/guild-config-repository.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/db/guild-config-repository.ts`**
+- [x] **Step 3: Write `src/db/guild-config-repository.ts`**
 
 ```ts
-import type { Database } from 'better-sqlite3'
+import type { Database, Statement } from 'better-sqlite3'
 import type { GuildConfigRow } from '../types.js'
 
 export type ChannelKind = 'rules' | 'introductions' | 'modlog'
@@ -778,19 +778,26 @@ export const createGuildConfigRepository = (db: Database) => {
 	// Column names cannot be bound as parameters, so each target column needs
 	// its own compiled statement. Building them from the fixed maps keeps the
 	// SQL free of any caller-supplied string.
+	//
+	// Typed as Statement<[string, string]> rather than ReturnType<Database['prepare']>:
+	// `prepare`'s BindParameters type parameter defaults to `unknown[] | {}`, and taking
+	// ReturnType of the bare (uninvoked) generic method resolves the `{}` branch of its
+	// conditional return type too, producing a union whose `.run` requires exactly one
+	// argument — `.run(channelId, guildId)` then fails with "Expected 1 arguments, but
+	// got 2" even though the statement is correctly a 2-parameter one at runtime.
 	const channelStatements = Object.fromEntries(
 		Object.entries(CHANNEL_COLUMNS).map(([kind, column]) => [
 			kind,
 			db.prepare(`UPDATE guild_config SET ${column} = ? WHERE guild_id = ?`)
 		])
-	) as Record<ChannelKind, ReturnType<Database['prepare']>>
+	) as Record<ChannelKind, Statement<[string, string]>>
 
 	const roleStatements = Object.fromEntries(
 		Object.entries(ROLE_COLUMNS).map(([kind, column]) => [
 			kind,
 			db.prepare(`UPDATE guild_config SET ${column} = ? WHERE guild_id = ?`)
 		])
-	) as Record<RoleKind, ReturnType<Database['prepare']>>
+	) as Record<RoleKind, Statement<[string, string]>>
 
 	const touch = (guildId: string, actorId: string, at: string): void => {
 		statements.touch.run(at, actorId, guildId)
@@ -861,12 +868,12 @@ export const createGuildConfigRepository = (db: Database) => {
 export type GuildConfigRepository = ReturnType<typeof createGuildConfigRepository>
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/db/guild-config-repository.test.ts`
 Expected: PASS, 10 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/db/guild-config-repository.ts tests/db/guild-config-repository.test.ts
@@ -1074,7 +1081,7 @@ Expected: FAIL — module not found.
 - [ ] **Step 3: Write `src/db/onboarding-repository.ts`**
 
 ```ts
-import type { Database } from 'better-sqlite3'
+import type { Database, Statement } from 'better-sqlite3'
 import type {
 	ExperienceLevel,
 	OnboardingRecord,
@@ -1213,6 +1220,8 @@ export const createOnboardingRepository = (db: Database) => {
 		)
 	}
 
+	// See the equivalent map in guild-config-repository.ts (Task 5) for why this is
+	// Statement<[...]> and not ReturnType<Database['prepare']>.
 	const stepStatements = Object.fromEntries(
 		Object.entries(STEP_COLUMNS).map(([step, column]) => [
 			step,
@@ -1220,7 +1229,7 @@ export const createOnboardingRepository = (db: Database) => {
 				`UPDATE onboarding SET ${column} = COALESCE(${column}, ?) WHERE guild_id = ? AND user_id = ?`
 			)
 		])
-	) as Record<OnboardingStep, ReturnType<Database['prepare']>>
+	) as Record<OnboardingStep, Statement<[string, string, string]>>
 
 	const get = (guildId: string, userId: string): OnboardingRecord | null => {
 		const row = statements.get.get(guildId, userId) as OnboardingRow | undefined
