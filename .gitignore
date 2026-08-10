@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# SQLite database (better-sqlite3, WAL mode)
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Tool / package-manager noise (not this project's tracked logs/ dir)
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE / editor
+.vscode/
+.idea/
+.zed/
+.nova/
+.cursor/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Claude Code — personal/local, not shared project config
+.claude/settings.local.json
+
+# superpowers subagent-driven-development scratch workspace
+.superpowers/
