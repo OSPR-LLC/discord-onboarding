@@ -904,7 +904,7 @@ git commit -m "feat: add guild config repository"
   large backlog cannot deserialise every pending row into memory on one tick. Plan 04 relies on
   that bound.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -1073,12 +1073,12 @@ describe('listAwaitingReminder', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/db/onboarding-repository.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/db/onboarding-repository.ts`**
+- [x] **Step 3: Write `src/db/onboarding-repository.ts`**
 
 ```ts
 import type { Database, Statement } from 'better-sqlite3'
@@ -1336,12 +1336,12 @@ export const createOnboardingRepository = (db: Database) => {
 export type OnboardingRepository = ReturnType<typeof createOnboardingRepository>
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/db/onboarding-repository.test.ts`
 Expected: PASS, 18 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/db/onboarding-repository.ts tests/db/onboarding-repository.test.ts
