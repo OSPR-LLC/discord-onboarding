@@ -24,14 +24,14 @@ These constraints hold everywhere in the codebase:
 
 ## Tech Stack
 
-| Layer | Choice |
-|---|---|
-| Language | TypeScript (strict mode) |
-| Runtime | Node.js 20+ |
-| Discord | discord.js v14 |
-| Database | SQLite via `better-sqlite3`, WAL mode |
-| Testing | Vitest |
-| Package manager | pnpm |
+| Layer           | Choice                                |
+| --------------- | ------------------------------------- |
+| Language        | TypeScript (strict mode)              |
+| Runtime         | Node.js 20+                           |
+| Discord         | discord.js v14                        |
+| Database        | SQLite via `better-sqlite3`, WAL mode |
+| Testing         | Vitest                                |
+| Package manager | pnpm                                  |
 
 ## Project Structure
 
@@ -80,17 +80,17 @@ DEV_GUILD_ID=        # optional — registers commands to one guild instantly in
 
 ## Commands
 
-| Task | Command |
-|---|---|
-| Dev server | `pnpm dev` |
+| Task                                            | Command                          |
+| ----------------------------------------------- | -------------------------------- |
+| Dev server                                      | `pnpm dev`                       |
 | Dev server, sharded (2 shards, one SQLite file) | `SHARD_COUNT=2 pnpm dev:sharded` |
-| Build | `pnpm build` |
-| Start (built) | `pnpm start` |
-| Start, sharded | `pnpm start:sharded` |
-| Tests | `pnpm test` |
-| Tests, watch | `pnpm test:watch` |
-| Type check (source + tests) | `pnpm typecheck` |
-| Format | `pnpm format` |
+| Build                                           | `pnpm build`                     |
+| Start (built)                                   | `pnpm start`                     |
+| Start, sharded                                  | `pnpm start:sharded`             |
+| Tests                                           | `pnpm test`                      |
+| Tests, watch                                    | `pnpm test:watch`                |
+| Type check (source + tests)                     | `pnpm typecheck`                 |
+| Format                                          | `pnpm format`                    |
 
 ## Running at Scale
 
@@ -113,12 +113,12 @@ Nothing server-specific lives in env vars. Once the bot is in a server, an admin
 
 Implementation is broken into five sequential plans in [`plans/`](plans/):
 
-| # | Plan | Covers |
-|---|------|--------|
-| 01 | [bot-foundation](plans/01-bot-foundation.md) | Scaffold, multi-guild schema, repositories, client bootstrap |
-| 02 | [guild-configuration](plans/02-guild-configuration.md) | `/config` commands, preflight, enable gate + grandfathering |
-| 03 | [verification-gate](plans/03-verification-gate.md) | Rules → questionnaire → intro → `verified`, reconciliation |
-| 04 | [reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | Reminder DMs, `/onboarding` mod commands, audit log |
-| 05 | [scale-hardening](plans/05-scale-hardening.md) | Priority queue, config cache, chunked reconcile, sharding, metrics |
+| #   | Plan                                                               | Covers                                                             |
+| --- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| 01  | [bot-foundation](plans/01-bot-foundation.md)                       | Scaffold, multi-guild schema, repositories, client bootstrap       |
+| 02  | [guild-configuration](plans/02-guild-configuration.md)             | `/config` commands, preflight, enable gate + grandfathering        |
+| 03  | [verification-gate](plans/03-verification-gate.md)                 | Rules → questionnaire → intro → `verified`, reconciliation         |
+| 04  | [reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | Reminder DMs, `/onboarding` mod commands, audit log                |
+| 05  | [scale-hardening](plans/05-scale-hardening.md)                     | Priority queue, config cache, chunked reconcile, sharding, metrics |
 
 See [`PLAN.md`](PLAN.md) for current status.
