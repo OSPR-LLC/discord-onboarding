@@ -34,8 +34,8 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Claude Code — personal/local, not shared project config
-.claude/settings.local.json
+# Claude Code — personal skills/config, not shared with the repo
+.claude/
 
 # superpowers subagent-driven-development scratch workspace
 .superpowers/
