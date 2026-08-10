@@ -1,0 +1,63 @@
+---
+plan: overview
+project: discord-developer
+updated: 2026-08-10
+status: 🔵 Planning
+tags: [plan]
+---
+
+# Overview Plan — discord-developer
+
+## Status
+
+🔵 Planning
+
+## Goal
+
+> A reusable Discord onboarding bot any server can add and configure from inside Discord. New members must accept the rules, complete a three-question questionnaire, and post an introduction before the bot grants a `verified` role. Full design in [`docs/superpowers/specs/2026-08-08-onboarding-verification-gate-design.md`](../docs/superpowers/specs/2026-08-08-onboarding-verification-gate-design.md).
+
+## Architecture Decisions
+
+- 2026-08-04 — Node.js + discord.js, TypeScript (type-safe interaction payloads, matches project-base typescript-conventions)
+- 2026-08-04 — No web UI/dashboard; all interaction happens through native Discord components
+- 2026-08-04 — Testing via Vitest
+- 2026-08-08 — Onboarding is a three-step gate (rules → questionnaire → introductions post → `verified`), not a standalone questionnaire
+- 2026-08-08 — Steps are independent nullable timestamps evaluated by one `evaluateGate` function, so they can complete in any order and the grant decision has a single test surface
+- 2026-08-08 — A `verification_hold_at` column gates re-verification, so `/onboarding unverify` is not instantly undone by the next event
+- 2026-08-08 — `MessageContent` intent deliberately not requested; the intro watcher only needs author + channel
+- 2026-08-10 — **Multi-guild.** Per-server settings live in a `guild_config` table edited at runtime via `/config`; only `DISCORD_TOKEN` and `DATABASE_PATH` remain environment variables. See [[2026-08-10-multi-guild-runtime-configuration]]
+- 2026-08-10 — Onboarding tables re-keyed on `(guild_id, user_id)`; the same member in two servers has independent records and answers
+- 2026-08-10 — **Enable gate + grandfathering.** A guild is inert until an admin runs `/config enable`, which stamps a cutoff exempting every existing member. Without this, joining an established server would strip access from its entire membership
+- 2026-08-10 — `grantVerified` applies the role before stamping the database, so a rejected Discord call leaves the member retryable rather than falsely recorded as verified
+- 2026-08-10 — Every gateway listener is wrapped in an error boundary; an unhandled rejection would otherwise kill the process for every served guild at once
+- 2026-08-10 — **Scale is pursued through process sharding + a rate-limit-aware priority queue, not `worker_threads`.** The workload is I/O bound and capped by Discord's per-bot rate limits, which threads cannot expand. See [[2026-08-10-concurrency-and-scale-model]]
+- 2026-08-10 — Interactive work always outranks bulk work in one shared queue, so a reconciliation backfill never starves a member's button click
+- 2026-08-10 — Guild config is cached in memory (invalidated per guild on write); it is read on every gateway event and was otherwise a SQLite query per message
+- 2026-08-10 — All SQL compiles once at repository construction; discord.js message/presence caches are disabled and members swept
+
+## Module Plans
+
+| Plan                             | Status      | Blocks                           |
+| -------------------------------- | ----------- | -------------------------------- |
+| [[01-bot-foundation]]            | 🔵 Planning | [[02-guild-configuration]]       |
+| [[02-guild-configuration]]       | 🔵 Planning | [[03-verification-gate]]         |
+| [[03-verification-gate]]         | 🔵 Planning | [[04-reminders-and-mod-tooling]] |
+| [[04-reminders-and-mod-tooling]] | 🔵 Planning | [[05-scale-hardening]]           |
+| [[05-scale-hardening]]           | 🔵 Planning | —                                |
+
+## UI/UX Pattern
+
+_N/A — no web UI surface. Member and admin interaction are both native Discord components._
+
+## Open Questions
+
+- [x] Trigger → **automatic on join**, persistent rules button, `/intro` re-entry
+- [x] Answer storage → **SQLite** via `better-sqlite3`
+- [x] Does the experience answer map to a role? → **No.** Stored only
+- [x] How is the bot configured per server? → **`/config` slash commands**, stored in `guild_config`
+- [x] What stops the bot restricting an existing community? → **Enable gate + grandfather cutoff**
+
+## Dependencies
+
+- External: Discord API / discord.js, a bot token and application
+- Internal: —
