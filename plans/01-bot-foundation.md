@@ -415,7 +415,7 @@ git commit -m "feat: add environment loading"
 
 - Produces: `migrate(db): void` and the test helper `createTestDb(): Database.Database` returning an in-memory database with the schema applied. Every later database test uses `createTestDb`.
 
-- [ ] **Step 1: Write `src/db/schema.sql`**
+- [x] **Step 1: Write `src/db/schema.sql`**
 
 ```sql
 CREATE TABLE IF NOT EXISTS guild_config (
@@ -466,7 +466,7 @@ CREATE INDEX IF NOT EXISTS idx_onboarding_pending
 	ON onboarding (guild_id, verified_at, verification_hold_at, reminders_sent, last_joined_at);
 ```
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 Note the idempotency test runs `migrate` **twice on the same database** — creating two separate in-memory databases would not test anything.
 
@@ -510,12 +510,12 @@ describe('migrate', () => {
 })
 ```
 
-- [ ] **Step 3: Run it to confirm it fails**
+- [x] **Step 3: Run it to confirm it fails**
 
 Run: `pnpm test tests/db/migrate.test.ts`
 Expected: FAIL — cannot resolve the migrate module.
 
-- [ ] **Step 4: Write `src/db/migrate.ts`**
+- [x] **Step 4: Write `src/db/migrate.ts`**
 
 ```ts
 import { readFileSync } from 'node:fs'
@@ -544,7 +544,7 @@ export const migrate = (db: Database): void => {
 }
 ```
 
-- [ ] **Step 5: Write `tests/helpers/test-db.ts`**
+- [x] **Step 5: Write `tests/helpers/test-db.ts`**
 
 ```ts
 import Database from 'better-sqlite3'
@@ -557,12 +557,12 @@ export const createTestDb = (): Database.Database => {
 }
 ```
 
-- [ ] **Step 6: Run the test to confirm it passes**
+- [x] **Step 6: Run the test to confirm it passes**
 
 Run: `pnpm test tests/db/migrate.test.ts`
 Expected: PASS, 3 tests.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/db tests/db tests/helpers
