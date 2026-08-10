@@ -4,7 +4,7 @@
 
 ## Status
 
-🔵 Planning
+🟡 In Progress
 
 ## Goal
 
@@ -16,19 +16,19 @@
 
 ## Phases & Sub-Plans
 
-| #   | Plan                                                                        | Status      | Notes                                                               |
-| --- | --------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------- |
-| 01  | [plans/01-bot-foundation](plans/01-bot-foundation.md)                       | 🔵 Planning | Scaffold, multi-guild schema, both repositories, client bootstrap   |
-| 02  | [plans/02-guild-configuration](plans/02-guild-configuration.md)             | 🔵 Planning | `/config` commands, preflight, enable gate + grandfathering, README |
-| 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🔵 Planning | Rules → questionnaire → intro → `verified`, plus reconciliation     |
-| 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🔵 Planning | Reminder DMs, `/onboarding` mod commands, audit log                 |
-| 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🔵 Planning | Priority queue, config cache, chunked reconcile, sharding, metrics  |
+| #   | Plan                                                                        | Status         | Notes                                                               |
+| --- | --------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------- |
+| 01  | [plans/01-bot-foundation](plans/01-bot-foundation.md)                       | 🟡 In Progress | Scaffold, multi-guild schema, both repositories, client bootstrap   |
+| 02  | [plans/02-guild-configuration](plans/02-guild-configuration.md)             | 🔵 Planning    | `/config` commands, preflight, enable gate + grandfathering, README |
+| 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🔵 Planning    | Rules → questionnaire → intro → `verified`, plus reconciliation     |
+| 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🔵 Planning    | Reminder DMs, `/onboarding` mod commands, audit log                 |
+| 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🔵 Planning    | Priority queue, config cache, chunked reconcile, sharding, metrics  |
 
 Archived in [`plans/archive/`](plans/archive/) — superseded single-guild drafts, kept for history.
 
 ## Current Focus
 
-> Plan 01, Task 1 — project scaffold. Nothing is implemented yet.
+> Plan 01, Task 3 — environment loading (`src/env.ts`). Tasks 1 (scaffold) and 2 (`Result<T,E>` + domain types) are complete and verified; awaiting commit.
 
 ## Blockers
 

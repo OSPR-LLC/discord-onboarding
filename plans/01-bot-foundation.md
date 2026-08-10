@@ -2,7 +2,7 @@
 plan: bot-foundation
 project: discord-developer
 updated: 2026-08-10
-status: 🔵 Planning
+status: 🟡 In Progress
 tags: [plan]
 ---
 
@@ -14,7 +14,7 @@ tags: [plan]
 
 ## Status
 
-🔵 Planning
+🟡 In Progress
 
 ## Goal
 
@@ -63,21 +63,21 @@ Every task below inherits these:
 
 - Produces: `pnpm dev`, `pnpm test`, `pnpm build`, `pnpm typecheck` used by every later task.
 
-- [ ] **Step 1: Initialise the repo**
+- [x] **Step 1: Initialise the repo**
 
 ```bash
 git init
 pnpm init
 ```
 
-- [ ] **Step 2: Install dependencies**
+- [x] **Step 2: Install dependencies**
 
 ```bash
 pnpm i discord.js better-sqlite3 dotenv
 pnpm i -D typescript @types/node @types/better-sqlite3 vitest tsx prettier
 ```
 
-- [ ] **Step 3: Write `package.json` scripts and module type**
+- [x] **Step 3: Write `package.json` scripts and module type**
 
 Merge into the generated `package.json`. `typecheck` covers tests as well as source — Vitest transpiles without type checking, so without this a type error in a test is invisible until it fails at runtime.
 
@@ -97,7 +97,7 @@ Merge into the generated `package.json`. `typecheck` covers tests as well as sou
 }
 ```
 
-- [ ] **Step 4: Write `tsconfig.json`**
+- [x] **Step 4: Write `tsconfig.json`**
 
 `NodeNext` is deliberate: this code is executed by Node, not bundled, so the compiler should model Node's real ESM resolution and enforce the `.js` import extensions the runtime requires.
 
@@ -124,7 +124,7 @@ Merge into the generated `package.json`. `typecheck` covers tests as well as sou
 }
 ```
 
-- [ ] **Step 5: Write `tsconfig.test.json`**
+- [x] **Step 5: Write `tsconfig.test.json`**
 
 ```json
 {
@@ -137,7 +137,7 @@ Merge into the generated `package.json`. `typecheck` covers tests as well as sou
 }
 ```
 
-- [ ] **Step 6: Write `vitest.config.ts`**
+- [x] **Step 6: Write `vitest.config.ts`**
 
 ```ts
 import { defineConfig } from 'vitest/config'
@@ -150,7 +150,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 7: Write `.gitignore`**
+- [x] **Step 7: Write `.gitignore`** _(expanded post-hoc with IDE/editor and Claude Code sections — see committed `.gitignore`)_
 
 ```
 node_modules/
@@ -165,7 +165,7 @@ data/
 .DS_Store
 ```
 
-- [ ] **Step 8: Write `.env.example`**
+- [x] **Step 8: Write `.env.example`**
 
 ```
 # The only two settings that are not per-server.
@@ -178,17 +178,19 @@ DATABASE_PATH=./data/onboarding.db
 DEV_GUILD_ID=
 ```
 
-- [ ] **Step 9: Verify the toolchain runs**
+- [x] **Step 9: Verify the toolchain runs**
 
 Run: `pnpm typecheck && pnpm test`
 Expected: typecheck passes; Vitest exits 0 reporting no test files. (Without `--passWithNoTests` Vitest exits 1 here, failing the chain.)
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add -A
 git commit -m "chore: scaffold TypeScript bot project"
 ```
+
+_Committed as multiple commits (`3d4c1ca`..`4ca1fe5`: initial commit, gitignore iterations, README, prettier config, scaffold) rather than the single suggested message — same end state._
 
 ---
 
@@ -203,7 +205,7 @@ git commit -m "chore: scaffold TypeScript bot project"
 
 - Produces: `Result<T,E>`, `ok()`, `err()`, `isOk()`, `EXPERIENCE_LEVELS`, `ExperienceLevel`, `OnboardingStep`, `OnboardingRecord`, `QuestionnaireAnswers`, `GuildConfigRow`. Every later task consumes these.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -224,12 +226,14 @@ describe('Result', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test`
 Expected: FAIL — cannot resolve `../src/types.js`.
 
-- [ ] **Step 3: Write `src/types.ts`**
+- [x] **Step 3: Write `src/types.ts`**
+
+_TypeScript 7.0.2's control-flow narrowing does not exclude a union branch on `!predicate(x)` when the predicate's asserted type is hand-shaped (`result is { ok: true; value: T }`) rather than derived from the union — `result.error` fails to typecheck after the negated check. Fixed by asserting `Extract<Result<T, E>, { ok: true }>` instead, which narrows correctly on both branches. Applied below._
 
 ```ts
 export type Result<T, E> =
@@ -237,7 +241,8 @@ export type Result<T, E> =
 
 export const ok = <T>(value: T): Result<T, never> => ({ ok: true, value })
 export const err = <E>(error: E): Result<never, E> => ({ ok: false, error })
-export const isOk = <T, E>(result: Result<T, E>): result is { ok: true; value: T } => result.ok
+export const isOk = <T, E>(result: Result<T, E>): result is Extract<Result<T, E>, { ok: true }> =>
+	result.ok
 
 export const EXPERIENCE_LEVELS = {
 	NEW: 'new-to-everything',
@@ -292,12 +297,12 @@ export type GuildConfigRow = {
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test`
 Expected: PASS, 2 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/types.ts tests/types.test.ts
