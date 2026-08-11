@@ -2,7 +2,7 @@
 plan: numeric-range-dropdown-options
 project: discord-developer
 updated: 2026-08-11
-status: 🔵 Planning
+status: 🟡 In Progress
 tags: [plan]
 ---
 

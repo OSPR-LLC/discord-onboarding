@@ -26,7 +26,7 @@
 | 06  | [plans/06-intro-template-message](plans/06-intro-template-message.md)       | 🟡 In Progress | Configurable, pinned intro template on `/config enable`             |
 | 07  | [plans/07-configurable-questionnaire](plans/07-configurable-questionnaire.md) | 🟡 In Progress | Admin-configurable questionnaire replacing the 3 fixed questions |
 | 08  | [plans/08-questionnaire-answer-validation](plans/08-questionnaire-answer-validation.md) | 🟡 In Progress | Numeric-only and character-limit validation for text questions |
-| 09  | [plans/09-numeric-range-dropdown-options](plans/09-numeric-range-dropdown-options.md) | 🔵 Planning | Numeric-range shorthand (e.g. 1988-2026) for dropdown options |
+| 09  | [plans/09-numeric-range-dropdown-options](plans/09-numeric-range-dropdown-options.md) | 🟡 In Progress | Numeric-range shorthand (e.g. 1988-2026) for dropdown options |
 
 Archived in [`plans/archive/`](plans/archive/) — superseded single-guild drafts, kept for history.
 
