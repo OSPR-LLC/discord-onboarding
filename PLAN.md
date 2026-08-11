@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 03, Task 8 — startup reconciliation (`src/tasks/reconcile.ts`), which also completes the `reconcile()` wiring deferred from Task 7 Step 5. Tasks 1–7 (gate, `DiscordPort` + fake, onboarding service, real `DiscordPort` adapter, questionnaire components, `/intro` command, event handlers) are complete and verified. Task 7 Step 6 (hands-on flow walkthrough) and Plan 02's two human-only checklist items (Task 5 Step 4, Task 6 Step 2) remain open whenever convenient.
+> Plan 03's code is complete — all 8 tasks done (gate, `DiscordPort` + fake, onboarding service, real `DiscordPort` adapter, questionnaire components, `/intro` command, event handlers, startup reconciliation), `pnpm typecheck` and `pnpm test` both green (92 tests). Plan 03 stays 🟡 until two human-only steps are run: Task 7 Step 6 (hands-on flow walkthrough) and Task 8 Step 5 (verify reconcile against the test guild) — same treatment as Plan 02's two open checklist items (Task 5 Step 4, Task 6 Step 2). Plan 04 (reminders & mod tooling) is next up.
 
 ## Blockers
 

@@ -18,6 +18,7 @@ import { createDiscordPort } from './discord/port.js'
 import { registerCommands } from './discord/register-commands.js'
 import { safeHandler } from './discord/safe-handler.js'
 import { loadEnv } from './env.js'
+import { reconcile } from './tasks/reconcile.js'
 
 const env = loadEnv()
 
@@ -62,6 +63,11 @@ client.once(
 		)
 
 		await registerCommands(ready, env.devGuildId)
+
+		for (const config of guildConfig.listEnabled()) {
+			const guild = await ready.guilds.fetch(config.guildId).catch(() => null)
+			if (guild) await reconcile({ guild, guildConfig, repo: onboarding, service, port })
+		}
 	})
 )
 

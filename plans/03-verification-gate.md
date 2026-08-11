@@ -1,7 +1,7 @@
 ---
 plan: verification-gate
 project: discord-developer
-updated: 2026-08-10
+updated: 2026-08-11
 status: 🟡 In Progress
 tags: [plan]
 ---
@@ -1337,7 +1337,7 @@ git commit -m "feat: wire up the verification gate flow"
 
 - Produces: `reconcileMembers(deps, config, members): Promise<ReconcileSummary>` taking a plain array of `{ userId, isBot, joinedAtMs, roleIds }`, plus the discord.js wrapper `reconcile({ guild, guildConfig, repo, service, port })`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -1447,12 +1447,12 @@ describe('reconcileMembers', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/tasks/reconcile.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/tasks/reconcile.ts`**
+- [x] **Step 3: Write `src/tasks/reconcile.ts`**
 
 ```ts
 import type { Guild } from 'discord.js'
@@ -1600,17 +1600,21 @@ export const reconcile = async (deps: {
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/tasks/reconcile.test.ts`
 Expected: PASS, 8 tests.
+
+Also completed here: the `reconcile()` call deferred from Task 7 Step 5 is now wired into
+`src/index.ts`'s `ClientReady` handler, looping over `guildConfig.listEnabled()` after
+command registration, exactly as Task 7's original snippet specified.
 
 - [ ] **Step 5: Verify against the test guild**
 
 Stop the bot, join with a second account, restart.
 Expected: a `reconcile-complete` line with `created: 1` and a `grandfathered` count matching the members who were present before enabling. Those grandfathered accounts must still hold no onboarding role.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/tasks/reconcile.ts tests/tasks/reconcile.test.ts
