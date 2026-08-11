@@ -229,7 +229,7 @@ git commit -m "feat: add guild config resolution"
 - Consumes: `ResolvedGuildConfig`, `ConfigProblem`.
 - Produces: `runPreflight(guild, config): Promise<ConfigProblem[]>` — empty means healthy. Task 4's `/config enable` refuses when this returns anything.
 
-- [ ] **Step 1: Write `src/discord/preflight.ts`**
+- [x] **Step 1: Write `src/discord/preflight.ts`**
 
 ```ts
 import { PermissionFlagsBits, type Guild } from 'discord.js'
@@ -301,12 +301,12 @@ export const runPreflight = async (
 }
 ```
 
-- [ ] **Step 2: Verify it compiles**
+- [x] **Step 2: Verify it compiles**
 
 Run: `pnpm typecheck`
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/discord/preflight.ts

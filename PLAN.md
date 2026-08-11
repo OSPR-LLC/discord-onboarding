@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 02, Task 2 — live preflight (`src/discord/preflight.ts`). Task 1 (config resolution) is complete and verified; awaiting commit.
+> Plan 02, Task 3 — custom ids and the rules message. Tasks 1–2 (config resolution, live preflight) are complete and verified; awaiting commit.
 
 ## Blockers
 
