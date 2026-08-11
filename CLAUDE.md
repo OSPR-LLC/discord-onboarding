@@ -13,7 +13,7 @@
 - **The bot never kicks or bans anyone.** Reminders cap at two, then stop.
 - **A guild is inert until an admin runs `/config enable`.** Every handler resolves config and returns early otherwise.
 - **Never restrict a member who joined before the guild was enabled.** `grandfather_before` is checked before any role change, in every code path.
-- Only `DISCORD_TOKEN`, `DATABASE_PATH` and optional `DEV_GUILD_ID` are environment variables. Everything else is per-guild in SQLite.
+- Only `DISCORD_TOKEN`, `DATABASE_PATH`, `SHARD_COUNT` and optional `DEV_GUILD_ID` are environment variables. `SHARD_COUNT` is deployment topology (like `DATABASE_PATH`), not guild config — everything guild-specific stays in SQLite.
 - `showModal` must be an interaction's first response — never `reply()` before delegating to a handler that may open a modal.
 - Every gateway listener is wrapped in `safeHandler`; an unhandled rejection takes the process down for every guild.
 - **No `worker_threads`.** This workload is I/O bound and capped by Discord's per-bot rate limits; threads contend for the same budget and produce more 429s, not more throughput. Scale via process sharding + the priority queue. See `decisions/2026-08-10-concurrency-and-scale-model.md`.

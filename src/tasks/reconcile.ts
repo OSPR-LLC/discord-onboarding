@@ -136,6 +136,7 @@ export const reconcile = async (deps: {
 	repo: OnboardingRepository
 	service: OnboardingService
 	port: DiscordPort
+	shardId?: number
 }): Promise<ReconcileSummary | null> => {
 	const config = resolveActiveConfig(deps.guildConfig, deps.guild.id)
 	if (!config) return null
@@ -175,6 +176,7 @@ export const reconcile = async (deps: {
 			level: 'info',
 			event: 'reconcile-complete',
 			guildId: deps.guild.id,
+			shardId: deps.shardId ?? 0,
 			durationMs: Date.now() - started,
 			...summary
 		})

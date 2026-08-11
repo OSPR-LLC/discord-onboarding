@@ -918,7 +918,7 @@ git commit -m "perf: chunk reconciliation and yield between chunks"
 
 - Produces: a `pnpm start:sharded` entrypoint spawning one process per shard via `ShardingManager`. `src/index.ts` is unchanged — discord.js injects `SHARDS`/`SHARD_COUNT` automatically.
 
-- [ ] **Step 1: Add the shard count env var to `src/env.ts`**
+- [x] **Step 1: Add the shard count env var to `src/env.ts`**
 
 Extend `Env` with `shardCount: number | 'auto'` and parse it:
 
@@ -939,7 +939,7 @@ const shardCount =
 
 Add it to the returned object and add a test asserting a non-integer value throws naming `SHARD_COUNT`.
 
-- [ ] **Step 2: Write `src/shard.ts`**
+- [x] **Step 2: Write `src/shard.ts`**
 
 ```ts
 import process from 'node:process'
@@ -991,14 +991,14 @@ process.on('SIGTERM', shutdown)
 await manager.spawn()
 ```
 
-- [ ] **Step 3: Add the script to `package.json`**
+- [x] **Step 3: Add the script to `package.json`**
 
 ```json
 "start:sharded": "node dist/shard.js",
 "dev:sharded": "tsx src/shard.ts"
 ```
 
-- [ ] **Step 4: Make startup logs shard-aware in `src/index.ts`**
+- [x] **Step 4: Make startup logs shard-aware in `src/index.ts`**
 
 Include the shard id so multi-process logs are attributable:
 
@@ -1007,6 +1007,11 @@ const shardId = client.shard?.ids[0] ?? 0
 ```
 
 Add `shardId` to the `ready` and `reconcile-complete` log lines.
+
+Threading `shardId` into the `reconcile-complete` line required a small addition beyond
+this step's own snippet: `reconcile()`'s deps type gained an optional `shardId?: number`
+field (defaulting to `0` when absent), since that log line lives inside
+`src/tasks/reconcile.ts`, not `src/index.ts`.
 
 - [ ] **Step 5: Verify sharding works locally**
 
@@ -1018,11 +1023,16 @@ Expected: two `shard-spawned` lines, two `ready` lines with different `shardId` 
 With both shards running, trigger onboarding in two guilds served by different shards simultaneously.
 Expected: no `SQLITE_BUSY` errors. WAL plus the 5-second busy timeout from plan 01 covers this write volume.
 
-- [ ] **Step 7: Document it in the README**
+- [x] **Step 7: Document it in the README**
 
 Add a **Running at scale** section: single process is fine below ~2,000 guilds; use `start:sharded` above that; `SHARD_COUNT=auto` lets Discord decide; all shards share one SQLite file safely thanks to WAL; and that Postgres is the swap point if the lag metric ever shows write contention.
 
-- [ ] **Step 8: Commit**
+Already present (written ahead of the code in an earlier session pass — see the doc-gap
+note logged when Plan 04 finished). Verified accurate now that `pnpm start:sharded`,
+`SHARD_COUNT`, and the decisions doc all exist. The one remaining forward reference is
+`src/observability/metrics.ts`, which Task 6 builds next.
+
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/shard.ts src/env.ts src/index.ts package.json README.md tests/env.test.ts

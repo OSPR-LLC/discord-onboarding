@@ -28,7 +28,9 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 05, Task 5 — sharding entrypoint (`src/shard.ts`, plus `env.ts`, `index.ts`, `package.json`, README changes). Tasks 1–4 (priority task queue, queued `DiscordPort` decorator, cached guild config repository, chunked/yielding reconciliation) are complete and verified. `pnpm typecheck` and `pnpm test` both green (131 tests). Task 5 is what makes the README's existing "Running at Scale" wording (sharding scripts, `SHARD_COUNT`) actually true — see the doc-gap note logged when Plan 04 finished.
+> Plan 05, Task 6 — observability (`src/observability/metrics.ts`). Tasks 1–5 (priority task queue, queued `DiscordPort` decorator, cached guild config repository, chunked/yielding reconciliation, sharding entrypoint) are complete and verified. `pnpm typecheck` and `pnpm test` both green (136 tests). Task 5's two human-only steps (verify sharding locally, verify concurrent-shard DB writes) remain open for you. **Resolved:** README's "Running at Scale" doc gap — `pnpm start:sharded`/`SHARD_COUNT` and the decisions doc now genuinely exist; only the `src/observability/metrics.ts` reference is still forward-looking, and Task 6 closes that.
+>
+> Added to CLAUDE.md's Hard Rules: `SHARD_COUNT` joins the allowed env-var list (deployment topology, like `DATABASE_PATH` — not guild config). Confirmed with you before making the change.
 >
 > Plans 02, 03, and 04 all sit at 🟡 for the same reason: code and tests are done, only live-Discord-client verification steps remain, yours to run whenever convenient (Plan 02: Task 5 Step 4, Task 6 Step 2; Plan 03: Task 7 Step 6, Task 8 Step 5; Plan 04: Task 3 Step 5).
 >

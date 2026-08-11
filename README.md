@@ -76,6 +76,7 @@ Fill in `.env`:
 DISCORD_TOKEN=       # your bot's token
 DATABASE_PATH=./data/onboarding.db
 DEV_GUILD_ID=        # optional — registers commands to one guild instantly instead of waiting up to an hour for global propagation
+SHARD_COUNT=         # optional — number of shards, or "auto" to let Discord decide. Unset/omitted runs a single process; see "Running at Scale"
 ```
 
 **That's the entire environment surface.** Every per-server setting — channels, roles, rules text, enabled/disabled — is configured from inside Discord with `/config`, not in `.env` or any config file. This is what lets one deployment of the bot serve any number of unrelated servers.

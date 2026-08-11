@@ -10,8 +10,10 @@
 	"scripts": {
 		"build": "tsc && cp src/db/schema.sql dist/db/schema.sql",
 		"dev": "tsx watch src/index.ts",
+		"dev:sharded": "tsx src/shard.ts",
 		"format": "prettier --write .",
 		"start": "node dist/index.js",
+		"start:sharded": "node dist/shard.js",
 		"test": "vitest run --passWithNoTests",
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json"

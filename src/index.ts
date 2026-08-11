@@ -54,6 +54,10 @@ const onboardingDeps = {
 
 let sweepTimer: NodeJS.Timeout | undefined
 
+// Undefined outside a sharded process; discord.js injects SHARDS/SHARD_COUNT
+// automatically when spawned via src/shard.ts.
+const shardId = client.shard?.ids[0] ?? 0
+
 client.once(
 	Events.ClientReady,
 	safeHandler('ready', async (ready) => {
@@ -67,6 +71,7 @@ client.once(
 			JSON.stringify({
 				level: 'info',
 				event: 'ready',
+				shardId,
 				user: ready.user.tag,
 				guilds: ready.guilds.cache.size,
 				enabled: guildConfig.listEnabled().length
@@ -77,7 +82,8 @@ client.once(
 
 		for (const config of guildConfig.listEnabled()) {
 			const guild = await ready.guilds.fetch(config.guildId).catch(() => null)
-			if (guild) await reconcile({ guild, guildConfig, repo: onboarding, service, port: bulkPort })
+			if (guild)
+				await reconcile({ guild, guildConfig, repo: onboarding, service, port: bulkPort, shardId })
 		}
 
 		const HOUR_MS = 60 * 60 * 1000
