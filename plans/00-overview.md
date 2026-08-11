@@ -34,6 +34,7 @@ tags: [plan]
 - 2026-08-10 — Interactive work always outranks bulk work in one shared queue, so a reconciliation backfill never starves a member's button click
 - 2026-08-10 — Guild config is cached in memory (invalidated per guild on write); it is read on every gateway event and was otherwise a SQLite query per message
 - 2026-08-10 — All SQL compiles once at repository construction; discord.js message/presence caches are disabled and members swept
+- 2026-08-10 — Terms of Service and Privacy Policy drafted for Discord app verification, operated by **OSPR**. Live in [`docs/legal/`](../docs/legal/)
 
 ## Module Plans
 
@@ -56,8 +57,10 @@ _N/A — no web UI surface. Member and admin interaction are both native Discord
 - [x] Does the experience answer map to a role? → **No.** Stored only
 - [x] How is the bot configured per server? → **`/config` slash commands**, stored in `guild_config`
 - [x] What stops the bot restricting an existing community? → **Enable gate + grandfather cutoff**
+- [ ] Where will `docs/legal/terms-of-service.md` and `docs/legal/privacy-policy.md` be hosted at a public URL? Discord's app verification form (Developer Portal → App) checks the Terms of Service URL and Privacy Policy URL fields directly — a committed file isn't enough. Options: GitHub Pages off this repo, raw GitHub content links, or wherever hosting eventually lands (currently `TBD`, see `CLAUDE.md` Infra)
 
 ## Dependencies
 
 - External: Discord API / discord.js, a bot token and application
+- External: Public hosting for `docs/legal/` (blocks Discord app verification — see Open Questions)
 - Internal: —

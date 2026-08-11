@@ -109,6 +109,15 @@ Nothing server-specific lives in env vars. Once the bot is in a server, an admin
 
 `/config enable` stamps a `grandfather_before` cutoff — every member already in the server at that moment is permanently exempt from the gate. See the [design spec](docs/superpowers/specs/2026-08-08-onboarding-verification-gate-design.md) for the full command surface (`/config`, `/onboarding`, `/intro`).
 
+## Legal
+
+Discord's Developer Portal requires a **Terms of Service URL** and **Privacy Policy URL** to pass app verification (Developer Portal → App → Terms of Service URL / Privacy Policy URL fields). The documents live in [`docs/legal/`](docs/legal/):
+
+- [`docs/legal/terms-of-service.md`](docs/legal/terms-of-service.md)
+- [`docs/legal/privacy-policy.md`](docs/legal/privacy-policy.md)
+
+**These need to be reachable at public URLs, not just committed to the repo** — Discord's verification form checks the links, not the source. This project has no hosting yet (`Infra: TBD` — see `CLAUDE.md`), so pick one before submitting for verification: GitHub Pages off this repo, raw GitHub content links, or wherever the project ends up hosted. Tracked as an open question in [`plans/00-overview.md`](plans/00-overview.md).
+
 ## Plans
 
 Implementation is broken into five sequential plans in [`plans/`](plans/):

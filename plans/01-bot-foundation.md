@@ -1515,7 +1515,7 @@ Expected: exits with `Missing required environment variable: DISCORD_TOKEN`.
 Put a real token in `.env`, invite the bot to a throwaway guild, run `pnpm dev`.
 Expected: a `ready` log line reporting the guild count with `enabled: 0`. Invite it to a second guild while running and confirm a `guild-joined` line appears.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/discord src/index.ts
