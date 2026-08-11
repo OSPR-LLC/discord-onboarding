@@ -2,7 +2,7 @@
 plan: guild-configuration
 project: discord-developer
 updated: 2026-08-10
-status: 🔵 Planning
+status: 🟡 In Progress
 tags: [plan]
 ---
 
@@ -14,7 +14,7 @@ tags: [plan]
 
 ## Status
 
-🔵 Planning
+🟡 In Progress
 
 ## Goal
 
@@ -55,7 +55,7 @@ Inherits every constraint from [[01-bot-foundation]]. Additionally:
 - Consumes: `GuildConfigRow`, `Result` from `src/types.ts`.
 - Produces: `ResolvedGuildConfig`, `ConfigProblem`, `resolveGuildConfig(row): Result<ResolvedGuildConfig, ConfigProblem[]>`, and `DEFAULT_RULES_TEXT`. Plans 03 and 04 accept only `ResolvedGuildConfig`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -126,12 +126,12 @@ describe('resolveGuildConfig', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/core/guild-config.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/core/guild-config.ts`**
+- [x] **Step 3: Write `src/core/guild-config.ts`**
 
 ```ts
 import { err, ok, type GuildConfigRow, type Result } from '../types.js'
@@ -204,12 +204,12 @@ export const resolveGuildConfig = (
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/core/guild-config.test.ts`
 Expected: PASS, 9 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/guild-config.ts tests/core/guild-config.test.ts

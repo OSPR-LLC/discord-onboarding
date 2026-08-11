@@ -38,13 +38,13 @@ tags: [plan]
 
 ## Module Plans
 
-| Plan                             | Status      | Blocks                           |
-| -------------------------------- | ----------- | -------------------------------- |
-| [[01-bot-foundation]]            | ✅ Complete | [[02-guild-configuration]]       |
-| [[02-guild-configuration]]       | 🔵 Planning | [[03-verification-gate]]         |
-| [[03-verification-gate]]         | 🔵 Planning | [[04-reminders-and-mod-tooling]] |
-| [[04-reminders-and-mod-tooling]] | 🔵 Planning | [[05-scale-hardening]]           |
-| [[05-scale-hardening]]           | 🔵 Planning | —                                |
+| Plan                             | Status         | Blocks                           |
+| -------------------------------- | -------------- | -------------------------------- |
+| [[01-bot-foundation]]            | ✅ Complete    | [[02-guild-configuration]]       |
+| [[02-guild-configuration]]       | 🟡 In Progress | [[03-verification-gate]]         |
+| [[03-verification-gate]]         | 🔵 Planning    | [[04-reminders-and-mod-tooling]] |
+| [[04-reminders-and-mod-tooling]] | 🔵 Planning    | [[05-scale-hardening]]           |
+| [[05-scale-hardening]]           | 🔵 Planning    | —                                |
 
 ## UI/UX Pattern
 

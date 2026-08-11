@@ -16,19 +16,19 @@
 
 ## Phases & Sub-Plans
 
-| #   | Plan                                                                        | Status      | Notes                                                               |
-| --- | --------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------- |
-| 01  | [plans/01-bot-foundation](plans/01-bot-foundation.md)                       | ✅ Complete | Scaffold, multi-guild schema, both repositories, client bootstrap   |
-| 02  | [plans/02-guild-configuration](plans/02-guild-configuration.md)             | 🔵 Planning | `/config` commands, preflight, enable gate + grandfathering, README |
-| 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🔵 Planning | Rules → questionnaire → intro → `verified`, plus reconciliation     |
-| 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🔵 Planning | Reminder DMs, `/onboarding` mod commands, audit log                 |
-| 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🔵 Planning | Priority queue, config cache, chunked reconcile, sharding, metrics  |
+| #   | Plan                                                                        | Status         | Notes                                                               |
+| --- | --------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------- |
+| 01  | [plans/01-bot-foundation](plans/01-bot-foundation.md)                       | ✅ Complete    | Scaffold, multi-guild schema, both repositories, client bootstrap   |
+| 02  | [plans/02-guild-configuration](plans/02-guild-configuration.md)             | 🟡 In Progress | `/config` commands, preflight, enable gate + grandfathering, README |
+| 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🔵 Planning    | Rules → questionnaire → intro → `verified`, plus reconciliation     |
+| 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🔵 Planning    | Reminder DMs, `/onboarding` mod commands, audit log                 |
+| 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🔵 Planning    | Priority queue, config cache, chunked reconcile, sharding, metrics  |
 
 Archived in [`plans/archive/`](plans/archive/) — superseded single-guild drafts, kept for history.
 
 ## Current Focus
 
-> Plan 01 is ✅ Complete — verified live against the OSPR test guild (`ready` → invite → `guild-joined` → `guild_config` row, all as designed). Plan 02, Task 1 — config resolution (`src/core/guild-config.ts`) is next.
+> Plan 02, Task 2 — live preflight (`src/discord/preflight.ts`). Task 1 (config resolution) is complete and verified; awaiting commit.
 
 ## Blockers
 
