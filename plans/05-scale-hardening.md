@@ -1261,7 +1261,7 @@ add those two files as well.
 
 **Why:** it establishes that the domain layer is nowhere near being the bottleneck, which is the claim the whole ADR rests on. If this ever gets slow, the conclusion changes.
 
-- [ ] **Step 1: Write the load test**
+- [x] **Step 1: Write the load test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -1333,12 +1333,15 @@ describe('load', () => {
 })
 ```
 
-- [ ] **Step 2: Run it**
+- [x] **Step 2: Run it**
 
 Run: `pnpm test tests/load/onboarding-load.test.ts`
 Expected: PASS, 2 tests. Note the reported duration — record it in the plan's Decisions section as the baseline.
 
-- [ ] **Step 3: Commit**
+Baseline recorded: 5,000 full onboardings across 50 guilds completed in **~183ms** —
+roughly 55x under the 10s correctness ceiling. See Decisions.
+
+- [x] **Step 3: Commit**
 
 ```bash
 git add tests/load
@@ -1382,3 +1385,4 @@ _N/A — no web UI surface._
 - 2026-08-10 — `listEnabled` is deliberately left uncached; it runs twice a tick at most, and caching a whole-table scan would require invalidating it on every write in every guild.
 - 2026-08-11 — `src/shard.ts` picks its entrypoint by its own file extension (`./index.ts` + `execArgv: ['--import', 'tsx']` in dev, `./index.js` in prod) rather than hardcoding one path, since `tsx src/shard.ts` has no compiled output to point at.
 - 2026-08-11 — Startup reconciliation looks up guilds via `ready.guilds.cache.get(guildId)`, not `.fetch(guildId)`. A REST fetch succeeds for any guild the bot is in regardless of which shard owns its gateway connection; `reconcile()`'s `guild.members.fetch()` needs that specific gateway link and crashes inside discord.js if it's missing. Only reproducible with `SHARD_COUNT` > 1 — invisible in single-process mode, where `ready.guilds` always contains every guild.
+- 2026-08-11 — **Load harness baseline:** 5,000 full onboardings (join → rules → questionnaire → intro → verified) across 50 guilds complete in ~183ms of our own CPU time against the fake port — roughly 55x under the 10s correctness ceiling in the test. This is the evidence the whole ADR rests on: the domain layer is nowhere near the bottleneck at this scale. If a future change makes this test meaningfully slower, that's the signal to re-examine, not a hunch.

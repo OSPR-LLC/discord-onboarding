@@ -28,11 +28,15 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 05, Task 7 — load harness (`tests/load/onboarding-load.test.ts`), the final task in Plan 05. Tasks 1–6 (priority task queue, queued `DiscordPort` decorator, cached guild config repository, chunked/yielding reconciliation, sharding entrypoint, observability) are complete and verified. `pnpm typecheck` and `pnpm test` both green (140 tests).
+> **All 5 plans are now code-complete.** Plan 05's code finished with Task 7 (load harness) — 5,000 simulated onboardings across 50 guilds complete in ~183ms, confirming the domain layer is nowhere near the bottleneck the whole concurrency ADR assumes. `pnpm typecheck` and `pnpm test` both green (142 tests). No `worker_threads` import exists anywhere in the codebase, confirmed by grep.
 >
-> **Resolved:** README's "Running at Scale" doc gap is now fully closed — `pnpm start:sharded`, `SHARD_COUNT`, the decisions doc, and `src/observability/metrics.ts` all genuinely exist now.
+> Every plan from 02 onward sits at 🟡 for the same reason — code and tests done, only hands-on Discord-client verification remains, yours to run whenever convenient:
+> - Plan 02: Task 5 Step 4, Task 6 Step 2
+> - Plan 03: Task 7 Step 6, Task 8 Step 5
+> - Plan 04: Task 3 Step 5
+> - Plan 05: Task 5 Step 5 (sharding end-to-end + onboarding under sharding — partially verified already, see Task 5's notes for the two real bugs found and fixed live), Task 5 Step 6 (concurrent-shard DB writes), Task 6 Step 6 (stats line against a live run)
 >
-> Task 5's two human-only steps (verify sharding locally end-to-end, verify concurrent-shard DB writes) and Task 6's one (verify the stats line against a live run) remain open for you, alongside the same items from Plans 02–04.
+> No new task to start — next session's work is either running through this checklist, or scoping what comes after Plan 05.
 >
 > Plans 02, 03, and 04 all sit at 🟡 for the same reason: code and tests are done, only live-Discord-client verification steps remain, yours to run whenever convenient (Plan 02: Task 5 Step 4, Task 6 Step 2; Plan 03: Task 7 Step 6, Task 8 Step 5; Plan 04: Task 3 Step 5).
 >
