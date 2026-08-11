@@ -39,6 +39,7 @@ tags: [plan]
 - 2026-08-11 — **Configurable questionnaire.** The three hardcoded onboarding questions are replaced by a per-guild, admin-configurable question set (`/config question add/edit/remove/move/list/clear`), each question free-text or select (single/multi), each independently required. Requested directly by the user. The old fixed-column `questionnaire_answers` table was dropped and recreated in a normalized shape — a deliberate, accepted data-loss migration since no guild had live answer data yet. See [[07-configurable-questionnaire]]
 - 2026-08-11 — **Questionnaire answer validation.** Text-type questions can require numeric-only answers and/or a character limit. Character limits are enforced natively by Discord's modal text input; numeric-only has no native equivalent and is checked server-side, with a "Try Again" button reopening the modal on failure (Discord disallows responding to a modal submission with another modal). Requested directly by the user. See [[08-questionnaire-answer-validation]]
 - 2026-08-11 — **Numeric-range dropdown options.** `/config question add`/`edit`'s `options` parameter accepts a shorthand like `1988-2026`, expanding into individual numeric choices instead of requiring each to be typed out — still bounded by Discord's existing 25-option select-menu cap. Requested directly by the user. See [[09-numeric-range-dropdown-options]]
+- 2026-08-11 — **Numeric-range select chunking.** A `single_select` question whose option labels form a numeric sequence can have up to 100 options (Discord's real ceiling: 4 rows of 25 plus one row for an optional Skip button, out of the platform's 5-row-per-message limit), rendered as multiple stacked dropdowns — any one of which completes the answer. Scoped to `single_select` only; `multi_select` and non-range option lists keep the existing 25-option cap. Requested directly by the user. See [[10-numeric-range-select-chunking]]
 
 ## Module Plans
 
@@ -53,6 +54,7 @@ tags: [plan]
 | [[07-configurable-questionnaire]]    | 🟡 In Progress | —                                    |
 | [[08-questionnaire-answer-validation]] | 🟡 In Progress | —                                    |
 | [[09-numeric-range-dropdown-options]] | 🟡 In Progress | —                                    |
+| [[10-numeric-range-select-chunking]] | 🟡 In Progress | —                                    |
 
 ## UI/UX Pattern
 

@@ -425,6 +425,32 @@ describe('the raised cap for single_select numeric ranges', () => {
 		if (!isOk(result)) return
 		expect(result.value.options).toHaveLength(100)
 	})
+
+	it('editQuestion rejects a type-only change that would leave too many stored options for the new type', () => {
+		repo.addQuestion(
+			GUILD,
+			{ prompt: 'Pick', type: 'single_select', required: true, options: numericLabels(100), numericOnly: false, minLength: null, maxLength: null },
+			AT
+		)
+
+		const result = repo.editQuestion(GUILD, 1, { type: 'multi_select' }, AT)
+		expect(isOk(result)).toBe(false)
+		expect(!isOk(result) && result.error).toBe('too-many-options')
+	})
+
+	it('editQuestion allows the same type change once options are also trimmed in the same call', () => {
+		repo.addQuestion(
+			GUILD,
+			{ prompt: 'Pick', type: 'single_select', required: true, options: numericLabels(100), numericOnly: false, minLength: null, maxLength: null },
+			AT
+		)
+
+		const result = repo.editQuestion(GUILD, 1, { type: 'multi_select', options: numericLabels(10) }, AT)
+		expect(isOk(result)).toBe(true)
+		if (!isOk(result)) return
+		expect(result.value.type).toBe('multi_select')
+		expect(result.value.options).toHaveLength(10)
+	})
 })
 
 describe('getQuestionById', () => {

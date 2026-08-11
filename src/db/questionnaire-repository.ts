@@ -209,11 +209,11 @@ export const createQuestionnaireRepository = (db: Database) => {
 
 		const effectiveType = patch.type ?? row.type
 
-		if (patch.options) {
-			const cap =
-				effectiveType === 'single_select' && isNumericRangeLabelSet(patch.options) ? MAX_RANGE_OPTIONS : MAX_OPTIONS
-			if (patch.options.length > cap) return err('too-many-options')
-		}
+		const effectiveOptionLabels =
+			patch.options ?? (statements.listOptions.all(row.id) as OptionRow[]).map((option) => option.label)
+		const cap =
+			effectiveType === 'single_select' && isNumericRangeLabelSet(effectiveOptionLabels) ? MAX_RANGE_OPTIONS : MAX_OPTIONS
+		if (effectiveOptionLabels.length > cap) return err('too-many-options')
 
 		// A type change away from text implicitly clears the three validation
 		// fields rather than being rejected — the command surface has no way to

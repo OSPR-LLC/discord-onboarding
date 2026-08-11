@@ -2,7 +2,7 @@
 plan: numeric-range-select-chunking
 project: discord-developer
 updated: 2026-08-11
-status: 🔵 Planning
+status: 🟡 In Progress
 tags: [plan]
 ---
 
@@ -38,7 +38,7 @@ tags: [plan]
 **Interfaces:**
 - Produces: `isNumericRangeLabelSet(labels: readonly string[]): boolean`, exported for its own tests. `MAX_RANGE_OPTIONS = 100` (module-level constant, not exported — internal to the cap logic). `addQuestion`/`editQuestion`'s existing `too-many-options` cap check becomes conditional on this predicate; no other part of their signature or return type changes.
 
-- [ ] **Step 1: Write the failing tests for isNumericRangeLabelSet**
+- [x] **Step 1: Write the failing tests for isNumericRangeLabelSet**
 
 Add to `tests/db/questionnaire-repository.test.ts`, after the existing `describe('slugifyOptionLabels', …)` block. First add `isNumericRangeLabelSet` to the existing import from `'../../src/db/questionnaire-repository.js'`:
 
@@ -84,12 +84,12 @@ describe('isNumericRangeLabelSet', () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `pnpm test tests/db/questionnaire-repository.test.ts`
 Expected: FAIL — `isNumericRangeLabelSet` doesn't exist yet.
 
-- [ ] **Step 3: Implement isNumericRangeLabelSet**
+- [x] **Step 3: Implement isNumericRangeLabelSet**
 
 Add to `src/db/questionnaire-repository.ts`, after `slugifyOptionLabels` and before `isValidQuestionShape`:
 
@@ -122,12 +122,12 @@ export const isNumericRangeLabelSet = (labels: readonly string[]): boolean => {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pnpm test tests/db/questionnaire-repository.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Write the failing cap tests**
+- [x] **Step 5: Write the failing cap tests**
 
 Add to `tests/db/questionnaire-repository.test.ts`, inside a new `describe` block after the `answer validation fields` block:
 
@@ -220,12 +220,12 @@ describe('the raised cap for single_select numeric ranges', () => {
 })
 ```
 
-- [ ] **Step 6: Run tests to verify they fail**
+- [x] **Step 6: Run tests to verify they fail**
 
 Run: `pnpm test tests/db/questionnaire-repository.test.ts`
 Expected: FAIL — the cap is still a flat 25 everywhere.
 
-- [ ] **Step 7: Wire the raised cap into addQuestion and editQuestion**
+- [x] **Step 7: Wire the raised cap into addQuestion and editQuestion**
 
 Replace `addQuestion` in `src/db/questionnaire-repository.ts`:
 
@@ -330,17 +330,17 @@ const editQuestion = (
 
 (The only change from the current `editQuestion` is: `effectiveType` is now computed before the options-cap check instead of after, so the cap check can use it; the options-cap check itself now branches on the raised cap; everything else — the validation-shape logic, `updateQuestion.run`, the trailing `patch.options` block — is unchanged.)
 
-- [ ] **Step 8: Run tests to verify they pass**
+- [x] **Step 8: Run tests to verify they pass**
 
 Run: `pnpm test tests/db/questionnaire-repository.test.ts`
 Expected: PASS
 
-- [ ] **Step 9: Run the full suite and typecheck**
+- [x] **Step 9: Run the full suite and typecheck**
 
 Run: `pnpm typecheck && pnpm test`
 Expected: PASS — clean typecheck, every test green.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add src/db/questionnaire-repository.ts tests/db/questionnaire-repository.test.ts
@@ -363,7 +363,7 @@ git commit -m "raise the option cap to 100 for single_select numeric-range quest
 - Consumes: nothing new from Task 1 directly — this task's chunking logic works purely off `QuestionDefinition.options.length`, not `isNumericRangeLabelSet` (see Global Constraints: rendering doesn't need to know "is this a range").
 - Produces: `buildQuestionSelectRows(question: QuestionDefinition): ActionRowBuilder<StringSelectMenuBuilder>[]`, replacing `buildQuestionSelectRow` (singular). `src/discord/commands/intro.ts` is the only other file that imports it.
 
-- [ ] **Step 1: Write the failing component tests**
+- [x] **Step 1: Write the failing component tests**
 
 Replace the `describe('buildQuestionSelectRow', …)` block in `tests/discord/questionnaire.test.ts` with:
 
@@ -449,12 +449,12 @@ describe('buildQuestionSelectRows', () => {
 
 Update the import at the top of the file from `buildQuestionSelectRow` to `buildQuestionSelectRows`.
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `pnpm test tests/discord/questionnaire.test.ts`
 Expected: FAIL — `buildQuestionSelectRows` doesn't exist yet (still `buildQuestionSelectRow`, singular, non-chunking).
 
-- [ ] **Step 3: Implement buildQuestionSelectRows**
+- [x] **Step 3: Implement buildQuestionSelectRows**
 
 Replace `buildQuestionSelectRow` in `src/discord/components/questionnaire.ts`:
 
@@ -507,12 +507,12 @@ export const buildQuestionSelectRows = (
 
 Add `QuestionOption` to the existing `import type { QuestionDefinition } from '../../types.js'` line, making it `import type { QuestionDefinition, QuestionOption } from '../../types.js'`.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pnpm test tests/discord/questionnaire.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Wire the renamed function into intro.ts**
+- [x] **Step 5: Wire the renamed function into intro.ts**
 
 In `src/discord/commands/intro.ts`, update the import:
 
@@ -537,12 +537,12 @@ const payload = {
 
 (This replaces the current two-line version that calls `buildQuestionSelectRow(next)` — singular — twice.)
 
-- [ ] **Step 6: Run the full suite and typecheck**
+- [x] **Step 6: Run the full suite and typecheck**
 
 Run: `pnpm typecheck && pnpm test`
 Expected: PASS — clean typecheck, every test green. `intro.ts` has no dedicated test file, matching the established convention for this file (Plan 07); its change here is a mechanical call-site update to an already-tested function.
 
-- [ ] **Step 7: Update README**
+- [x] **Step 7: Update README**
 
 In `README.md`, append one sentence to the paragraph already covering the numeric-range option shorthand (added by Plan 09):
 
@@ -550,7 +550,7 @@ In `README.md`, append one sentence to the paragraph already covering the numeri
 A `single_select` question whose range expands past 25 options (up to 100) renders as several dropdowns instead of one — picking a value from any of them is a complete answer.
 ```
 
-- [ ] **Step 8: Register the plan and update PLAN.md**
+- [x] **Step 8: Register the plan and update PLAN.md**
 
 Add a row to `PLAN.md`'s **Phases & Sub-Plans** table:
 
@@ -576,7 +576,7 @@ Add a row to `plans/00-overview.md`'s **Module Plans** table:
 | [[10-numeric-range-select-chunking]] | 🟡 In Progress | —                                    |
 ```
 
-- [ ] **Step 9: Run final verification**
+- [x] **Step 9: Run final verification**
 
 Run: `pnpm typecheck && pnpm test`
 Expected: PASS.
@@ -587,11 +587,11 @@ Expected: no matches.
 Run: `grep -rn "as any" src tests`
 Expected: no matches.
 
-- [ ] **Step 10: Mark this plan's own frontmatter and checkboxes complete**
+- [x] **Step 10: Mark this plan's own frontmatter and checkboxes complete**
 
 Set this file's frontmatter `status:` to `🟡 In Progress` and check off every `- [ ]` step above (both Task 1 and Task 2) as `- [x]` as you complete it, per the project's `CLAUDE.md` convention.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```bash
 git add src/discord/components/questionnaire.ts src/discord/commands/intro.ts tests/discord/questionnaire.test.ts README.md PLAN.md plans/00-overview.md plans/10-numeric-range-select-chunking.md

@@ -144,6 +144,22 @@ describe('buildQuestionSelectRows', () => {
 		expect(rows).toHaveLength(1)
 		expect(rows[0]?.components[0]?.data.max_values).toBe(25)
 	})
+
+	it('produces exactly 4 rows for exactly 100 options, fitting a skip row within the 5-row limit', () => {
+		const manyOptions = Array.from({ length: 100 }, (_, i) => ({
+			position: i + 1,
+			label: String(1927 + i),
+			value: String(1927 + i)
+		}))
+		const maxRangeQuestion: QuestionDefinition = { ...optionalSelect, options: manyOptions }
+
+		const selectRows = buildQuestionSelectRows(maxRangeQuestion)
+		const skipRow = buildQuestionSkipRow(maxRangeQuestion)
+
+		expect(selectRows).toHaveLength(4)
+		expect(skipRow).not.toBeNull()
+		expect(selectRows.length + 1).toBe(5)
+	})
 })
 
 describe('buildQuestionSkipRow', () => {
