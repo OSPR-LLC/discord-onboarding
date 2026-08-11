@@ -1,10 +1,5 @@
 import type { Database, Statement } from 'better-sqlite3'
-import type {
-	ExperienceLevel,
-	OnboardingRecord,
-	OnboardingStep,
-	QuestionnaireAnswers
-} from '../types.js'
+import type { OnboardingRecord, OnboardingStep, QuestionAnswer } from '../types.js'
 
 type OnboardingRow = {
 	guild_id: string
@@ -25,16 +20,15 @@ type OnboardingRow = {
 type AnswerRow = {
 	guild_id: string
 	user_id: string
-	purpose: string | null
-	experience_level: string | null
-	built_for_discord: number | null
-	answered_at: string | null
+	question_id: number
+	text_value: string | null
+	selected_values: string | null
+	answered_at: string
 }
 
-export type AnswerPatch = {
-	purpose?: string
-	experienceLevel?: ExperienceLevel
-	builtForDiscord?: boolean
+export type AnswerInput = {
+	textValue: string | null
+	selectedValues: string[]
 }
 
 const STEP_COLUMNS: Record<OnboardingStep, string> = {
@@ -59,13 +53,10 @@ const toRecord = (row: OnboardingRow): OnboardingRecord => ({
 	lastReminderAt: row.last_reminder_at
 })
 
-const toAnswers = (row: AnswerRow): QuestionnaireAnswers => ({
-	guildId: row.guild_id,
-	userId: row.user_id,
-	purpose: row.purpose,
-	experienceLevel: row.experience_level as ExperienceLevel | null,
-	builtForDiscord: row.built_for_discord === null ? null : row.built_for_discord === 1,
-	answeredAt: row.answered_at
+const toAnswer = (row: AnswerRow): QuestionAnswer => ({
+	questionId: row.question_id,
+	textValue: row.text_value,
+	selectedValues: row.selected_values ? (JSON.parse(row.selected_values) as string[]) : []
 })
 
 export const createOnboardingRepository = (db: Database) => {
@@ -98,23 +89,13 @@ export const createOnboardingRepository = (db: Database) => {
 			'DELETE FROM questionnaire_answers WHERE guild_id = ? AND user_id = ?'
 		),
 		deleteRecord: db.prepare('DELETE FROM onboarding WHERE guild_id = ? AND user_id = ?'),
-		insertAnswers: db.prepare(
-			'INSERT INTO questionnaire_answers (guild_id, user_id) VALUES (?, ?) ON CONFLICT(guild_id, user_id) DO NOTHING'
-		),
-		setPurpose: db.prepare(
-			'UPDATE questionnaire_answers SET purpose = ? WHERE guild_id = ? AND user_id = ?'
-		),
-		setExperience: db.prepare(
-			'UPDATE questionnaire_answers SET experience_level = ? WHERE guild_id = ? AND user_id = ?'
-		),
-		setBuilt: db.prepare(
-			'UPDATE questionnaire_answers SET built_for_discord = ? WHERE guild_id = ? AND user_id = ?'
-		),
-		stampAnsweredAt: db.prepare(
-			'UPDATE questionnaire_answers SET answered_at = COALESCE(answered_at, ?) WHERE guild_id = ? AND user_id = ?'
-		),
-		stampQuestionnaireComplete: db.prepare(
-			'UPDATE onboarding SET questionnaire_completed_at = COALESCE(questionnaire_completed_at, ?) WHERE guild_id = ? AND user_id = ?'
+		upsertAnswer: db.prepare(
+			`INSERT INTO questionnaire_answers (guild_id, user_id, question_id, text_value, selected_values, answered_at)
+			 VALUES (?, ?, ?, ?, ?, ?)
+			 ON CONFLICT(guild_id, user_id, question_id) DO UPDATE SET
+			   text_value = excluded.text_value,
+			   selected_values = excluded.selected_values,
+			   answered_at = excluded.answered_at`
 		),
 		incrementReminder: db.prepare(
 			'UPDATE onboarding SET reminders_sent = reminders_sent + 1, last_reminder_at = ? WHERE guild_id = ? AND user_id = ?'
@@ -153,10 +134,8 @@ export const createOnboardingRepository = (db: Database) => {
 		return row ? toRecord(row) : null
 	}
 
-	const getAnswers = (guildId: string, userId: string): QuestionnaireAnswers | null => {
-		const row = statements.getAnswers.get(guildId, userId) as AnswerRow | undefined
-		return row ? toAnswers(row) : null
-	}
+	const getAnswers = (guildId: string, userId: string): QuestionAnswer[] =>
+		(statements.getAnswers.all(guildId, userId) as AnswerRow[]).map(toAnswer)
 
 	const upsertOnJoin = (guildId: string, userId: string, at: string): void => {
 		statements.upsertOnJoin.run(guildId, userId, at, at)
@@ -170,26 +149,17 @@ export const createOnboardingRepository = (db: Database) => {
 	})
 
 	const saveAnswerTx = db.transaction(
-		(guildId: string, userId: string, patch: AnswerPatch, at: string) => {
+		(guildId: string, userId: string, questionId: number, answer: AnswerInput, at: string) => {
 			// The member must have a record before answers can reference it.
 			upsertOnJoin(guildId, userId, at)
-			statements.insertAnswers.run(guildId, userId)
-
-			if (patch.purpose !== undefined) statements.setPurpose.run(patch.purpose, guildId, userId)
-			if (patch.experienceLevel !== undefined)
-				statements.setExperience.run(patch.experienceLevel, guildId, userId)
-			if (patch.builtForDiscord !== undefined)
-				statements.setBuilt.run(patch.builtForDiscord ? 1 : 0, guildId, userId)
-
-			const row = statements.getAnswers.get(guildId, userId) as AnswerRow
-
-			const complete =
-				row.purpose !== null && row.experience_level !== null && row.built_for_discord !== null
-
-			if (complete) {
-				statements.stampAnsweredAt.run(at, guildId, userId)
-				statements.stampQuestionnaireComplete.run(at, guildId, userId)
-			}
+			statements.upsertAnswer.run(
+				guildId,
+				userId,
+				questionId,
+				answer.textValue,
+				answer.selectedValues.length > 0 ? JSON.stringify(answer.selectedValues) : null,
+				at
+			)
 		}
 	)
 
@@ -222,8 +192,14 @@ export const createOnboardingRepository = (db: Database) => {
 			removeTx(guildId, userId)
 		},
 
-		saveAnswer: (guildId: string, userId: string, patch: AnswerPatch, at: string): void => {
-			saveAnswerTx(guildId, userId, patch, at)
+		saveAnswer: (
+			guildId: string,
+			userId: string,
+			questionId: number,
+			answer: AnswerInput,
+			at: string
+		): void => {
+			saveAnswerTx(guildId, userId, questionId, answer, at)
 		},
 
 		listAwaitingReminder: (

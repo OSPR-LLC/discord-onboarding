@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import type { ResolvedGuildConfig } from '../../src/core/guild-config.js'
 import { createOnboardingService } from '../../src/core/onboarding-service.js'
 import { createOnboardingRepository } from '../../src/db/onboarding-repository.js'
-import { EXPERIENCE_LEVELS } from '../../src/types.js'
+import { createQuestionnaireRepository } from '../../src/db/questionnaire-repository.js'
+import { isOk } from '../../src/types.js'
 import { createFakeDiscordPort } from '../helpers/fake-discord-port.js'
 import { createTestDb } from '../helpers/test-db.js'
 
@@ -32,20 +33,29 @@ const config: ResolvedGuildConfig = {
 }
 
 let repo: ReturnType<typeof createOnboardingRepository>
+let questionId: number
 let fake: ReturnType<typeof createFakeDiscordPort>
 let service: ReturnType<typeof createOnboardingService>
 
 beforeEach(() => {
-	repo = createOnboardingRepository(createTestDb())
+	const db = createTestDb()
+	repo = createOnboardingRepository(db)
+	const questionnaireRepo = createQuestionnaireRepository(db)
+	const created = questionnaireRepo.addQuestion(
+		GUILD,
+		{ prompt: 'Why are you here?', type: 'text', required: true, options: [] },
+		CLOCK
+	)
+	questionId = isOk(created) ? created.value.id : (() => {
+		throw new Error('seed question failed')
+	})()
 	fake = createFakeDiscordPort()
 	service = createOnboardingService({ repo, port: fake.port, now: () => CLOCK })
 })
 
 const completeAllSteps = async () => {
 	await service.recordStep(config, USER, 'rules')
-	repo.saveAnswer(GUILD, USER, { purpose: 'learning' }, CLOCK)
-	repo.saveAnswer(GUILD, USER, { experienceLevel: EXPERIENCE_LEVELS.SOME }, CLOCK)
-	repo.saveAnswer(GUILD, USER, { builtForDiscord: false }, CLOCK)
+	repo.saveAnswer(GUILD, USER, questionId, { textValue: 'learning', selectedValues: [] }, CLOCK)
 	await service.recordStep(config, USER, 'questionnaire')
 	return service.recordStep(config, USER, 'intro')
 }
@@ -108,9 +118,7 @@ describe('recordStep', () => {
 
 	it('accepts steps in any order', async () => {
 		await service.recordStep(config, USER, 'intro')
-		repo.saveAnswer(GUILD, USER, { purpose: 'p' }, CLOCK)
-		repo.saveAnswer(GUILD, USER, { experienceLevel: EXPERIENCE_LEVELS.NEW }, CLOCK)
-		repo.saveAnswer(GUILD, USER, { builtForDiscord: true }, CLOCK)
+		repo.saveAnswer(GUILD, USER, questionId, { textValue: 'p', selectedValues: [] }, CLOCK)
 		await service.recordStep(config, USER, 'questionnaire')
 		expect(await service.recordStep(config, USER, 'rules')).toBe('grant')
 	})

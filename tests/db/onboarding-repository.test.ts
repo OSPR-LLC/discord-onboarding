@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createOnboardingRepository } from '../../src/db/onboarding-repository.js'
-import { EXPERIENCE_LEVELS } from '../../src/types.js'
 import { createTestDb } from '../helpers/test-db.js'
 
 const GUILD = '123456789012345678'
 const OTHER_GUILD = '923456789012345678'
 const USER = '223456789012345678'
 
+let db: ReturnType<typeof createTestDb>
 let repo: ReturnType<typeof createOnboardingRepository>
 
 beforeEach(() => {
-	repo = createOnboardingRepository(createTestDb())
+	db = createTestDb()
+	repo = createOnboardingRepository(db)
 })
 
 describe('upsertOnJoin', () => {
@@ -41,6 +42,11 @@ describe('guild isolation', () => {
 	beforeEach(() => {
 		repo.upsertOnJoin(GUILD, USER, '2026-08-10T10:00:00.000Z')
 		repo.upsertOnJoin(OTHER_GUILD, USER, '2026-08-10T10:00:00.000Z')
+		db.prepare(
+			`INSERT INTO questionnaire_questions (id, guild_id, position, prompt, type, required, created_at)
+			 VALUES (1, ?, 1, 'Q1', 'text', 1, '2026-08-10T00:00:00.000Z'),
+			        (2, ?, 1, 'Q1', 'text', 1, '2026-08-10T00:00:00.000Z')`
+		).run(GUILD, OTHER_GUILD)
 	})
 
 	it('keeps step progress separate for the same user in two guilds', () => {
@@ -50,9 +56,11 @@ describe('guild isolation', () => {
 	})
 
 	it('keeps answers separate for the same user in two guilds', () => {
-		repo.saveAnswer(GUILD, USER, { purpose: 'here for the code' }, '2026-08-10T11:00:00.000Z')
-		expect(repo.getAnswers(GUILD, USER)?.purpose).toBe('here for the code')
-		expect(repo.getAnswers(OTHER_GUILD, USER)).toBeNull()
+		repo.saveAnswer(GUILD, USER, 1, { textValue: 'here for the code', selectedValues: [] }, '2026-08-10T11:00:00.000Z')
+		expect(repo.getAnswers(GUILD, USER)).toEqual([
+			{ questionId: 1, textValue: 'here for the code', selectedValues: [] }
+		])
+		expect(repo.getAnswers(OTHER_GUILD, USER)).toEqual([])
 	})
 
 	it('removing a record in one guild leaves the other intact', () => {
@@ -78,37 +86,41 @@ describe('stampStep', () => {
 })
 
 describe('saveAnswer', () => {
-	beforeEach(() => repo.upsertOnJoin(GUILD, USER, '2026-08-10T10:00:00.000Z'))
-
-	it('stores a partial answer without completing the questionnaire', () => {
-		repo.saveAnswer(GUILD, USER, { purpose: 'learning backend' }, '2026-08-10T11:00:00.000Z')
-		expect(repo.getAnswers(GUILD, USER)?.purpose).toBe('learning backend')
-		expect(repo.get(GUILD, USER)?.questionnaireCompletedAt).toBeNull()
+	beforeEach(() => {
+		repo.upsertOnJoin(GUILD, USER, '2026-08-10T10:00:00.000Z')
+		db.prepare(
+			`INSERT INTO questionnaire_questions (id, guild_id, position, prompt, type, required, created_at)
+			 VALUES (1, ?, 1, 'Q1', 'text', 1, '2026-08-10T00:00:00.000Z'),
+			        (2, ?, 2, 'Q2', 'text', 1, '2026-08-10T00:00:00.000Z')`
+		).run(GUILD, GUILD)
 	})
 
-	it('completes the questionnaire only once all three answers are present', () => {
-		repo.saveAnswer(GUILD, USER, { purpose: 'learning' }, '2026-08-10T11:00:00.000Z')
-		repo.saveAnswer(
-			GUILD,
-			USER,
-			{ experienceLevel: EXPERIENCE_LEVELS.SOME },
-			'2026-08-10T11:01:00.000Z'
-		)
-		expect(repo.get(GUILD, USER)?.questionnaireCompletedAt).toBeNull()
-
-		repo.saveAnswer(GUILD, USER, { builtForDiscord: false }, '2026-08-10T11:02:00.000Z')
-		expect(repo.get(GUILD, USER)?.questionnaireCompletedAt).toBe('2026-08-10T11:02:00.000Z')
+	it('stores a text answer for a question', () => {
+		repo.saveAnswer(GUILD, USER, 1, { textValue: 'learning backend', selectedValues: [] }, '2026-08-10T11:00:00.000Z')
+		expect(repo.getAnswers(GUILD, USER)).toEqual([
+			{ questionId: 1, textValue: 'learning backend', selectedValues: [] }
+		])
 	})
 
-	it('overwrites a previously given answer', () => {
-		repo.saveAnswer(GUILD, USER, { purpose: 'first' }, '2026-08-10T11:00:00.000Z')
-		repo.saveAnswer(GUILD, USER, { purpose: 'second' }, '2026-08-10T11:05:00.000Z')
-		expect(repo.getAnswers(GUILD, USER)?.purpose).toBe('second')
+	it('stores a select answer for a question', () => {
+		repo.saveAnswer(GUILD, USER, 2, { textValue: null, selectedValues: ['a', 'b'] }, '2026-08-10T11:00:00.000Z')
+		expect(repo.getAnswers(GUILD, USER)).toEqual([
+			{ questionId: 2, textValue: null, selectedValues: ['a', 'b'] }
+		])
 	})
 
-	it('round-trips the boolean Discord-dev answer', () => {
-		repo.saveAnswer(GUILD, USER, { builtForDiscord: true }, '2026-08-10T11:00:00.000Z')
-		expect(repo.getAnswers(GUILD, USER)?.builtForDiscord).toBe(true)
+	it('accumulates answers to different questions', () => {
+		repo.saveAnswer(GUILD, USER, 1, { textValue: 'a', selectedValues: [] }, '2026-08-10T11:00:00.000Z')
+		repo.saveAnswer(GUILD, USER, 2, { textValue: 'b', selectedValues: [] }, '2026-08-10T11:01:00.000Z')
+		expect(repo.getAnswers(GUILD, USER)).toHaveLength(2)
+	})
+
+	it('overwrites a previously given answer to the same question', () => {
+		repo.saveAnswer(GUILD, USER, 1, { textValue: 'first', selectedValues: [] }, '2026-08-10T11:00:00.000Z')
+		repo.saveAnswer(GUILD, USER, 1, { textValue: 'second', selectedValues: [] }, '2026-08-10T11:05:00.000Z')
+		expect(repo.getAnswers(GUILD, USER)).toEqual([
+			{ questionId: 1, textValue: 'second', selectedValues: [] }
+		])
 	})
 })
 

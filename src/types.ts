@@ -6,14 +6,28 @@ export const err = <E>(error: E): Result<never, E> => ({ ok: false, error })
 export const isOk = <T, E>(result: Result<T, E>): result is Extract<Result<T, E>, { ok: true }> =>
 	result.ok
 
-export const EXPERIENCE_LEVELS = {
-	NEW: 'new-to-everything',
-	SOME: 'a-little-experience',
-	WRITES: 'writes-software',
-	ADVANCED: 'advanced'
-} as const
+export type QuestionType = 'text' | 'single_select' | 'multi_select'
 
-export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[keyof typeof EXPERIENCE_LEVELS]
+export type QuestionOption = {
+	readonly position: number
+	readonly label: string
+	readonly value: string
+}
+
+export type QuestionDefinition = {
+	readonly id: number
+	readonly position: number
+	readonly prompt: string
+	readonly type: QuestionType
+	readonly required: boolean
+	readonly options: readonly QuestionOption[]
+}
+
+export type QuestionAnswer = {
+	readonly questionId: number
+	readonly textValue: string | null
+	readonly selectedValues: readonly string[]
+}
 
 export type OnboardingStep = 'rules' | 'questionnaire' | 'intro'
 
@@ -33,14 +47,6 @@ export type OnboardingRecord = {
 	readonly lastReminderAt: string | null
 }
 
-export type QuestionnaireAnswers = {
-	readonly guildId: string
-	readonly userId: string
-	readonly purpose: string | null
-	readonly experienceLevel: ExperienceLevel | null
-	readonly builtForDiscord: boolean | null
-	readonly answeredAt: string | null
-}
 
 export type GuildConfigRow = {
 	readonly guildId: string

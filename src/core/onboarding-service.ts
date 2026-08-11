@@ -48,9 +48,12 @@ export const createOnboardingService = (deps: ServiceDeps) => {
 		await port.postAudit(config.guildId, config.modLogChannelId, {
 			kind: 'verified',
 			userId: record.userId,
-			detail: answers
-				? `purpose="${answers.purpose ?? ''}" · experience=${answers.experienceLevel ?? 'unknown'} · builtForDiscord=${String(answers.builtForDiscord)}`
-				: 'verified with no stored answers'
+			detail:
+				answers.length > 0
+					? answers
+							.map((a) => `q${a.questionId}=${a.textValue ?? `[${a.selectedValues.join(', ')}]`}`)
+							.join(' · ')
+					: 'verified with no stored answers'
 		})
 
 		await port.sendDm(record.userId, {

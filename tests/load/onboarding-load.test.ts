@@ -4,7 +4,8 @@ import { createOnboardingService } from '../../src/core/onboarding-service.js'
 import { createCachedGuildConfigRepository } from '../../src/db/cached-guild-config-repository.js'
 import { createGuildConfigRepository } from '../../src/db/guild-config-repository.js'
 import { createOnboardingRepository } from '../../src/db/onboarding-repository.js'
-import { EXPERIENCE_LEVELS } from '../../src/types.js'
+import { createQuestionnaireRepository } from '../../src/db/questionnaire-repository.js'
+import { isOk } from '../../src/types.js'
 import { createFakeDiscordPort } from '../helpers/fake-discord-port.js'
 import { createTestDb } from '../helpers/test-db.js'
 
@@ -28,6 +29,7 @@ describe('load', () => {
 	it('runs 5,000 full onboardings across 50 guilds well under a second of our own time', async () => {
 		const db = createTestDb()
 		const repo = createOnboardingRepository(db)
+		const questionnaireRepo = createQuestionnaireRepository(db)
 		const fake = createFakeDiscordPort()
 		const service = createOnboardingService({ repo, port: fake.port, now: () => AT })
 
@@ -35,14 +37,18 @@ describe('load', () => {
 
 		for (let guildIndex = 0; guildIndex < 50; guildIndex += 1) {
 			const config = configFor(`guild-${guildIndex}`)
+			const created = questionnaireRepo.addQuestion(
+				config.guildId,
+				{ prompt: 'Why are you here?', type: 'text', required: true, options: [] },
+				AT
+			)
+			const questionId = isOk(created) ? created.value.id : -1
 
 			for (let userIndex = 0; userIndex < 100; userIndex += 1) {
 				const userId = `user-${userIndex}`
 				await service.handleJoin(config, userId, Date.parse(AT))
 				await service.recordStep(config, userId, 'rules')
-				repo.saveAnswer(config.guildId, userId, { purpose: 'load test' }, AT)
-				repo.saveAnswer(config.guildId, userId, { experienceLevel: EXPERIENCE_LEVELS.SOME }, AT)
-				repo.saveAnswer(config.guildId, userId, { builtForDiscord: false }, AT)
+				repo.saveAnswer(config.guildId, userId, questionId, { textValue: 'load test', selectedValues: [] }, AT)
 				await service.recordStep(config, userId, 'questionnaire')
 				await service.recordStep(config, userId, 'intro')
 			}
