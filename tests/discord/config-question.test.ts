@@ -18,6 +18,39 @@ describe('parseOptionsInput', () => {
 	it('drops empty segments from stray commas', () => {
 		expect(parseOptionsInput('A,,B,')).toEqual(['A', 'B'])
 	})
+
+	it('expands an ascending numeric range', () => {
+		expect(parseOptionsInput('2023-2026')).toEqual(['2023', '2024', '2025', '2026'])
+	})
+
+	it('expands a descending numeric range', () => {
+		expect(parseOptionsInput('10-8')).toEqual(['10', '9', '8'])
+	})
+
+	it('collapses a range with equal endpoints to a single value', () => {
+		expect(parseOptionsInput('5-5')).toEqual(['5'])
+	})
+
+	it('tolerates whitespace around the dash', () => {
+		expect(parseOptionsInput('1988 - 1990')).toEqual(['1988', '1989', '1990'])
+	})
+
+	it('mixes a literal label with a range in the same list', () => {
+		expect(parseOptionsInput('Prefer not to say,2023-2025')).toEqual([
+			'Prefer not to say',
+			'2023',
+			'2024',
+			'2025'
+		])
+	})
+
+	it('treats a bare number with no dash as a literal label, not a range', () => {
+		expect(parseOptionsInput('5')).toEqual(['5'])
+	})
+
+	it('treats a negative number as a literal label, not a range', () => {
+		expect(parseOptionsInput('-5')).toEqual(['-5'])
+	})
 })
 
 describe('validationSuffix', () => {

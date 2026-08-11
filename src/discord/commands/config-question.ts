@@ -12,6 +12,22 @@ export type ConfigQuestionDeps = {
 
 const ephemeral = { flags: MessageFlags.Ephemeral } as const
 
+const RANGE_PATTERN = /^(\d+)\s*-\s*(\d+)$/
+
+const expandRange = (segment: string): string[] => {
+	const match = RANGE_PATTERN.exec(segment)
+	const startText = match?.[1]
+	const endText = match?.[2]
+	if (startText === undefined || endText === undefined) return [segment]
+
+	const start = Number(startText)
+	const end = Number(endText)
+	const step = start <= end ? 1 : -1
+	const values: string[] = []
+	for (let n = start; step > 0 ? n <= end : n >= end; n += step) values.push(String(n))
+	return values
+}
+
 export const parseOptionsInput = (raw: string | null): string[] =>
 	raw === null
 		? []
@@ -19,6 +35,7 @@ export const parseOptionsInput = (raw: string | null): string[] =>
 				.split(',')
 				.map((segment) => segment.trim())
 				.filter((segment) => segment.length > 0)
+				.flatMap(expandRange)
 
 const TYPE_LABEL: Record<string, string> = {
 	text: 'Text response',
