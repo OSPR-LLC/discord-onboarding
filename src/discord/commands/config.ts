@@ -17,11 +17,13 @@ import {
 	resolveGuildConfig
 } from '../../core/guild-config.js'
 import type { GuildConfigRepository } from '../../db/guild-config-repository.js'
+import type { QuestionnaireRepository } from '../../db/questionnaire-repository.js'
 import { isOk } from '../../types.js'
 import { CUSTOM_IDS } from '../components/custom-ids.js'
 import { publishIntroTemplateMessage } from '../components/intro-template-message.js'
 import { publishRulesMessage } from '../components/rules-message.js'
 import { runPreflight } from '../preflight.js'
+import { handleConfigQuestionCommand } from './config-question.js'
 
 export const configCommand = new SlashCommandBuilder()
 	.setName('config')
@@ -74,6 +76,91 @@ export const configCommand = new SlashCommandBuilder()
 	.addSubcommand((sub) =>
 		sub.setName('intro-template').setDescription('Edit the introduction template')
 	)
+	.addSubcommandGroup((group) =>
+		group
+			.setName('question')
+			.setDescription('Manage the onboarding questionnaire')
+			.addSubcommand((sub) =>
+				sub
+					.setName('add')
+					.setDescription('Add a question to the questionnaire')
+					.addStringOption((option) =>
+						option.setName('prompt').setDescription('The question text').setRequired(true).setMaxLength(300)
+					)
+					.addStringOption((option) =>
+						option
+							.setName('type')
+							.setDescription('Answer type')
+							.setRequired(true)
+							.addChoices(
+								{ name: 'Text response', value: 'text' },
+								{ name: 'Single choice', value: 'single_select' },
+								{ name: 'Multiple choice', value: 'multi_select' }
+							)
+					)
+					.addBooleanOption((option) =>
+						option.setName('required').setDescription('Must the member answer this?').setRequired(true)
+					)
+					.addStringOption((option) =>
+						option
+							.setName('options')
+							.setDescription('Comma-separated choices (only for Single/Multiple choice)')
+							.setRequired(false)
+					)
+			)
+			.addSubcommand((sub) =>
+				sub
+					.setName('edit')
+					.setDescription('Edit an existing question')
+					.addIntegerOption((option) =>
+						option.setName('position').setDescription('Position from /config question list').setRequired(true)
+					)
+					.addStringOption((option) =>
+						option.setName('prompt').setDescription('New question text').setRequired(false).setMaxLength(300)
+					)
+					.addStringOption((option) =>
+						option
+							.setName('type')
+							.setDescription('New answer type')
+							.setRequired(false)
+							.addChoices(
+								{ name: 'Text response', value: 'text' },
+								{ name: 'Single choice', value: 'single_select' },
+								{ name: 'Multiple choice', value: 'multi_select' }
+							)
+					)
+					.addBooleanOption((option) =>
+						option.setName('required').setDescription('Must the member answer this?').setRequired(false)
+					)
+					.addStringOption((option) =>
+						option
+							.setName('options')
+							.setDescription('New comma-separated choices (replaces the old list)')
+							.setRequired(false)
+					)
+			)
+			.addSubcommand((sub) =>
+				sub
+					.setName('remove')
+					.setDescription('Remove a question')
+					.addIntegerOption((option) =>
+						option.setName('position').setDescription('Position from /config question list').setRequired(true)
+					)
+			)
+			.addSubcommand((sub) =>
+				sub
+					.setName('move')
+					.setDescription('Reorder a question')
+					.addIntegerOption((option) =>
+						option.setName('position').setDescription('Current position').setRequired(true)
+					)
+					.addIntegerOption((option) =>
+						option.setName('to').setDescription('New position').setRequired(true)
+					)
+			)
+			.addSubcommand((sub) => sub.setName('list').setDescription('List the configured questions'))
+			.addSubcommand((sub) => sub.setName('clear').setDescription('Remove every configured question'))
+	)
 	.addSubcommand((sub) => sub.setName('enable').setDescription('Turn onboarding on'))
 	.addSubcommand((sub) => sub.setName('disable').setDescription('Turn onboarding off'))
 	.addSubcommand((sub) =>
@@ -91,6 +178,7 @@ export const configCommand = new SlashCommandBuilder()
 
 export type ConfigCommandDeps = {
 	readonly guildConfig: GuildConfigRepository
+	readonly questionnaireRepo: QuestionnaireRepository
 	readonly now: () => string
 }
 
@@ -102,6 +190,11 @@ export const handleConfigCommand = async (
 ): Promise<void> => {
 	const { guild } = interaction
 	if (!guild) return
+
+	if (interaction.options.getSubcommandGroup(false) === 'question') {
+		await handleConfigQuestionCommand(interaction, deps)
+		return
+	}
 
 	const { guildConfig, now } = deps
 	const actorId = interaction.user.id

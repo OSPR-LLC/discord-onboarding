@@ -178,7 +178,7 @@ client.on(
 client.on(
 	Events.InteractionCreate,
 	safeHandler('interactionCreate', async (interaction) => {
-		const deps = { guildConfig, now: () => new Date().toISOString() }
+		const deps = { guildConfig, questionnaireRepo, now: () => new Date().toISOString() }
 
 		if (interaction.isChatInputCommand() && interaction.commandName === 'config') {
 			await handleConfigCommand(interaction, deps)
