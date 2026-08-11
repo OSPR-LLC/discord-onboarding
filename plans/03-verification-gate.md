@@ -948,7 +948,7 @@ git commit -m "feat: add questionnaire components and resume logic"
 
 **Critical constraint:** `showModal` must be an interaction's **first** response. `promptNextQuestion` therefore never assumes it can reply first, and callers must not reply before delegating to it when the next step could be the modal.
 
-- [ ] **Step 1: Write `src/discord/commands/intro.ts`**
+- [x] **Step 1: Write `src/discord/commands/intro.ts`**
 
 ```ts
 import {
@@ -1021,12 +1021,12 @@ export const promptNextQuestion = async (
 }
 ```
 
-- [ ] **Step 2: Verify it compiles**
+- [x] **Step 2: Verify it compiles**
 
 Run: `pnpm typecheck`
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/discord/commands/intro.ts
