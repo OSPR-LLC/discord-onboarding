@@ -328,7 +328,7 @@ git commit -m "feat: add live guild preflight validation"
   `publishRulesMessage(guild, config, repo): Promise<Result<string, string>>` returning the message id.
   Plan 03's interaction router consumes `CUSTOM_IDS` and `parseCustomId`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -360,12 +360,12 @@ describe('parseCustomId', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/discord/custom-ids.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/discord/components/custom-ids.ts`**
+- [x] **Step 3: Write `src/discord/components/custom-ids.ts`**
 
 ```ts
 const NAMESPACE = 'onboarding'
@@ -394,25 +394,25 @@ export const parseCustomId = (raw: string): ParsedCustomId | null => {
 }
 ```
 
-- [ ] **Step 4: Write `src/discord/components/rules-message.ts`**
+- [x] **Step 4: Write `src/discord/components/rules-message.ts`**
 
 The message id is stored, so republishing edits that exact message. Scanning channel history would break as soon as the channel got busy.
 
+_Typed the built payload as a narrow local type rather than discord.js's `MessageCreateOptions`: that type's `flags` field accepts values (e.g. `IsVoiceMessage`) that `MessageEditOptions` rejects, so `existing.edit(payload)` fails to typecheck under `exactOptionalPropertyTypes` even though `flags` is never set here. Since this payload only ever carries `embeds` and `components` — which both `send()` and `edit()` accept identically — a local `RulesMessagePayload` type sidesteps the mismatch entirely. Applied below._
+
 ```ts
-import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	EmbedBuilder,
-	type Guild,
-	type MessageCreateOptions
-} from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, type Guild } from 'discord.js'
 import type { ResolvedGuildConfig } from '../../core/guild-config.js'
 import type { GuildConfigRepository } from '../../db/guild-config-repository.js'
 import { err, ok, type Result } from '../../types.js'
 import { CUSTOM_IDS } from './custom-ids.js'
 
-export const buildRulesMessage = (config: ResolvedGuildConfig): MessageCreateOptions => ({
+type RulesMessagePayload = {
+	readonly embeds: EmbedBuilder[]
+	readonly components: ActionRowBuilder<ButtonBuilder>[]
+}
+
+export const buildRulesMessage = (config: ResolvedGuildConfig): RulesMessagePayload => ({
 	embeds: [
 		new EmbedBuilder()
 			.setTitle('Server rules')
@@ -454,12 +454,12 @@ export const publishRulesMessage = async (
 }
 ```
 
-- [ ] **Step 5: Run the test to confirm it passes**
+- [x] **Step 5: Run the test to confirm it passes**
 
 Run: `pnpm test tests/discord/custom-ids.test.ts`
 Expected: PASS, 4 tests.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/discord/components tests/discord
