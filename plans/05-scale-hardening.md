@@ -332,7 +332,7 @@ git commit -m "feat: add priority task queue with bounded concurrency"
 - Consumes: `DiscordPort`, `TaskQueue`.
 - Produces: `createQueuedPort(inner, queue, priority): DiscordPort` — the same interface, so `src/core/` is unaware. Task 4 builds a bulk-priority variant for reconciliation.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -388,12 +388,12 @@ describe('createQueuedPort', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/discord/queued-port.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/discord/queued-port.ts`**
+- [x] **Step 3: Write `src/discord/queued-port.ts`**
 
 ```ts
 import type { DiscordPort } from '../core/discord-port.js'
@@ -440,12 +440,12 @@ export const createQueuedPort = (
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/discord/queued-port.test.ts`
 Expected: PASS, 4 tests.
 
-- [ ] **Step 5: Wire it in `src/index.ts`**
+- [x] **Step 5: Wire it in `src/index.ts`**
 
 Build one queue and two views of the port — interactive for event handlers, bulk for background tasks:
 
@@ -461,7 +461,7 @@ Pass `port` to `createOnboardingService` for the live flow. Pass `bulkPort` to `
 
 Concurrency of 8 sits well inside Discord's ~50 requests/second global budget while leaving headroom for gateway traffic; raise it only with the metrics from Task 6 in hand.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/discord/queued-port.ts tests/discord/queued-port.test.ts src/index.ts

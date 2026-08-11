@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 05, Task 2 — queued `DiscordPort` decorator (`src/discord/queued-port.ts`). Task 1 (priority task queue, `src/core/task-queue.ts`) is complete and verified — 8 tests. `pnpm typecheck` and `pnpm test` both green (111 tests).
+> Plan 05, Task 3 — cached guild config repository (`src/db/cached-guild-config-repository.ts`). Tasks 1–2 (priority task queue, queued `DiscordPort` decorator) are complete and verified. `pnpm typecheck` and `pnpm test` both green (115 tests). `src/index.ts` now builds one `TaskQueue` and two port views: `port` (interactive, for the live onboarding flow) and `bulkPort` (bulk, for reconcile + reminder sweep).
 >
 > Plans 02, 03, and 04 all sit at 🟡 for the same reason: code and tests are done, only live-Discord-client verification steps remain, yours to run whenever convenient (Plan 02: Task 5 Step 4, Task 6 Step 2; Plan 03: Task 7 Step 6, Task 8 Step 5; Plan 04: Task 3 Step 5).
 >

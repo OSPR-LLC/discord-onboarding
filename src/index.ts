@@ -5,6 +5,7 @@ import Database from 'better-sqlite3'
 import { Events } from 'discord.js'
 import 'dotenv/config'
 import { createOnboardingService } from './core/onboarding-service.js'
+import { createTaskQueue } from './core/task-queue.js'
 import { createGuildConfigRepository } from './db/guild-config-repository.js'
 import { migrate } from './db/migrate.js'
 import { createOnboardingRepository } from './db/onboarding-repository.js'
@@ -15,6 +16,7 @@ import { handleGuildMemberAdd } from './discord/events/guild-member-add.js'
 import { handleOnboardingInteraction } from './discord/events/interaction-create.js'
 import { handleMessageCreate } from './discord/events/message-create.js'
 import { createDiscordPort } from './discord/port.js'
+import { createQueuedPort } from './discord/queued-port.js'
 import { registerCommands } from './discord/register-commands.js'
 import { safeHandler } from './discord/safe-handler.js'
 import { loadEnv } from './env.js'
@@ -31,7 +33,12 @@ const guildConfig = createGuildConfigRepository(db)
 const onboarding = createOnboardingRepository(db)
 
 const client = createClient()
-const port = createDiscordPort(client)
+
+const discordQueue = createTaskQueue({ concurrency: 8, maxQueued: 5000 })
+const rawPort = createDiscordPort(client)
+const port = createQueuedPort(rawPort, discordQueue, 'interactive')
+const bulkPort = createQueuedPort(rawPort, discordQueue, 'bulk')
+
 const service = createOnboardingService({
 	repo: onboarding,
 	port,
@@ -69,7 +76,7 @@ client.once(
 
 		for (const config of guildConfig.listEnabled()) {
 			const guild = await ready.guilds.fetch(config.guildId).catch(() => null)
-			if (guild) await reconcile({ guild, guildConfig, repo: onboarding, service, port })
+			if (guild) await reconcile({ guild, guildConfig, repo: onboarding, service, port: bulkPort })
 		}
 
 		const HOUR_MS = 60 * 60 * 1000
@@ -78,7 +85,7 @@ client.once(
 			void runReminderSweep({
 				guildConfig,
 				repo: onboarding,
-				port,
+				port: bulkPort,
 				now: () => new Date()
 			}).catch((error: unknown) => {
 				console.error(
