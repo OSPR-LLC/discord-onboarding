@@ -2,7 +2,7 @@
 plan: bot-foundation
 project: discord-developer
 updated: 2026-08-10
-status: 🟡 In Progress
+status: ✅ Complete
 tags: [plan]
 ---
 
@@ -14,7 +14,7 @@ tags: [plan]
 
 ## Status
 
-🟡 In Progress
+✅ Complete
 
 ## Goal
 
@@ -1510,10 +1510,12 @@ Expected: no errors. (If `onboarding` trips an unused-variable rule, that rule i
 Run: `env -u DISCORD_TOKEN pnpm dev`
 Expected: exits with `Missing required environment variable: DISCORD_TOKEN`.
 
-- [ ] **Step 6: Verify it connects and records guilds** _(requires a real bot token + a throwaway guild — yours to run)_
+- [x] **Step 6: Verify it connects and records guilds**
 
 Put a real token in `.env`, invite the bot to a throwaway guild, run `pnpm dev`.
 Expected: a `ready` log line reporting the guild count with `enabled: 0`. Invite it to a second guild while running and confirm a `guild-joined` line appears.
+
+_Verified against the live OSPR test guild: `ready` logged `{"user":"OSPR Onboarding#9014","guilds":0,"enabled":0}`, then inviting the bot produced `{"event":"guild-joined","guildId":"1536531940000407733"}`, and `guild_config` picked up the row (`enabled: 0`, real `joined_at` timestamp) exactly as designed. Note for next time: the invite URL must use `scope=bot+applications.commands` — Discord's Default Install Link on the portal's General Information page defaults to `applications.commands` only, which registers slash commands but never adds the bot as an actual guild member, so no `GUILD_CREATE` ever fires. Use OAuth2 → URL Generator with both scopes checked instead._
 
 - [x] **Step 7: Commit**
 

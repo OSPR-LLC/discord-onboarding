@@ -40,7 +40,7 @@ tags: [plan]
 
 | Plan                             | Status      | Blocks                           |
 | -------------------------------- | ----------- | -------------------------------- |
-| [[01-bot-foundation]]            | 🔵 Planning | [[02-guild-configuration]]       |
+| [[01-bot-foundation]]            | ✅ Complete | [[02-guild-configuration]]       |
 | [[02-guild-configuration]]       | 🔵 Planning | [[03-verification-gate]]         |
 | [[03-verification-gate]]         | 🔵 Planning | [[04-reminders-and-mod-tooling]] |
 | [[04-reminders-and-mod-tooling]] | 🔵 Planning | [[05-scale-hardening]]           |

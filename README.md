@@ -8,7 +8,7 @@ Full design: [`docs/superpowers/specs/2026-08-08-onboarding-verification-gate-de
 
 ## Status
 
-🔵 Planning — specs and implementation plans are written; no code has been implemented yet. See [`PLAN.md`](PLAN.md) for phase status.
+🟡 In Progress — plan 01 (bot foundation, multi-guild data layer, client bootstrap) is complete and verified against a live Discord connection. See [`PLAN.md`](PLAN.md) for phase status.
 
 ## Hard Rules
 
@@ -77,6 +77,47 @@ DISCORD_TOKEN=       # your bot's token
 DATABASE_PATH=./data/onboarding.db
 DEV_GUILD_ID=        # optional — registers commands to one guild instantly instead of waiting up to an hour for global propagation
 ```
+
+### Getting a bot token
+
+1. [Discord Developer Portal](https://discord.com/developers/applications) → **New Application** (or select an existing one).
+2. Left sidebar → **Bot** → under **Token**, click **Reset Token** (first time) or **Copy**. Discord only shows the full token once — copy it straight into `.env` as `DISCORD_TOKEN`.
+3. On the same page, enable **Server Members Intent** under Privileged Gateway Intents. Leave **Message Content Intent** off — this project never requests it (see Hard Rules above).
+4. Treat the token like a password: never commit it (`.env` is already gitignored), never paste it anywhere public. If it ever leaks, hit **Reset Token** again to invalidate it immediately.
+
+### Inviting the bot to a server
+
+Build an invite URL by hand rather than using the portal's "Default Install Link" on the General Information page — **that link defaults to `scope=applications.commands` only**, which registers slash commands but never adds the bot as an actual guild member. The bot will authorize successfully and show "Added to \<server\>," but `pnpm dev` will report `guilds: 0` forever, because gateway `GUILD_CREATE` only fires for guilds the bot user is actually in.
+
+Use this URL instead, with your application's **Client ID** (Developer Portal → General Information) and both scopes:
+
+```
+https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=268504064&scope=bot%20applications.commands
+```
+
+`268504064` is the minimum permission set this bot needs:
+
+| Permission           | Bit value     |
+| -------------------- | ------------- |
+| View Channels        | 1024          |
+| Send Messages        | 2048          |
+| Read Message History | 65536         |
+| Manage Roles         | 268435456     |
+| **Total**            | **268504064** |
+
+(Equivalently: Developer Portal → **OAuth2 → URL Generator** → check `bot` and `applications.commands` scopes, then check the same permissions under "Bot Permissions" — the page computes the URL for you.)
+
+Opening the URL should show a consent screen listing real bot permissions (not just "Create commands") and a server picker requiring **Manage Server** in the target guild.
+
+After inviting: open **Server Settings → Roles** and drag the bot's role **above** any role it needs to manage (`verified`/`unverified`) — `Manage Roles` alone doesn't let a bot touch roles positioned above its own.
+
+### Verifying the connection
+
+```bash
+pnpm dev
+```
+
+Expected: a `ready` log line reporting the guild count, e.g. `{"event":"ready","user":"YourBot#1234","guilds":1,"enabled":0}`. If you invite it to a guild while `pnpm dev` is already running, you should also see `{"event":"guild-joined","guildId":"..."}`. If `guilds` stays `0` after a "successful" invite, it's almost always the Default-Install-Link scope issue above — check the URL you used included `scope=bot` alongside `applications.commands`.
 
 ## Commands
 
