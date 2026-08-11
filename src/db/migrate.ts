@@ -40,6 +40,15 @@ export const migrate = (db: Database): void => {
 		db.pragma('busy_timeout = 5000')
 	}
 
+	// The old questionnaire_answers had fixed purpose/experience_level/built_for_discord
+	// columns. The configurable-questionnaire feature (2026-08-11) replaced it with a
+	// normalized per-question table of the same name — CREATE TABLE IF NOT EXISTS is a
+	// no-op against the old shape, so it has to be dropped first. This discards any rows
+	// in the old shape; accepted because no guild had live production answer data when
+	// this landed. See docs/superpowers/specs/2026-08-11-configurable-questionnaire-design.md.
+	if (hasColumn(db, 'questionnaire_answers', 'purpose'))
+		db.exec('DROP TABLE questionnaire_answers')
+
 	db.exec(readFileSync(schemaPath, 'utf8'))
 
 	for (const { table, column, ddl } of ADDED_COLUMNS)
