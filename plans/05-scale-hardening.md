@@ -484,7 +484,7 @@ git commit -m "feat: route Discord writes through a priority queue"
 
 **Why:** `get` runs on every message and every interaction in every guild. Cached in memory it becomes a `Map` lookup. Correctness rests on every mutating method invalidating its guild, which the tests below enforce individually.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -564,12 +564,12 @@ describe('invalidation', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/db/cached-guild-config-repository.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/db/cached-guild-config-repository.ts`**
+- [x] **Step 3: Write `src/db/cached-guild-config-repository.ts`**
 
 ```ts
 import type { ChannelKind, GuildConfigRepository, RoleKind } from './guild-config-repository.js'
@@ -681,12 +681,12 @@ export const createCachedGuildConfigRepository = (inner: GuildConfigRepository) 
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/db/cached-guild-config-repository.test.ts`
 Expected: PASS, 13 tests.
 
-- [ ] **Step 5: Wire it in `src/index.ts`**
+- [x] **Step 5: Wire it in `src/index.ts`**
 
 Wrap once at construction, so every consumer gets the cached view:
 
@@ -696,7 +696,7 @@ const guildConfig = createCachedGuildConfigRepository(createGuildConfigRepositor
 
 **Sharding caveat:** each shard process holds its own cache. A `/config` change is handled by the shard owning that guild, and that shard invalidates its own entry — so the cache is always correct for the shard that serves the guild. No cross-process invalidation is needed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/db/cached-guild-config-repository.ts tests/db/cached-guild-config-repository.test.ts src/index.ts

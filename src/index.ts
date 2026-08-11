@@ -6,6 +6,7 @@ import { Events } from 'discord.js'
 import 'dotenv/config'
 import { createOnboardingService } from './core/onboarding-service.js'
 import { createTaskQueue } from './core/task-queue.js'
+import { createCachedGuildConfigRepository } from './db/cached-guild-config-repository.js'
 import { createGuildConfigRepository } from './db/guild-config-repository.js'
 import { migrate } from './db/migrate.js'
 import { createOnboardingRepository } from './db/onboarding-repository.js'
@@ -29,7 +30,7 @@ mkdirSync(dirname(env.databasePath), { recursive: true })
 const db = new Database(env.databasePath)
 migrate(db)
 
-const guildConfig = createGuildConfigRepository(db)
+const guildConfig = createCachedGuildConfigRepository(createGuildConfigRepository(db))
 const onboarding = createOnboardingRepository(db)
 
 const client = createClient()
