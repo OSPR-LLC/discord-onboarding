@@ -4,6 +4,7 @@ import type { QuestionDefinition, QuestionOption, QuestionType } from '../types.
 
 const MAX_QUESTIONS = 10
 const MAX_OPTIONS = 25
+const MAX_RANGE_OPTIONS = 100
 
 export type NewQuestionInput = {
 	prompt: string
@@ -37,6 +38,31 @@ export const slugifyOptionLabels = (labels: string[]): { label: string; value: s
 		seen.set(base, count + 1)
 		return { label, value: count === 0 ? base : `${base}-${count + 1}` }
 	})
+}
+
+export const isNumericRangeLabelSet = (labels: readonly string[]): boolean => {
+	if (labels.length < 2) return false
+
+	const values: number[] = []
+	for (const label of labels) {
+		if (!/^\d+$/.test(label)) return false
+		values.push(Number(label))
+	}
+
+	const first = values[0]
+	const second = values[1]
+	if (first === undefined || second === undefined) return false
+	const step = second - first
+	if (step !== 1 && step !== -1) return false
+
+	for (let i = 1; i < values.length; i += 1) {
+		const prev = values[i - 1]
+		const curr = values[i]
+		if (prev === undefined || curr === undefined) return false
+		if (curr - prev !== step) return false
+	}
+
+	return true
 }
 
 const isValidQuestionShape = (
@@ -146,7 +172,11 @@ export const createQuestionnaireRepository = (db: Database) => {
 	): Result<QuestionDefinition, AddEditError> => {
 		const count = (statements.countQuestions.get(guildId) as { n: number }).n
 		if (count >= MAX_QUESTIONS) return err('too-many-questions')
-		if (input.options.length > MAX_OPTIONS) return err('too-many-options')
+
+		const cap =
+			input.type === 'single_select' && isNumericRangeLabelSet(input.options) ? MAX_RANGE_OPTIONS : MAX_OPTIONS
+		if (input.options.length > cap) return err('too-many-options')
+
 		if (!isValidQuestionShape(input.type, input.numericOnly, input.minLength, input.maxLength))
 			return err('invalid-validation')
 
@@ -176,9 +206,14 @@ export const createQuestionnaireRepository = (db: Database) => {
 	): Result<QuestionDefinition, AddEditError> => {
 		const row = statements.getQuestionAtPosition.get(guildId, position) as QuestionRow | undefined
 		if (!row) return err('not-found')
-		if (patch.options && patch.options.length > MAX_OPTIONS) return err('too-many-options')
 
 		const effectiveType = patch.type ?? row.type
+
+		if (patch.options) {
+			const cap =
+				effectiveType === 'single_select' && isNumericRangeLabelSet(patch.options) ? MAX_RANGE_OPTIONS : MAX_OPTIONS
+			if (patch.options.length > cap) return err('too-many-options')
+		}
 
 		// A type change away from text implicitly clears the three validation
 		// fields rather than being rejected — the command surface has no way to

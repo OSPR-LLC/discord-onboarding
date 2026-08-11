@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
 	createQuestionnaireRepository,
+	isNumericRangeLabelSet,
 	slugifyOptionLabels
 } from '../../src/db/questionnaire-repository.js'
 import { isOk } from '../../src/types.js'
@@ -28,6 +29,36 @@ describe('slugifyOptionLabels', () => {
 			{ label: 'Yes', value: 'yes' },
 			{ label: 'Yes', value: 'yes-2' }
 		])
+	})
+})
+
+describe('isNumericRangeLabelSet', () => {
+	it('accepts an ascending sequence', () => {
+		expect(isNumericRangeLabelSet(['2023', '2024', '2025', '2026'])).toBe(true)
+	})
+
+	it('accepts a descending sequence', () => {
+		expect(isNumericRangeLabelSet(['10', '9', '8'])).toBe(true)
+	})
+
+	it('rejects a sequence with a gap', () => {
+		expect(isNumericRangeLabelSet(['1', '2', '4'])).toBe(false)
+	})
+
+	it('rejects when any label is not purely digits', () => {
+		expect(isNumericRangeLabelSet(['1', 'two', '3'])).toBe(false)
+	})
+
+	it('rejects a single label', () => {
+		expect(isNumericRangeLabelSet(['5'])).toBe(false)
+	})
+
+	it('rejects an empty list', () => {
+		expect(isNumericRangeLabelSet([])).toBe(false)
+	})
+
+	it('rejects non-numeric literal labels', () => {
+		expect(isNumericRangeLabelSet(['New to everything', 'Advanced'])).toBe(false)
 	})
 })
 
@@ -306,6 +337,93 @@ describe('answer validation fields', () => {
 		expect(isOk(result) && result.value.numericOnly).toBe(true)
 		expect(isOk(result) && result.value.minLength).toBe(4)
 		expect(isOk(result) && result.value.maxLength).toBe(10)
+	})
+})
+
+describe('the raised cap for single_select numeric ranges', () => {
+	const numericLabels = (count: number): string[] => Array.from({ length: count }, (_, i) => String(i + 1))
+
+	it('allows up to 100 options for a single_select numeric range', () => {
+		const result = repo.addQuestion(
+			GUILD,
+			{
+				prompt: 'Pick a number',
+				type: 'single_select',
+				required: true,
+				options: numericLabels(100),
+				numericOnly: false,
+				minLength: null,
+				maxLength: null
+			},
+			AT
+		)
+
+		expect(isOk(result)).toBe(true)
+		if (!isOk(result)) return
+		expect(result.value.options).toHaveLength(100)
+	})
+
+	it('still rejects more than 100 options even for a numeric range', () => {
+		const result = repo.addQuestion(
+			GUILD,
+			{
+				prompt: 'Pick a number',
+				type: 'single_select',
+				required: true,
+				options: numericLabels(101),
+				numericOnly: false,
+				minLength: null,
+				maxLength: null
+			},
+			AT
+		)
+
+		expect(isOk(result)).toBe(false)
+		expect(!isOk(result) && result.error).toBe('too-many-options')
+	})
+
+	it('does not raise the cap for a non-range single_select option list', () => {
+		const labels = Array.from({ length: 26 }, (_, i) => `Choice ${i}`)
+		const result = repo.addQuestion(
+			GUILD,
+			{ prompt: 'Pick', type: 'single_select', required: true, options: labels, numericOnly: false, minLength: null, maxLength: null },
+			AT
+		)
+
+		expect(isOk(result)).toBe(false)
+		expect(!isOk(result) && result.error).toBe('too-many-options')
+	})
+
+	it('does not raise the cap for multi_select even with numeric sequential labels', () => {
+		const result = repo.addQuestion(
+			GUILD,
+			{
+				prompt: 'Pick several',
+				type: 'multi_select',
+				required: true,
+				options: numericLabels(26),
+				numericOnly: false,
+				minLength: null,
+				maxLength: null
+			},
+			AT
+		)
+
+		expect(isOk(result)).toBe(false)
+		expect(!isOk(result) && result.error).toBe('too-many-options')
+	})
+
+	it('editQuestion also allows up to 100 options for a single_select numeric range', () => {
+		repo.addQuestion(
+			GUILD,
+			{ prompt: 'Pick', type: 'single_select', required: true, options: ['A', 'B'], numericOnly: false, minLength: null, maxLength: null },
+			AT
+		)
+
+		const result = repo.editQuestion(GUILD, 1, { options: numericLabels(100) }, AT)
+		expect(isOk(result)).toBe(true)
+		if (!isOk(result)) return
+		expect(result.value.options).toHaveLength(100)
 	})
 })
 

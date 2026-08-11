@@ -10,7 +10,7 @@ import type { QuestionnaireRepository } from '../../db/questionnaire-repository.
 import type { OnboardingRepository } from '../../db/onboarding-repository.js'
 import {
 	buildQuestionModal,
-	buildQuestionSelectRow,
+	buildQuestionSelectRows,
 	buildQuestionSkipRow
 } from '../components/questionnaire.js'
 
@@ -72,9 +72,10 @@ export const promptNextQuestion = async (
 	}
 
 	const skipRow = buildQuestionSkipRow(next)
+	const selectRows = buildQuestionSelectRows(next)
 	const payload = {
 		content: `${position} — ${next.prompt}`,
-		components: skipRow ? [buildQuestionSelectRow(next), skipRow] : [buildQuestionSelectRow(next)]
+		components: skipRow ? [...selectRows, skipRow] : selectRows
 	}
 
 	if (interaction.replied || interaction.deferred)

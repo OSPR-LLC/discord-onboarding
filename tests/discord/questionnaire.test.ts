@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
 	buildQuestionModal,
-	buildQuestionSelectRow,
+	buildQuestionSelectRows,
 	buildQuestionSkipRow
 } from '../../src/discord/components/questionnaire.js'
 import type { QuestionDefinition } from '../../src/types.js'
@@ -68,20 +68,81 @@ describe('buildQuestionModal', () => {
 	})
 })
 
-describe('buildQuestionSelectRow', () => {
+describe('buildQuestionSelectRows', () => {
 	it('caps maxValues at 1 for a single-select question', () => {
-		const row = buildQuestionSelectRow(optionalSelect)
-		const select = row.components[0]
+		const rows = buildQuestionSelectRows(optionalSelect)
+		expect(rows).toHaveLength(1)
+		const select = rows[0]?.components[0]
 		expect(select?.data.custom_id).toBe('onboarding:question-select:2')
 		expect(select?.data.max_values).toBe(1)
 		expect(select?.data.min_values).toBe(0)
 	})
 
 	it('caps maxValues at the option count for a multi-select question', () => {
-		const row = buildQuestionSelectRow(requiredMultiSelect)
-		const select = row.components[0]
+		const rows = buildQuestionSelectRows(requiredMultiSelect)
+		expect(rows).toHaveLength(1)
+		const select = rows[0]?.components[0]
 		expect(select?.data.max_values).toBe(2)
 		expect(select?.data.min_values).toBe(1)
+	})
+
+	it('uses the plain placeholder for a single row', () => {
+		const rows = buildQuestionSelectRows(optionalSelect)
+		expect(rows[0]?.components[0]?.data.placeholder).toBe('Pick your answer')
+	})
+
+	it('splits a single_select question with more than 25 options into multiple rows', () => {
+		const manyOptions = Array.from({ length: 47 }, (_, i) => ({
+			position: i + 1,
+			label: String(1980 + i),
+			value: String(1980 + i)
+		}))
+		const rangeQuestion: QuestionDefinition = { ...optionalSelect, options: manyOptions }
+
+		const rows = buildQuestionSelectRows(rangeQuestion)
+		expect(rows).toHaveLength(2)
+		expect(rows[0]?.components[0]?.options).toHaveLength(25)
+		expect(rows[1]?.components[0]?.options).toHaveLength(22)
+	})
+
+	it('sets minValues to 0 on every row when a question with multiple rows is required', () => {
+		const manyOptions = Array.from({ length: 30 }, (_, i) => ({
+			position: i + 1,
+			label: String(1990 + i),
+			value: String(1990 + i)
+		}))
+		const requiredRangeQuestion: QuestionDefinition = { ...optionalSelect, required: true, options: manyOptions }
+
+		const rows = buildQuestionSelectRows(requiredRangeQuestion)
+		expect(rows).toHaveLength(2)
+		expect(rows[0]?.components[0]?.data.min_values).toBe(0)
+		expect(rows[1]?.components[0]?.data.min_values).toBe(0)
+	})
+
+	it('shows the label range in each row placeholder when there is more than one row', () => {
+		const manyOptions = Array.from({ length: 30 }, (_, i) => ({
+			position: i + 1,
+			label: String(1990 + i),
+			value: String(1990 + i)
+		}))
+		const rangeQuestion: QuestionDefinition = { ...optionalSelect, options: manyOptions }
+
+		const rows = buildQuestionSelectRows(rangeQuestion)
+		expect(rows[0]?.components[0]?.data.placeholder).toBe('Pick your answer (1990–2014)')
+		expect(rows[1]?.components[0]?.data.placeholder).toBe('Pick your answer (2015–2019)')
+	})
+
+	it('never splits a multi_select question, even with many options', () => {
+		const manyOptions = Array.from({ length: 25 }, (_, i) => ({
+			position: i + 1,
+			label: String(i),
+			value: String(i)
+		}))
+		const bigMultiSelect: QuestionDefinition = { ...requiredMultiSelect, options: manyOptions }
+
+		const rows = buildQuestionSelectRows(bigMultiSelect)
+		expect(rows).toHaveLength(1)
+		expect(rows[0]?.components[0]?.data.max_values).toBe(25)
 	})
 })
 

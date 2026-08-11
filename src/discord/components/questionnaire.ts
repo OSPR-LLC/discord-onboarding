@@ -7,7 +7,7 @@ import {
 	TextInputBuilder,
 	TextInputStyle
 } from 'discord.js'
-import type { QuestionDefinition } from '../../types.js'
+import type { QuestionDefinition, QuestionOption } from '../../types.js'
 import { CUSTOM_IDS } from './custom-ids.js'
 
 export const buildQuestionModal = (question: QuestionDefinition): ModalBuilder => {
@@ -28,17 +28,50 @@ export const buildQuestionModal = (question: QuestionDefinition): ModalBuilder =
 		.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input))
 }
 
-export const buildQuestionSelectRow = (
+const OPTIONS_PER_ROW = 25
+
+const chunkOptions = (options: readonly QuestionOption[]): QuestionOption[][] => {
+	const chunks: QuestionOption[][] = []
+	for (let i = 0; i < options.length; i += OPTIONS_PER_ROW) chunks.push(options.slice(i, i + OPTIONS_PER_ROW))
+	return chunks
+}
+
+export const buildQuestionSelectRows = (
 	question: QuestionDefinition
-): ActionRowBuilder<StringSelectMenuBuilder> =>
-	new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-		new StringSelectMenuBuilder()
-			.setCustomId(CUSTOM_IDS.questionSelect(question.id))
-			.setPlaceholder('Pick your answer')
-			.setMinValues(question.required ? 1 : 0)
-			.setMaxValues(question.type === 'multi_select' ? question.options.length : 1)
-			.addOptions(question.options.map((option) => ({ label: option.label, value: option.value })))
-	)
+): ActionRowBuilder<StringSelectMenuBuilder>[] => {
+	if (question.type === 'multi_select') {
+		return [
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+				new StringSelectMenuBuilder()
+					.setCustomId(CUSTOM_IDS.questionSelect(question.id))
+					.setPlaceholder('Pick your answer')
+					.setMinValues(question.required ? 1 : 0)
+					.setMaxValues(question.options.length)
+					.addOptions(question.options.map((option) => ({ label: option.label, value: option.value })))
+			)
+		]
+	}
+
+	const chunks = chunkOptions(question.options)
+
+	return chunks.map((options) => {
+		const first = options[0]
+		const last = options[options.length - 1]
+		const placeholder =
+			chunks.length > 1 && first && last
+				? `Pick your answer (${first.label}–${last.label})`
+				: 'Pick your answer'
+
+		return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+			new StringSelectMenuBuilder()
+				.setCustomId(CUSTOM_IDS.questionSelect(question.id))
+				.setPlaceholder(placeholder)
+				.setMinValues(chunks.length > 1 ? 0 : question.required ? 1 : 0)
+				.setMaxValues(1)
+				.addOptions(options.map((option) => ({ label: option.label, value: option.value })))
+		)
+	})
+}
 
 export const buildQuestionSkipRow = (
 	question: QuestionDefinition
