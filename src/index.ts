@@ -10,6 +10,7 @@ import { createCachedGuildConfigRepository } from './db/cached-guild-config-repo
 import { createGuildConfigRepository } from './db/guild-config-repository.js'
 import { migrate } from './db/migrate.js'
 import { createOnboardingRepository } from './db/onboarding-repository.js'
+import { createQuestionnaireRepository } from './db/questionnaire-repository.js'
 import { createClient } from './discord/client.js'
 import {
 	handleConfigCommand,
@@ -37,6 +38,7 @@ migrate(db)
 
 const guildConfig = createCachedGuildConfigRepository(createGuildConfigRepository(db))
 const onboarding = createOnboardingRepository(db)
+const questionnaireRepo = createQuestionnaireRepository(db)
 
 const client = createClient()
 
@@ -57,6 +59,7 @@ const service = createOnboardingService({
 const onboardingDeps = {
 	guildConfig,
 	repo: onboarding,
+	questionnaireRepo,
 	service,
 	now: () => new Date().toISOString()
 }
