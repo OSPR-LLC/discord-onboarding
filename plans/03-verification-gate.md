@@ -277,7 +277,7 @@ git commit -m "feat: add guild-aware DiscordPort interface and test fake"
   `deps` is `{ repo, port, now }`. **Every method takes the `ResolvedGuildConfig`** rather than raw ids, so a half-configured guild cannot reach the service.
 - Plan 04's mod commands call `applyHold`, `liftHoldAndVerify` and `resetMember`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -472,12 +472,12 @@ describe('resetMember', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/core/onboarding-service.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/core/onboarding-service.ts`**
+- [x] **Step 3: Write `src/core/onboarding-service.ts`**
 
 ```ts
 import type { OnboardingRepository } from '../db/onboarding-repository.js'
@@ -631,12 +631,12 @@ export const createOnboardingService = (deps: ServiceDeps) => {
 export type OnboardingService = ReturnType<typeof createOnboardingService>
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/core/onboarding-service.test.ts`
 Expected: PASS, 18 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/onboarding-service.ts tests/core/onboarding-service.test.ts
