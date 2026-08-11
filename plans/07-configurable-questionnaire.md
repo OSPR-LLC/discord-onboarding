@@ -2,7 +2,7 @@
 plan: configurable-questionnaire
 project: discord-developer
 updated: 2026-08-11
-status: 🔵 Planning
+status: 🟡 In Progress
 tags: [plan]
 ---
 
@@ -40,7 +40,7 @@ tags: [plan]
 **Interfaces:**
 - Produces: three new tables — `questionnaire_questions`, `questionnaire_question_options`, `questionnaire_answers` (replacing the old fixed-column `questionnaire_answers`). Later tasks depend on these exact column names.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/db/migrate.test.ts`:
 
@@ -108,12 +108,12 @@ it('creates the question and option tables', () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `pnpm test tests/db/migrate.test.ts`
 Expected: FAIL — `questionnaire_questions`/`questionnaire_question_options` don't exist yet, and the old-shape table isn't dropped.
 
-- [ ] **Step 3: Replace the fixed-column table in schema.sql**
+- [x] **Step 3: Replace the fixed-column table in schema.sql**
 
 In `src/db/schema.sql`, replace the existing `questionnaire_answers` table definition with:
 
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS questionnaire_answers (
 );
 ```
 
-- [ ] **Step 4: Add the destructive drop to migrate.ts**
+- [x] **Step 4: Add the destructive drop to migrate.ts**
 
 In `src/db/migrate.ts`, find the existing line `db.exec(readFileSync(schemaPath, 'utf8'))` (it sits right after the pragma setup) and replace that single line with this block — the block's last line is the same `db.exec(...)` call, just with the drop-check now running immediately before it:
 
@@ -170,17 +170,17 @@ In `src/db/migrate.ts`, find the existing line `db.exec(readFileSync(schemaPath,
 
 There should be exactly one `db.exec(readFileSync(schemaPath, 'utf8'))` call in the file after this edit, not two.
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `pnpm test tests/db/migrate.test.ts`
 Expected: PASS — all migrate tests green, including the two new ones and the three pre-existing ones.
 
-- [ ] **Step 6: Typecheck**
+- [x] **Step 6: Typecheck**
 
 Run: `pnpm typecheck`
 Expected: no errors (this task touches no TypeScript signatures other than the SQL string).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/db/schema.sql src/db/migrate.ts tests/db/migrate.test.ts
@@ -202,7 +202,7 @@ git commit -m "replace fixed-column questionnaire_answers with normalized questi
 - Consumes: nothing new.
 - Produces: `QuestionType`, `QuestionOption`, `QuestionDefinition`, `QuestionAnswer` (from `src/types.ts`); `nextUnansweredQuestion(questions, answers): QuestionDefinition | null` (from `src/core/questionnaire.ts`). Every later task imports these exact names.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/core/questionnaire.test.ts`:
 
@@ -267,12 +267,12 @@ describe('nextUnansweredQuestion', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/core/questionnaire.test.ts`
 Expected: FAIL — `src/core/questionnaire.js` does not exist.
 
-- [ ] **Step 3: Add the shared types**
+- [x] **Step 3: Add the shared types**
 
 In `src/types.ts`, remove these three exports entirely (nothing outside this plan's later tasks references them once Tasks 3–10 land):
 
@@ -327,7 +327,7 @@ export type QuestionAnswer = {
 }
 ```
 
-- [ ] **Step 4: Implement `nextUnansweredQuestion`**
+- [x] **Step 4: Implement `nextUnansweredQuestion`**
 
 Create `src/core/questionnaire.ts`:
 
@@ -343,12 +343,12 @@ export const nextUnansweredQuestion = (
 }
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `pnpm test tests/core/questionnaire.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: Delete the superseded test file**
+- [x] **Step 6: Delete the superseded test file**
 
 `tests/discord/questionnaire.test.ts` tests the fixed `nextQuestion` function that Task 6 removes. Delete it now so the suite doesn't reference a soon-to-be-gone export in the meantime:
 
@@ -358,7 +358,7 @@ rm tests/discord/questionnaire.test.ts
 
 (`src/discord/components/questionnaire.ts` itself is rewritten in Task 6, not this task — leave it as-is for now. `pnpm typecheck`/`pnpm test` will show pre-existing failures referencing the old types until Tasks 3–10 land; that's expected mid-plan and is resolved by Task 11's final full-suite run.)
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/types.ts src/core/questionnaire.ts tests/core/questionnaire.test.ts
@@ -378,7 +378,7 @@ git commit -m "add configurable-question types and nextUnansweredQuestion domain
 - Consumes: `QuestionDefinition`, `QuestionOption`, `QuestionType` from `../types.js` (Task 2).
 - Produces: `createQuestionnaireRepository(db)` returning `{ listQuestions, addQuestion, editQuestion, removeQuestion, moveQuestion, clearQuestions }`, and `slugifyOptionLabels(labels: string[]): { label: string; value: string }[]`. Task 9 (admin commands) and Task 7/8 (member-facing flow) both depend on this exact shape.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/db/questionnaire-repository.test.ts`:
 
@@ -560,12 +560,12 @@ describe('clearQuestions', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/db/questionnaire-repository.test.ts`
 Expected: FAIL — `src/db/questionnaire-repository.js` does not exist.
 
-- [ ] **Step 3: Implement the repository**
+- [x] **Step 3: Implement the repository**
 
 Create `src/db/questionnaire-repository.ts`:
 
@@ -774,17 +774,17 @@ export const createQuestionnaireRepository = (db: Database) => {
 export type QuestionnaireRepository = ReturnType<typeof createQuestionnaireRepository>
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/db/questionnaire-repository.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Typecheck**
+- [x] **Step 5: Typecheck**
 
 Run: `pnpm typecheck`
 Expected: no errors from this file (other files still mid-migration will still error until Task 11 — that's expected, see Task 2 Step 6 note).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/db/questionnaire-repository.ts tests/db/questionnaire-repository.test.ts
@@ -806,7 +806,7 @@ git commit -m "add questionnaire-repository for admin-configured question CRUD"
 - Consumes: `QuestionAnswer` from `../types.js` (Task 2); `createQuestionnaireRepository` from `../db/questionnaire-repository.js` (Task 3, tests only).
 - Produces: `repo.getAnswers(guildId, userId): QuestionAnswer[]` (was a single nullable object, now an array); `repo.saveAnswer(guildId, userId, questionId, answer, at): void` (was a patch object, now one full answer per question). Tasks 7 and 8 call these exact signatures.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Replace the `saveAnswer` and `guild isolation` answer-related tests in `tests/db/onboarding-repository.test.ts`. Replace the two answer-related lines inside `describe('guild isolation', ...)`:
 
@@ -901,12 +901,12 @@ and add the throwaway-question insert as a `beforeEach` inside both `describe('g
 
 (adjust the guild id / question id per describe block as shown above).
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/db/onboarding-repository.test.ts`
 Expected: FAIL — `saveAnswer`/`getAnswers` still have the old patch-object signature.
 
-- [ ] **Step 3: Rewrite the repository's answer handling**
+- [x] **Step 3: Rewrite the repository's answer handling**
 
 In `src/db/onboarding-repository.ts`:
 
@@ -1006,12 +1006,12 @@ and in the returned object:
 		},
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/db/onboarding-repository.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Fix the audit-detail formatting in onboarding-service.ts**
+- [x] **Step 5: Fix the audit-detail formatting in onboarding-service.ts**
 
 In `src/core/onboarding-service.ts`, replace:
 
@@ -1044,7 +1044,7 @@ with:
 
 (This deliberately doesn't look up question prompts — that would require threading `questionnaireRepo` into `ServiceDeps` for a cosmetic audit-log improvement. `/onboarding status`, Task 10, already shows full prompt text and answers for a mod who needs the detail.)
 
-- [ ] **Step 6: Update onboarding-service.test.ts**
+- [x] **Step 6: Update onboarding-service.test.ts**
 
 Replace the imports:
 
@@ -1102,7 +1102,7 @@ Update the one other `saveAnswer` call site (inside the `'accepts steps in any o
 	})
 ```
 
-- [ ] **Step 7: Update tests/load/onboarding-load.test.ts**
+- [x] **Step 7: Update tests/load/onboarding-load.test.ts**
 
 Replace the `EXPERIENCE_LEVELS` import with `createQuestionnaireRepository` and `isOk`:
 
@@ -1152,17 +1152,17 @@ and construct `questionnaireRepo` alongside `repo` at the top of the test:
 
 (remove the now-unused `createTestDb()` call inside `service`'s construction line if it duplicated — `service` should be built from the same `repo`.)
 
-- [ ] **Step 8: Run the full test suite for this task's files**
+- [x] **Step 8: Run the full test suite for this task's files**
 
 Run: `pnpm test tests/db/onboarding-repository.test.ts tests/core/onboarding-service.test.ts tests/load/onboarding-load.test.ts`
 Expected: PASS across all three files.
 
-- [ ] **Step 9: Typecheck**
+- [x] **Step 9: Typecheck**
 
 Run: `pnpm typecheck`
 Expected: errors remaining only in files not yet touched (`src/discord/components/questionnaire.ts`, `src/discord/commands/intro.ts`, `src/discord/events/interaction-create.ts`, `src/discord/commands/onboarding.ts`) — those are Tasks 5–10.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add src/db/onboarding-repository.ts src/core/onboarding-service.ts tests/db/onboarding-repository.test.ts tests/core/onboarding-service.test.ts tests/load/onboarding-load.test.ts
@@ -1180,7 +1180,7 @@ git commit -m "store questionnaire answers per-question instead of fixed columns
 **Interfaces:**
 - Produces: `CUSTOM_IDS.questionAnswerInput` (fixed string), `CUSTOM_IDS.questionModal(id)`, `CUSTOM_IDS.questionSelect(id)`, `CUSTOM_IDS.questionSkip(id)` (functions). Tasks 6, 7, 8 depend on these names.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/discord/custom-ids.test.ts`:
 
@@ -1212,12 +1212,12 @@ describe('dynamic question custom ids', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/discord/custom-ids.test.ts`
 Expected: FAIL — `CUSTOM_IDS.questionModal` etc. don't exist.
 
-- [ ] **Step 3: Add the dynamic id builders**
+- [x] **Step 3: Add the dynamic id builders**
 
 In `src/discord/components/custom-ids.ts`, replace the fixed `purposeModal`/`purposeInput`/`experienceSelect`/`builtYes`/`builtNo` entries with:
 
@@ -1235,17 +1235,17 @@ export const CUSTOM_IDS = {
 } as const
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/discord/custom-ids.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Typecheck**
+- [x] **Step 5: Typecheck**
 
 Run: `pnpm typecheck`
 Expected: new errors appear in `src/discord/components/questionnaire.ts` (still references the removed `purposeModal`/`experienceSelect`/etc.) — expected, fixed in Task 6.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/discord/components/custom-ids.ts tests/discord/custom-ids.test.ts
@@ -1264,7 +1264,7 @@ git commit -m "add dynamic custom ids for admin-configured questions"
 - Consumes: `QuestionDefinition` from `../../types.js` (Task 2); `CUSTOM_IDS` from `./custom-ids.js` (Task 5).
 - Produces: `buildQuestionModal(question)`, `buildQuestionSelectRow(question)`, `buildQuestionSkipRow(question)`. Task 7 calls these.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/discord/questionnaire.test.ts`:
 
@@ -1341,12 +1341,12 @@ describe('buildQuestionSkipRow', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/discord/questionnaire.test.ts`
 Expected: FAIL — the current file still exports the old fixed builders, not these.
 
-- [ ] **Step 3: Rewrite the component builders**
+- [x] **Step 3: Rewrite the component builders**
 
 Replace the entire contents of `src/discord/components/questionnaire.ts`:
 
@@ -1404,17 +1404,17 @@ export const buildQuestionSkipRow = (
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/discord/questionnaire.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Typecheck**
+- [x] **Step 5: Typecheck**
 
 Run: `pnpm typecheck`
 Expected: errors remain in `src/discord/commands/intro.ts` and `src/discord/events/interaction-create.ts` (still call the old builder names) — fixed in Tasks 7–8.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/discord/components/questionnaire.ts tests/discord/questionnaire.test.ts
@@ -1434,7 +1434,7 @@ git commit -m "rewrite questionnaire component builders for dynamic questions"
 
 No dedicated test file for this task, matching the existing project convention already established for `intro.ts` (thin Discord-orchestration code — the meaningful logic it calls, `nextUnansweredQuestion`, is already unit tested in Task 2). Verified by `pnpm typecheck` plus the full suite in Task 11.
 
-- [ ] **Step 1: Rewrite `promptNextQuestion`**
+- [x] **Step 1: Rewrite `promptNextQuestion`**
 
 Replace the entire contents of `src/discord/commands/intro.ts`:
 
@@ -1524,12 +1524,12 @@ export const promptNextQuestion = async (
 }
 ```
 
-- [ ] **Step 2: Typecheck**
+- [x] **Step 2: Typecheck**
 
 Run: `pnpm typecheck`
 Expected: errors remain only in `src/discord/events/interaction-create.ts` (still calls `promptNextQuestion` with the old 4-argument signature and references the removed `nextQuestion`/old custom ids) — fixed in Task 8.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/discord/commands/intro.ts
@@ -1550,7 +1550,7 @@ git commit -m "rewrite promptNextQuestion to walk the guild's configured questio
 
 No dedicated test file, matching the existing convention for this file (thin Discord-orchestration/routing code; the logic it delegates to is unit tested elsewhere). Verified by `pnpm typecheck` plus the full suite in Task 11.
 
-- [ ] **Step 1: Rewrite the questionnaire-interaction branches**
+- [x] **Step 1: Rewrite the questionnaire-interaction branches**
 
 In `src/discord/events/interaction-create.ts`, replace the imports:
 
@@ -1691,7 +1691,7 @@ export const handleOnboardingInteraction = async (
 
 `advance`'s `responder` parameter is typed `PromptableInteraction` (imported above from `../commands/intro.js`, exported there in Task 7) — it covers every interaction kind this file passes to it (chat-input, button, select-menu, modal-submit), so no further import is needed beyond the one added to the top import block above.
 
-- [ ] **Step 2: Wire `questionnaireRepo` into index.ts**
+- [x] **Step 2: Wire `questionnaireRepo` into index.ts**
 
 In `src/index.ts`, add the import:
 
@@ -1718,12 +1718,12 @@ const onboardingDeps = {
 }
 ```
 
-- [ ] **Step 3: Typecheck**
+- [x] **Step 3: Typecheck**
 
 Run: `pnpm typecheck`
 Expected: errors remain only in `src/discord/commands/onboarding.ts` (Task 10, still reads `answers.purpose` etc.) and possibly `src/discord/commands/config.ts` (Task 9, not yet touched — should be unaffected by this task, but confirm). Everything in `interaction-create.ts` and `intro.ts` should be clean now.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/discord/events/interaction-create.ts src/index.ts
@@ -1743,7 +1743,7 @@ git commit -m "route dynamic question interactions through prefix-parsed custom 
 - Consumes: `QuestionnaireRepository` (Task 3).
 - Produces: `handleConfigQuestionCommand(interaction, deps)`; `parseOptionsInput(raw: string | null): string[]` (pure, unit tested). `ConfigCommandDeps` gains a `questionnaireRepo: QuestionnaireRepository` field.
 
-- [ ] **Step 1: Write the failing test for the pure helper**
+- [x] **Step 1: Write the failing test for the pure helper**
 
 Create `tests/discord/config-question.test.ts`:
 
@@ -1770,12 +1770,12 @@ describe('parseOptionsInput', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/discord/config-question.test.ts`
 Expected: FAIL — `src/discord/commands/config-question.js` does not exist.
 
-- [ ] **Step 3: Add the subcommand group to configCommand**
+- [x] **Step 3: Add the subcommand group to configCommand**
 
 In `src/discord/commands/config.ts`, add this `.addSubcommandGroup(...)` call to the `configCommand` builder chain, right before `.addSubcommand((sub) => sub.setName('enable')...)`:
 
@@ -1894,7 +1894,7 @@ At the very top of `handleConfigCommand`, before `const subcommand = interaction
 
 ```
 
-- [ ] **Step 4: Implement config-question.ts**
+- [x] **Step 4: Implement config-question.ts**
 
 Create `src/discord/commands/config-question.ts`:
 
@@ -2069,12 +2069,12 @@ export const handleConfigQuestionCommand = async (
 }
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `pnpm test tests/discord/config-question.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: Typecheck**
+- [x] **Step 6: Typecheck**
 
 Run: `pnpm typecheck`
 Expected: `src/discord/commands/config.ts` now needs `questionnaireRepo` at its call site in `src/index.ts` — add it there too (this task's job, since `ConfigCommandDeps` changed):
@@ -2085,12 +2085,12 @@ In `src/index.ts`, find where `deps` is built inside the `InteractionCreate` han
 			const deps = { guildConfig, questionnaireRepo, now: () => new Date().toISOString() }
 ```
 
-- [ ] **Step 7: Run full typecheck again**
+- [x] **Step 7: Run full typecheck again**
 
 Run: `pnpm typecheck`
 Expected: errors remain only in `src/discord/commands/onboarding.ts` (Task 10).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/discord/commands/config.ts src/discord/commands/config-question.ts tests/discord/config-question.test.ts src/index.ts
@@ -2110,7 +2110,7 @@ git commit -m "add /config question admin commands for managing the questionnair
 
 No dedicated test file, matching this file's existing convention (no `tests/discord/onboarding.test.ts` exists today either). Verified by `pnpm typecheck` plus the full suite in Task 11.
 
-- [ ] **Step 1: Rewrite the answer-rendering part of buildStatusEmbed**
+- [x] **Step 1: Rewrite the answer-rendering part of buildStatusEmbed**
 
 In `src/discord/commands/onboarding.ts`, add the import:
 
@@ -2194,21 +2194,21 @@ Update the one call site inside `handleOnboardingCommand`:
 		)
 ```
 
-- [ ] **Step 2: Wire questionnaireRepo into the onboarding command deps**
+- [x] **Step 2: Wire questionnaireRepo into the onboarding command deps**
 
 In `src/index.ts`, find where `handleOnboardingCommand` is invoked (inside `handleOnboardingInteraction` in `interaction-create.ts`, which already receives `questionnaireRepo` via `deps` since Task 8) — confirm the call site at `src/discord/events/interaction-create.ts`'s `/onboarding` branch already passes `questionnaireRepo` (it does, per Task 8 Step 1's rewritten `handleOnboardingCommand(interaction, { guildConfig, repo, questionnaireRepo, service })`). No further change needed here — this step just confirms wiring is already complete via Task 8.
 
-- [ ] **Step 3: Typecheck**
+- [x] **Step 3: Typecheck**
 
 Run: `pnpm typecheck`
 Expected: clean — zero errors across the whole project.
 
-- [ ] **Step 4: Run the full test suite**
+- [x] **Step 4: Run the full test suite**
 
 Run: `pnpm test`
 Expected: every test file passes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/discord/commands/onboarding.ts
@@ -2224,7 +2224,7 @@ git commit -m "show dynamic questionnaire answers in /onboarding status"
 - Modify: `plans/00-overview.md`
 - Modify: `PLAN.md`
 
-- [ ] **Step 1: Update README.md**
+- [x] **Step 1: Update README.md**
 
 In the `## Configuration` section, add the new commands to the fenced command block, right after `/config intro-template`:
 
@@ -2249,7 +2249,7 @@ Update the `## Plans` table to add a row:
 | 07  | [configurable-questionnaire](plans/07-configurable-questionnaire.md) | Admin-configurable questionnaire — question CRUD, dynamic delivery |
 ```
 
-- [ ] **Step 2: Update plans/00-overview.md**
+- [x] **Step 2: Update plans/00-overview.md**
 
 Append to `## Architecture Decisions`:
 
@@ -2263,7 +2263,7 @@ Add a row to `## Module Plans`:
 | [[07-configurable-questionnaire]]    | 🔵 Planning    | —                                    |
 ```
 
-- [ ] **Step 3: Update PLAN.md**
+- [x] **Step 3: Update PLAN.md**
 
 Add a row to the Phases & Sub-Plans table:
 
@@ -2273,12 +2273,12 @@ Add a row to the Phases & Sub-Plans table:
 
 Rewrite the `## Current Focus` section's opening paragraph to mention Plan 07 alongside Plan 06, and note that its live-verification step (creating a few questions of each type via `/config question add` and walking `/intro` through them by hand) joins the existing checklist.
 
-- [ ] **Step 4: Final full verification**
+- [x] **Step 4: Final full verification**
 
 Run: `pnpm typecheck && pnpm test`
 Expected: both clean, no errors, all tests passing (the full suite, including every file touched across Tasks 1–10).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md plans/00-overview.md PLAN.md

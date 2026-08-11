@@ -24,12 +24,13 @@
 | 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🟡 In Progress | Reminder DMs, `/onboarding` mod commands, audit log                 |
 | 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🟡 In Progress | Priority queue, config cache, chunked reconcile, sharding, metrics  |
 | 06  | [plans/06-intro-template-message](plans/06-intro-template-message.md)       | 🟡 In Progress | Configurable, pinned intro template on `/config enable`             |
+| 07  | [plans/07-configurable-questionnaire](plans/07-configurable-questionnaire.md) | 🟡 In Progress | Admin-configurable questionnaire replacing the 3 fixed questions |
 
 Archived in [`plans/archive/`](plans/archive/) — superseded single-guild drafts, kept for history.
 
 ## Current Focus
 
-> **Plans 01–06 are all code-complete.** Plan 06 (configurable, pinned introduction template) landed in response to a direct user request — not in the original spec — and is fully implemented: schema + guarded migration, repository layer, `/config intro-template` command mirroring `/config rules-text`, wired into `enable`, README updated (including a new "Restricting channels for new members" section, since the bot deliberately does not manage Discord channel permissions itself). `pnpm typecheck` and `pnpm test` both green (146 tests). No `worker_threads` import exists anywhere in the codebase, confirmed by grep.
+> **Plans 01–07 are all code-complete.** Plans 06 and 07 both landed in response to a direct user request — not in the original spec — and are fully implemented: Plan 06 (configurable, pinned introduction template) includes schema + guarded migration, repository layer, `/config intro-template` command mirroring `/config rules-text`, wired into `enable`. Plan 07 (configurable questionnaire) replaces the hardcoded three questions with a per-guild admin-configurable question set via `/config question add/edit/remove/move/list/clear`, each question free-text or select (single/multi), each independently required. The old fixed-column `questionnaire_answers` table was dropped and recreated in normalized shape — a deliberate, accepted data-loss migration since no guild had live answer data yet. `pnpm typecheck` and `pnpm test` both green (177 tests). No `worker_threads` import exists anywhere in the codebase, confirmed by grep.
 >
 > Every plan from 02 onward sits at 🟡 for the same reason — code and tests done, only hands-on Discord-client verification remains, yours to run whenever convenient:
 >
@@ -38,6 +39,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 > - Plan 04: Task 3 Step 5
 > - Plan 05: Task 5 Step 5 (sharding end-to-end + onboarding under sharding — partially verified already, see Task 5's notes for the two real bugs found and fixed live), Task 5 Step 6 (concurrent-shard DB writes), Task 6 Step 6 (stats line against a live run)
 > - Plan 06: Task 3 Step 8 (confirm the template posts/pins live, and that repeat edits stay in place)
+> - Plan 07: Create a few questions of each type via `/config question add` and walk `/intro` through them by hand
 >
 > No new task to start — next session's work is either running through this checklist, or scoping what comes next.
 >
