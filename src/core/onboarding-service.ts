@@ -1,4 +1,5 @@
 import type { OnboardingRepository } from '../db/onboarding-repository.js'
+import type { Metrics } from '../observability/metrics.js'
 import type { OnboardingRecord, OnboardingStep } from '../types.js'
 import type { DiscordPort } from './discord-port.js'
 import { evaluateGate, type GateDecision } from './gate.js'
@@ -8,13 +9,14 @@ export type ServiceDeps = {
 	readonly repo: OnboardingRepository
 	readonly port: DiscordPort
 	readonly now: () => string
+	readonly metrics?: Metrics
 }
 
 export const isGrandfathered = (config: ResolvedGuildConfig, joinedAtMs: number): boolean =>
 	config.grandfatherBefore !== null && joinedAtMs < Date.parse(config.grandfatherBefore)
 
 export const createOnboardingService = (deps: ServiceDeps) => {
-	const { repo, port, now } = deps
+	const { repo, port, now, metrics } = deps
 
 	const applyUnverified = async (config: ResolvedGuildConfig, userId: string): Promise<void> => {
 		await port.addRole(config.guildId, userId, config.unverifiedRoleId)
@@ -39,6 +41,7 @@ export const createOnboardingService = (deps: ServiceDeps) => {
 		}
 
 		repo.markVerified(config.guildId, record.userId, now())
+		metrics?.increment('verified')
 		await port.removeRole(config.guildId, record.userId, config.unverifiedRoleId)
 
 		const answers = repo.getAnswers(config.guildId, record.userId)

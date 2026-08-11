@@ -21,6 +21,7 @@ import { createQueuedPort } from './discord/queued-port.js'
 import { registerCommands } from './discord/register-commands.js'
 import { safeHandler } from './discord/safe-handler.js'
 import { loadEnv } from './env.js'
+import { createMetrics, startLagMonitor } from './observability/metrics.js'
 import { reconcile } from './tasks/reconcile.js'
 import { runReminderSweep } from './tasks/reminder-sweep.js'
 
@@ -40,10 +41,14 @@ const rawPort = createDiscordPort(client)
 const port = createQueuedPort(rawPort, discordQueue, 'interactive')
 const bulkPort = createQueuedPort(rawPort, discordQueue, 'bulk')
 
+const metrics = createMetrics()
+const stopLagMonitor = startLagMonitor(metrics)
+
 const service = createOnboardingService({
 	repo: onboarding,
 	port,
-	now: () => new Date().toISOString()
+	now: () => new Date().toISOString(),
+	metrics
 })
 const onboardingDeps = {
 	guildConfig,
@@ -57,6 +62,27 @@ let sweepTimer: NodeJS.Timeout | undefined
 // Undefined outside a sharded process; discord.js injects SHARDS/SHARD_COUNT
 // automatically when spawned via src/shard.ts.
 const shardId = client.shard?.ids[0] ?? 0
+
+const statsTimer = setInterval(() => {
+	const snapshot = metrics.snapshot()
+
+	console.info(
+		JSON.stringify({
+			level: 'info',
+			event: 'stats',
+			shardId,
+			guilds: client.guilds.cache.size,
+			queueInteractive: discordQueue.size('interactive'),
+			queueBulk: discordQueue.size('bulk'),
+			queueActive: discordQueue.pending(),
+			configCache: guildConfig.stats(),
+			rssMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
+			...snapshot
+		})
+	)
+}, 60_000)
+
+statsTimer.unref()
 
 client.once(
 	Events.ClientReady,
@@ -98,7 +124,8 @@ client.once(
 				guildConfig,
 				repo: onboarding,
 				port: bulkPort,
-				now: () => new Date()
+				now: () => new Date(),
+				metrics
 			}).catch((error: unknown) => {
 				console.error(
 					JSON.stringify({
@@ -162,6 +189,8 @@ client.on(
 
 const shutdown = (): void => {
 	if (sweepTimer) clearInterval(sweepTimer)
+	clearInterval(statsTimer)
+	stopLagMonitor()
 	void client.destroy()
 	db.close()
 	process.exit(0)

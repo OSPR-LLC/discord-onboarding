@@ -2,6 +2,7 @@ import type { DiscordPort } from '../core/discord-port.js'
 import { resolveGuildConfig, type ResolvedGuildConfig } from '../core/guild-config.js'
 import type { GuildConfigRepository } from '../db/guild-config-repository.js'
 import type { OnboardingRepository } from '../db/onboarding-repository.js'
+import type { Metrics } from '../observability/metrics.js'
 import { isOk, type OnboardingRecord } from '../types.js'
 
 export const FIRST_REMINDER_MS = 24 * 60 * 60 * 1000
@@ -11,6 +12,7 @@ export type GuildSweepDeps = {
 	readonly repo: OnboardingRepository
 	readonly port: DiscordPort
 	readonly now: () => Date
+	readonly metrics?: Metrics
 }
 
 export type SweepDeps = GuildSweepDeps & {
@@ -51,6 +53,7 @@ export const runGuildReminderSweep = async (
 				body: `You still need to:\n${steps.map((step) => `• ${step}`).join('\n')}`
 			})
 			sent += 1
+			deps.metrics?.increment('reminded')
 		}
 
 		deps.repo.incrementReminder(config.guildId, record.userId, now.toISOString())

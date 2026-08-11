@@ -28,11 +28,11 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 05, Task 6 — observability (`src/observability/metrics.ts`). Tasks 1–5 (priority task queue, queued `DiscordPort` decorator, cached guild config repository, chunked/yielding reconciliation, sharding entrypoint) are complete and verified. `pnpm typecheck` and `pnpm test` both green (136 tests).
+> Plan 05, Task 7 — load harness (`tests/load/onboarding-load.test.ts`), the final task in Plan 05. Tasks 1–6 (priority task queue, queued `DiscordPort` decorator, cached guild config repository, chunked/yielding reconciliation, sharding entrypoint, observability) are complete and verified. `pnpm typecheck` and `pnpm test` both green (140 tests).
 >
-> **Two real bugs found and fixed while smoke-testing Task 5 live** (`SHARD_COUNT=2 pnpm dev:sharded` against the real test guild): (1) `src/shard.ts` pointed at `./index.js`, which only exists after `pnpm build` — dev mode has no compiled output, so it threw `ENOENT`; now picks `./index.ts` + tsx's loader in dev vs `./index.js` in prod. (2) Startup reconciliation used `ready.guilds.fetch(guildId)` (a REST call that succeeds for any guild regardless of which shard's gateway owns it), then crashed inside discord.js when `reconcile()` called `guild.members.fetch()` on a guild this shard doesn't actually have a gateway link to; now uses `ready.guilds.cache.get(guildId)` to scope reconciliation correctly. Both only reproduce with `SHARD_COUNT` > 1 — invisible before Task 5 existed. Verified after fixing: two shards spawn and ready cleanly with distinct `shardId`s, no crash. Full Task 5 Step 5/6 verification (live onboarding under sharding, concurrent-shard DB writes) still needs your hands-on run.
+> **Resolved:** README's "Running at Scale" doc gap is now fully closed — `pnpm start:sharded`, `SHARD_COUNT`, the decisions doc, and `src/observability/metrics.ts` all genuinely exist now.
 >
-> Added to CLAUDE.md's Hard Rules: `SHARD_COUNT` joins the allowed env-var list (deployment topology, like `DATABASE_PATH` — not guild config). Confirmed with you before making the change. **Resolved:** README's "Running at Scale" doc gap — `pnpm start:sharded`/`SHARD_COUNT` and the decisions doc now genuinely exist; only the `src/observability/metrics.ts` reference is still forward-looking, and Task 6 closes that.
+> Task 5's two human-only steps (verify sharding locally end-to-end, verify concurrent-shard DB writes) and Task 6's one (verify the stats line against a live run) remain open for you, alongside the same items from Plans 02–04.
 >
 > Plans 02, 03, and 04 all sit at 🟡 for the same reason: code and tests are done, only live-Discord-client verification steps remain, yours to run whenever convenient (Plan 02: Task 5 Step 4, Task 6 Step 2; Plan 03: Task 7 Step 6, Task 8 Step 5; Plan 04: Task 3 Step 5).
 >

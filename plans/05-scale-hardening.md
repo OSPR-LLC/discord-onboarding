@@ -1027,7 +1027,7 @@ two real bugs in the process (both documented below and in `src/shard.ts`/`src/i
    and point at `./index.ts` with `execArgv: ['--import', 'tsx']` so the forked child can
    run TypeScript directly.
 2. The startup reconciliation loop in `src/index.ts` used `ready.guilds.fetch(guildId)` —
-   a REST call that succeeds for *any* guild the bot is in, even ones owned by a different
+   a REST call that succeeds for _any_ guild the bot is in, even ones owned by a different
    shard's gateway connection. `reconcile()` then calls `guild.members.fetch()`, which
    needs that guild's actual gateway link; on a non-owning shard this crashed inside
    discord.js with `Cannot read properties of undefined (reading 'send')`. Reproduced
@@ -1077,7 +1077,7 @@ git commit -m "feat: add process sharding entrypoint"
 
 **Why:** this is what tells you whether any of the above is working, and it is the evidence that would justify a worker thread if genuine CPU-bound work ever appears.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -1118,12 +1118,12 @@ describe('createMetrics', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/observability/metrics.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/observability/metrics.ts`**
+- [x] **Step 3: Write `src/observability/metrics.ts`**
 
 ```ts
 export type MetricsSnapshot = {
@@ -1193,12 +1193,12 @@ export const startLagMonitor = (metrics: Metrics, intervalMs = 1000): (() => voi
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/observability/metrics.test.ts`
 Expected: PASS, 4 tests.
 
-- [ ] **Step 5: Wire it into `src/index.ts`**
+- [x] **Step 5: Wire it into `src/index.ts`**
 
 ```ts
 const metrics = createMetrics()
@@ -1235,12 +1235,17 @@ Call `metrics.increment('verified')` in `grantVerified`'s success path and `metr
 Run the bot for a few minutes against a test guild and complete one onboarding.
 Expected: a `stats` line every 60 s showing `lag.max` in single-digit milliseconds when idle, `configCache.hits` climbing far faster than `misses`, and `verified: 1` in the interval where onboarding completed.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/observability tests/observability src/index.ts
 git commit -m "feat: add metrics, event loop lag monitoring, and stats logging"
 ```
+
+Corrected file list: threading `metrics` into `grantVerified` and the sweep also touched
+`src/core/onboarding-service.ts` (added optional `metrics?: Metrics` to `ServiceDeps`) and
+`src/tasks/reminder-sweep.ts` (added optional `metrics?: Metrics` to `GuildSweepDeps`) —
+add those two files as well.
 
 ---
 
