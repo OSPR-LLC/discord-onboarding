@@ -28,7 +28,11 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 04, Task 3 — register the `/onboarding` command and start the hourly reminder sweep (modifies `register-commands.ts`, `interaction-create.ts`, `index.ts`; also updates the README). Tasks 1–2 (reminder sweep, `/onboarding` command) are complete and verified. Plan 03's code is complete (all 8 tasks); it stays 🟡 until two human-only steps are run: Task 7 Step 6 (hands-on flow walkthrough) and Task 8 Step 5 (verify reconcile against the test guild) — same treatment as Plan 02's two open checklist items (Task 5 Step 4, Task 6 Step 2).
+> Plan 04's code is complete — all 3 tasks done (reminder sweep, `/onboarding` command, command registration + hourly sweep wiring + README). `pnpm typecheck` and `pnpm test` both green (103 tests). Plan 04 stays 🟡 until its one human-only step is run: Task 3 Step 5 (verify the moderator commands by hand). Plan 05 (scale hardening) is next up — requires Plan 04, which is code-complete.
+>
+> Plans 02, 03, and 04 all sit at 🟡 for the same reason: code and tests are done, only live-Discord-client verification steps remain, yours to run whenever convenient (Plan 02: Task 5 Step 4, Task 6 Step 2; Plan 03: Task 7 Step 6, Task 8 Step 5; Plan 04: Task 3 Step 5).
+>
+> **Known doc gap (not yet fixed):** README's "Running at Scale" section already describes `pnpm dev:sharded`/`pnpm start:sharded`, `SHARD_COUNT`, and `src/observability/metrics.ts` as if built — none of it exists yet; it's Plan 05's scope. Written prematurely in an earlier session pass. Needs a fix or a "planned" caveat before Plan 05 lands.
 
 ## Blockers
 

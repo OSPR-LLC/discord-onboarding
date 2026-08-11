@@ -169,6 +169,30 @@ To also require existing members to onboard, run `/config grandfather action:cle
 
 See the [design spec](docs/superpowers/specs/2026-08-08-onboarding-verification-gate-design.md) for the full command surface (`/config`, `/onboarding`, `/intro`).
 
+## Moderator commands
+
+`/onboarding` requires **Manage Roles** — members without it never see the command. It has four subcommands, all scoped to the server they're run in:
+
+```
+/onboarding status member:@someone      # progress through rules → questionnaire → intro → verified
+/onboarding verify member:@someone      # force-verify, lifting any hold
+/onboarding unverify member:@someone    # remove verification and place a hold
+/onboarding reset member:@someone       # wipe their record entirely
+```
+
+`/onboarding unverify` and `/onboarding reset` do different things:
+
+- **`unverify`** removes the `verified` role and applies a hold. Their completed steps (rules accepted, questionnaire answers, intro post) are kept — a hold only blocks the automatic re-grant, so posting again in the introductions channel does **not** re-verify them. `/onboarding verify` lifts the hold and restores the role.
+- **`reset`** wipes the record completely. The member goes through onboarding again from the start, as if they had just joined.
+
+`/onboarding status` against a member the bot has never seen reports "no record" rather than erroring, and against a disabled server explains that onboarding isn't set up yet.
+
+## Reminders
+
+Members who stall partway through onboarding get up to two reminder DMs — one at ~24 hours, one at ~72 hours after they joined — each listing only the steps they still have outstanding. After the second reminder, the bot goes silent. **The bot never kicks or bans anyone**, in any server, under any circumstance. A member with DMs closed is still marked as reminded so they aren't retried on every sweep.
+
+The sweep runs once at startup and then hourly, across every enabled server in one process. One server's failure doesn't stop the sweep for the others.
+
 ## Troubleshooting
 
 | Symptom                                | Likely cause                                                                                                                            |

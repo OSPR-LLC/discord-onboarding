@@ -4,6 +4,7 @@ import type { GuildConfigRepository } from '../../db/guild-config-repository.js'
 import type { OnboardingRepository } from '../../db/onboarding-repository.js'
 import type { ExperienceLevel } from '../../types.js'
 import { promptNextQuestion } from '../commands/intro.js'
+import { handleOnboardingCommand } from '../commands/onboarding.js'
 import { CUSTOM_IDS, parseCustomId } from '../components/custom-ids.js'
 import { nextQuestion } from '../components/questionnaire.js'
 import { resolveActiveConfig } from '../resolve-active-config.js'
@@ -33,6 +34,11 @@ export const handleOnboardingInteraction = async (
 			return
 		}
 		await promptNextQuestion(interaction, repo, config.guildId, userId)
+		return
+	}
+
+	if (interaction.isChatInputCommand() && interaction.commandName === 'onboarding') {
+		await handleOnboardingCommand(interaction, { guildConfig, repo, service })
 		return
 	}
 

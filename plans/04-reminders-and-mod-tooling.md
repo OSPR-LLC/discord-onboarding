@@ -491,7 +491,7 @@ git commit -m "feat: add /onboarding moderator command"
 
 - Modify: `src/discord/register-commands.ts`, `src/discord/events/interaction-create.ts`, `src/index.ts`
 
-- [ ] **Step 1: Add the command to registration**
+- [x] **Step 1: Add the command to registration**
 
 In `src/discord/register-commands.ts`, extend the array:
 
@@ -499,7 +499,7 @@ In `src/discord/register-commands.ts`, extend the array:
 const commands = [configCommand.toJSON(), introCommand.toJSON(), onboardingCommand.toJSON()]
 ```
 
-- [ ] **Step 2: Route the command**
+- [x] **Step 2: Route the command**
 
 In `src/discord/events/interaction-create.ts`, add a branch immediately after the `/intro` branch. `handleOnboardingCommand` resolves config itself and replies helpfully when the guild is inactive, so no `resolveActiveConfig` guard is needed here:
 
@@ -512,7 +512,7 @@ if (interaction.isChatInputCommand() && interaction.commandName === 'onboarding'
 
 Add the import.
 
-- [ ] **Step 3: Start the hourly sweep in `src/index.ts`**
+- [x] **Step 3: Start the hourly sweep in `src/index.ts`**
 
 After reconciliation:
 
@@ -543,7 +543,7 @@ sweepTimer.unref()
 
 Add `clearInterval(sweepTimer)` to `shutdown`. Because `sweepTimer` is created inside the `ClientReady` handler, hoist it to module scope as `let sweepTimer: NodeJS.Timeout | undefined` and guard the clear with `if (sweepTimer) clearInterval(sweepTimer)`.
 
-- [ ] **Step 4: Verify the full suite**
+- [x] **Step 4: Verify the full suite**
 
 Run: `pnpm test && pnpm typecheck`
 Expected: every test green, no type errors.
@@ -561,11 +561,11 @@ Against a throwaway guild, as a user with Manage Roles, targeting a verified sec
 
 Then confirm a non-staff account cannot see the command, and that `/onboarding status` in a disabled server explains onboarding is not set up.
 
-- [ ] **Step 6: Update the README**
+- [x] **Step 6: Update the README**
 
 Add a **Moderator commands** section documenting the four subcommands, that they require Manage Roles, and the difference between `unverify` (keeps history, blocks re-verification via a hold) and `reset` (wipes everything). Add a **Reminders** note: two DMs at ~24h and ~72h, then silence, and that the bot never kicks anyone.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/discord src/index.ts README.md

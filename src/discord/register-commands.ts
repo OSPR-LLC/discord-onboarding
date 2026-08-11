@@ -1,12 +1,13 @@
 import type { Client } from 'discord.js'
 import { configCommand } from './commands/config.js'
 import { introCommand } from './commands/intro.js'
+import { onboardingCommand } from './commands/onboarding.js'
 
 export const registerCommands = async (
 	client: Client<true>,
 	devGuildId?: string
 ): Promise<void> => {
-	const commands = [configCommand.toJSON(), introCommand.toJSON()]
+	const commands = [configCommand.toJSON(), introCommand.toJSON(), onboardingCommand.toJSON()]
 
 	// Registering both scopes at once shows every command twice in the dev
 	// guild — Discord's command picker does not dedupe a global command

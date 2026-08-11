@@ -19,6 +19,7 @@ import { registerCommands } from './discord/register-commands.js'
 import { safeHandler } from './discord/safe-handler.js'
 import { loadEnv } from './env.js'
 import { reconcile } from './tasks/reconcile.js'
+import { runReminderSweep } from './tasks/reminder-sweep.js'
 
 const env = loadEnv()
 
@@ -42,6 +43,8 @@ const onboardingDeps = {
 	service,
 	now: () => new Date().toISOString()
 }
+
+let sweepTimer: NodeJS.Timeout | undefined
 
 client.once(
 	Events.ClientReady,
@@ -68,6 +71,29 @@ client.once(
 			const guild = await ready.guilds.fetch(config.guildId).catch(() => null)
 			if (guild) await reconcile({ guild, guildConfig, repo: onboarding, service, port })
 		}
+
+		const HOUR_MS = 60 * 60 * 1000
+
+		const sweep = (): void => {
+			void runReminderSweep({
+				guildConfig,
+				repo: onboarding,
+				port,
+				now: () => new Date()
+			}).catch((error: unknown) => {
+				console.error(
+					JSON.stringify({
+						level: 'error',
+						event: 'reminder-sweep-failed',
+						error: error instanceof Error ? error.message : String(error)
+					})
+				)
+			})
+		}
+
+		sweep()
+		sweepTimer = setInterval(sweep, HOUR_MS)
+		sweepTimer.unref()
 	})
 )
 
@@ -116,6 +142,7 @@ client.on(
 )
 
 const shutdown = (): void => {
+	if (sweepTimer) clearInterval(sweepTimer)
 	void client.destroy()
 	db.close()
 	process.exit(0)
