@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 04, Task 2 — the `/onboarding` moderator command (`src/discord/commands/onboarding.ts`). Task 1 (multi-guild reminder sweep, `src/tasks/reminder-sweep.ts`) is complete and verified — 11 tests, all repository plumbing it needed already existed from the Plan 01 schema. Plan 03's code is complete (all 8 tasks); it stays 🟡 until two human-only steps are run: Task 7 Step 6 (hands-on flow walkthrough) and Task 8 Step 5 (verify reconcile against the test guild) — same treatment as Plan 02's two open checklist items (Task 5 Step 4, Task 6 Step 2).
+> Plan 04, Task 3 — register the `/onboarding` command and start the hourly reminder sweep (modifies `register-commands.ts`, `interaction-create.ts`, `index.ts`; also updates the README). Tasks 1–2 (reminder sweep, `/onboarding` command) are complete and verified. Plan 03's code is complete (all 8 tasks); it stays 🟡 until two human-only steps are run: Task 7 Step 6 (hands-on flow walkthrough) and Task 8 Step 5 (verify reconcile against the test guild) — same treatment as Plan 02's two open checklist items (Task 5 Step 4, Task 6 Step 2).
 
 ## Blockers
 

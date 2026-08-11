@@ -307,7 +307,7 @@ git commit -m "feat: add multi-guild reminder sweep"
 - Consumes: `OnboardingService` (`applyHold`, `liftHoldAndVerify`, `resetMember`), `OnboardingRepository`, `resolveActiveConfig`.
 - Produces: `onboardingCommand` and `handleOnboardingCommand(interaction, deps)` where `deps` is `{ guildConfig, repo, service }`.
 
-- [ ] **Step 1: Write `src/discord/commands/onboarding.ts`**
+- [x] **Step 1: Write `src/discord/commands/onboarding.ts`**
 
 Note the `status` reply builds its payload in two branches rather than passing `content: undefined`, which `exactOptionalPropertyTypes` rejects.
 
@@ -471,12 +471,12 @@ export const handleOnboardingCommand = async (
 }
 ```
 
-- [ ] **Step 2: Verify it compiles**
+- [x] **Step 2: Verify it compiles**
 
 Run: `pnpm typecheck`
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/discord/commands/onboarding.ts
