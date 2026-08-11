@@ -65,6 +65,6 @@ describe('buildQuestionSkipRow', () => {
 
 	it('returns a skip button row for an optional question', () => {
 		const row = buildQuestionSkipRow(optionalSelect)
-		expect(row?.components[0]?.data.custom_id).toBe('onboarding:question-skip:2')
+		expect((row?.components[0]?.data as { custom_id?: string })?.custom_id).toBe('onboarding:question-skip:2')
 	})
 })

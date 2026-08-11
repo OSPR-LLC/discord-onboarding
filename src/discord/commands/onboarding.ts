@@ -8,6 +8,7 @@ import {
 import type { OnboardingService } from '../../core/onboarding-service.js'
 import type { GuildConfigRepository } from '../../db/guild-config-repository.js'
 import type { OnboardingRepository } from '../../db/onboarding-repository.js'
+import type { QuestionnaireRepository } from '../../db/questionnaire-repository.js'
 import type { OnboardingRecord } from '../../types.js'
 import { resolveActiveConfig } from '../resolve-active-config.js'
 
@@ -52,6 +53,7 @@ export const onboardingCommand = new SlashCommandBuilder()
 export type OnboardingCommandDeps = {
 	readonly guildConfig: GuildConfigRepository
 	readonly repo: OnboardingRepository
+	readonly questionnaireRepo: QuestionnaireRepository
 	readonly service: OnboardingService
 }
 
@@ -63,11 +65,23 @@ const stepField = (name: string, at: string | null) => ({
 	inline: false
 })
 
+const formatAnswer = (
+	question: { type: string; options: readonly { value: string; label: string }[] },
+	answer: { textValue: string | null; selectedValues: readonly string[] } | undefined
+): string => {
+	if (!answer) return '⬜ not answered'
+	if (question.type === 'text') return answer.textValue || '_(skipped)_'
+	if (answer.selectedValues.length === 0) return '_(skipped)_'
+	const labels = new Map(question.options.map((o) => [o.value, o.label]))
+	return answer.selectedValues.map((value) => labels.get(value) ?? value).join(', ')
+}
+
 const buildStatusEmbed = (
 	guildId: string,
 	userId: string,
 	record: OnboardingRecord,
-	repo: OnboardingRepository
+	repo: OnboardingRepository,
+	questionnaireRepo: QuestionnaireRepository
 ): EmbedBuilder => {
 	const embed = new EmbedBuilder()
 		.setTitle('Onboarding status')
@@ -85,17 +99,16 @@ const buildStatusEmbed = (
 			value: `Applied ${record.verificationHoldAt} by <@${record.verificationHoldBy ?? 'unknown'}>`
 		})
 
-	const answers = repo.getAnswers(guildId, userId)
-	if (answers)
+	const questions = questionnaireRepo.listQuestions(guildId)
+	if (questions.length > 0) {
+		const answers = new Map(repo.getAnswers(guildId, userId).map((a) => [a.questionId, a]))
 		embed.addFields(
-			{ name: 'Purpose', value: answers.purpose ?? '—' },
-			{ name: 'Experience', value: answers.experienceLevel ?? '—', inline: true },
-			{
-				name: 'Built for Discord',
-				value: answers.builtForDiscord === null ? '—' : answers.builtForDiscord ? 'Yes' : 'No',
-				inline: true
-			}
+			questions.map((question) => ({
+				name: `${question.position}. ${question.prompt}`,
+				value: formatAnswer(question, answers.get(question.id))
+			}))
 		)
+	}
 
 	return embed
 }
@@ -126,7 +139,7 @@ export const handleOnboardingCommand = async (
 		// under exactOptionalPropertyTypes.
 		await interaction.reply(
 			record
-				? { embeds: [buildStatusEmbed(config.guildId, target.id, record, deps.repo)], ...ephemeral }
+				? { embeds: [buildStatusEmbed(config.guildId, target.id, record, deps.repo, deps.questionnaireRepo)], ...ephemeral }
 				: { content: `<@${target.id}> has no onboarding record in this server.`, ...ephemeral }
 		)
 		return
