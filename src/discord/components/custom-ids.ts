@@ -8,7 +8,9 @@ export const CUSTOM_IDS = {
 	builtYes: `${NAMESPACE}:q3:yes`,
 	builtNo: `${NAMESPACE}:q3:no`,
 	rulesTextModal: `${NAMESPACE}:rules-text-modal`,
-	rulesTextInput: `${NAMESPACE}:rules-text-input`
+	rulesTextInput: `${NAMESPACE}:rules-text-input`,
+	introTemplateModal: `${NAMESPACE}:intro-template-modal`,
+	introTemplateInput: `${NAMESPACE}:intro-template-input`
 } as const
 
 export type ParsedCustomId = {

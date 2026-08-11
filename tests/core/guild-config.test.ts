@@ -12,6 +12,8 @@ const complete: GuildConfigRow = {
 	unverifiedRoleId: '6',
 	rulesText: 'Be nice.',
 	rulesMessageId: null,
+	introTemplateText: 'Name:',
+	introTemplateMessageId: null,
 	enabled: true,
 	grandfatherBefore: '2026-08-10T00:00:00.000Z',
 	joinedAt: '2026-08-01T00:00:00.000Z',
@@ -62,5 +64,11 @@ describe('resolveGuildConfig', () => {
 		const result = resolveGuildConfig({ ...complete, rulesText: null })
 		expect(isOk(result)).toBe(true)
 		if (isOk(result)) expect(result.value.rulesText.length).toBeGreaterThan(0)
+	})
+
+	it('falls back to the default intro template when none has been set', () => {
+		const result = resolveGuildConfig({ ...complete, introTemplateText: null })
+		expect(isOk(result)).toBe(true)
+		if (isOk(result)) expect(result.value.introTemplateText.length).toBeGreaterThan(0)
 	})
 })

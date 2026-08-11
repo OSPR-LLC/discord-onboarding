@@ -1,8 +1,8 @@
 ---
 plan: overview
 project: discord-developer
-updated: 2026-08-10
-status: 🔵 Planning
+updated: 2026-08-11
+status: 🟡 In Progress
 tags: [plan]
 ---
 
@@ -10,7 +10,7 @@ tags: [plan]
 
 ## Status
 
-🔵 Planning
+🟡 In Progress
 
 ## Goal
 
@@ -35,16 +35,18 @@ tags: [plan]
 - 2026-08-10 — Guild config is cached in memory (invalidated per guild on write); it is read on every gateway event and was otherwise a SQLite query per message
 - 2026-08-10 — All SQL compiles once at repository construction; discord.js message/presence caches are disabled and members swept
 - 2026-08-10 — Terms of Service and Privacy Policy drafted for Discord app verification, operated by **OSPR**. Live in [`docs/legal/`](../docs/legal/)
+- 2026-08-11 — **Configurable introduction template.** `/config enable` now also posts (and best-effort pins) a per-guild-customizable template message in the introductions channel, mirroring the existing `/config rules-text` pattern. Requested directly by the user, not in the original spec. The bot deliberately does not manage channel permissions to "force" members into `#rules` — that's documented as an admin's own Discord server setup step. See [[06-intro-template-message]]
 
 ## Module Plans
 
-| Plan                             | Status         | Blocks                           |
-| -------------------------------- | -------------- | -------------------------------- |
-| [[01-bot-foundation]]            | ✅ Complete    | [[02-guild-configuration]]       |
-| [[02-guild-configuration]]       | 🟡 In Progress | [[03-verification-gate]]         |
-| [[03-verification-gate]]         | 🟡 In Progress | [[04-reminders-and-mod-tooling]] |
-| [[04-reminders-and-mod-tooling]] | 🔵 Planning    | [[05-scale-hardening]]           |
-| [[05-scale-hardening]]           | 🔵 Planning    | —                                |
+| Plan                                | Status         | Blocks                              |
+| ------------------------------------ | -------------- | ------------------------------------ |
+| [[01-bot-foundation]]                | ✅ Complete    | [[02-guild-configuration]]           |
+| [[02-guild-configuration]]           | 🟡 In Progress | [[03-verification-gate]]             |
+| [[03-verification-gate]]             | 🟡 In Progress | [[04-reminders-and-mod-tooling]]     |
+| [[04-reminders-and-mod-tooling]]     | 🟡 In Progress | [[05-scale-hardening]]               |
+| [[05-scale-hardening]]               | 🟡 In Progress | —                                    |
+| [[06-intro-template-message]]        | 🟡 In Progress | —                                    |
 
 ## UI/UX Pattern
 

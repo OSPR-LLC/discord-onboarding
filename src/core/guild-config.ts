@@ -10,6 +10,14 @@ export const DEFAULT_RULES_TEXT = [
 	.map((rule, index) => `**${index + 1}.** ${rule}`)
 	.join('\n\n')
 
+export const DEFAULT_INTRO_TEMPLATE = [
+	'**Name:**',
+	'**Experience:**',
+	'**Interests:**',
+	'**Where are you from:**',
+	'**Something about you:**'
+].join('\n')
+
 export type ResolvedGuildConfig = {
 	readonly guildId: string
 	readonly rulesChannelId: string
@@ -19,6 +27,8 @@ export type ResolvedGuildConfig = {
 	readonly unverifiedRoleId: string
 	readonly rulesText: string
 	readonly rulesMessageId: string | null
+	readonly introTemplateText: string
+	readonly introTemplateMessageId: string | null
 	readonly grandfatherBefore: string | null
 }
 
@@ -63,6 +73,8 @@ export const resolveGuildConfig = (
 		unverifiedRoleId: row.unverifiedRoleId as string,
 		rulesText: row.rulesText ?? DEFAULT_RULES_TEXT,
 		rulesMessageId: row.rulesMessageId,
+		introTemplateText: row.introTemplateText ?? DEFAULT_INTRO_TEMPLATE,
+		introTemplateMessageId: row.introTemplateMessageId,
 		grandfatherBefore: row.grandfatherBefore
 	})
 }

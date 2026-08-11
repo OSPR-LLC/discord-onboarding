@@ -23,24 +23,25 @@
 | 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🟡 In Progress | Rules → questionnaire → intro → `verified`, plus reconciliation     |
 | 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🟡 In Progress | Reminder DMs, `/onboarding` mod commands, audit log                 |
 | 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🟡 In Progress | Priority queue, config cache, chunked reconcile, sharding, metrics  |
+| 06  | [plans/06-intro-template-message](plans/06-intro-template-message.md)       | 🟡 In Progress | Configurable, pinned intro template on `/config enable`             |
 
 Archived in [`plans/archive/`](plans/archive/) — superseded single-guild drafts, kept for history.
 
 ## Current Focus
 
-> **All 5 plans are now code-complete.** Plan 05's code finished with Task 7 (load harness) — 5,000 simulated onboardings across 50 guilds complete in ~183ms, confirming the domain layer is nowhere near the bottleneck the whole concurrency ADR assumes. `pnpm typecheck` and `pnpm test` both green (142 tests). No `worker_threads` import exists anywhere in the codebase, confirmed by grep.
+> **Plans 01–06 are all code-complete.** Plan 06 (configurable, pinned introduction template) landed in response to a direct user request — not in the original spec — and is fully implemented: schema + guarded migration, repository layer, `/config intro-template` command mirroring `/config rules-text`, wired into `enable`, README updated (including a new "Restricting channels for new members" section, since the bot deliberately does not manage Discord channel permissions itself). `pnpm typecheck` and `pnpm test` both green (146 tests). No `worker_threads` import exists anywhere in the codebase, confirmed by grep.
 >
 > Every plan from 02 onward sits at 🟡 for the same reason — code and tests done, only hands-on Discord-client verification remains, yours to run whenever convenient:
+>
 > - Plan 02: Task 5 Step 4, Task 6 Step 2
 > - Plan 03: Task 7 Step 6, Task 8 Step 5
 > - Plan 04: Task 3 Step 5
 > - Plan 05: Task 5 Step 5 (sharding end-to-end + onboarding under sharding — partially verified already, see Task 5's notes for the two real bugs found and fixed live), Task 5 Step 6 (concurrent-shard DB writes), Task 6 Step 6 (stats line against a live run)
+> - Plan 06: Task 3 Step 8 (confirm the template posts/pins live, and that repeat edits stay in place)
 >
-> No new task to start — next session's work is either running through this checklist, or scoping what comes after Plan 05.
+> No new task to start — next session's work is either running through this checklist, or scoping what comes next.
 >
-> Plans 02, 03, and 04 all sit at 🟡 for the same reason: code and tests are done, only live-Discord-client verification steps remain, yours to run whenever convenient (Plan 02: Task 5 Step 4, Task 6 Step 2; Plan 03: Task 7 Step 6, Task 8 Step 5; Plan 04: Task 3 Step 5).
->
-> **Resolved doc gap:** README's "Running at Scale" section described sharding scripts and `src/observability/metrics.ts` before they existed. Rather than caveat the wording, we're building the real thing — Plan 05 Task 5 (sharding entrypoint) and Task 6 (observability) will make that section literally true. Until Task 6 lands, the section is aspirational but on a concrete path to accurate.
+> **Resolved doc gap:** README's "Running at Scale" section is fully backed by real code now (sharding scripts, `SHARD_COUNT`, `src/observability/metrics.ts` all exist). Its Status line, which had gone stale describing Plan 03 as "next" long after 03–05 were done, is also fixed.
 
 ## Blockers
 

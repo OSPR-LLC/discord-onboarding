@@ -11,7 +11,11 @@ import { createGuildConfigRepository } from './db/guild-config-repository.js'
 import { migrate } from './db/migrate.js'
 import { createOnboardingRepository } from './db/onboarding-repository.js'
 import { createClient } from './discord/client.js'
-import { handleConfigCommand, handleRulesTextModal } from './discord/commands/config.js'
+import {
+	handleConfigCommand,
+	handleIntroTemplateModal,
+	handleRulesTextModal
+} from './discord/commands/config.js'
 import { CUSTOM_IDS } from './discord/components/custom-ids.js'
 import { handleGuildMemberAdd } from './discord/events/guild-member-add.js'
 import { handleOnboardingInteraction } from './discord/events/interaction-create.js'
@@ -180,6 +184,11 @@ client.on(
 
 		if (interaction.isModalSubmit() && interaction.customId === CUSTOM_IDS.rulesTextModal) {
 			await handleRulesTextModal(interaction, deps)
+			return
+		}
+
+		if (interaction.isModalSubmit() && interaction.customId === CUSTOM_IDS.introTemplateModal) {
+			await handleIntroTemplateModal(interaction, deps)
 			return
 		}
 

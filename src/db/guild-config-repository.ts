@@ -24,6 +24,8 @@ type Row = {
 	unverified_role_id: string | null
 	rules_text: string | null
 	rules_message_id: string | null
+	intro_template_text: string | null
+	intro_template_message_id: string | null
 	enabled: number
 	grandfather_before: string | null
 	joined_at: string
@@ -40,6 +42,8 @@ const toConfig = (row: Row): GuildConfigRow => ({
 	unverifiedRoleId: row.unverified_role_id,
 	rulesText: row.rules_text,
 	rulesMessageId: row.rules_message_id,
+	introTemplateText: row.intro_template_text,
+	introTemplateMessageId: row.intro_template_message_id,
 	enabled: row.enabled === 1,
 	grandfatherBefore: row.grandfather_before,
 	joinedAt: row.joined_at,
@@ -62,6 +66,12 @@ export const createGuildConfigRepository = (db: Database) => {
 		setRulesText: db.prepare('UPDATE guild_config SET rules_text = ? WHERE guild_id = ?'),
 		setRulesMessageId: db.prepare(
 			'UPDATE guild_config SET rules_message_id = ? WHERE guild_id = ?'
+		),
+		setIntroTemplateText: db.prepare(
+			'UPDATE guild_config SET intro_template_text = ? WHERE guild_id = ?'
+		),
+		setIntroTemplateMessageId: db.prepare(
+			'UPDATE guild_config SET intro_template_message_id = ? WHERE guild_id = ?'
 		),
 		enable: db.prepare(
 			'UPDATE guild_config SET enabled = 1, grandfather_before = ? WHERE guild_id = ?'
@@ -134,6 +144,15 @@ export const createGuildConfigRepository = (db: Database) => {
 
 		setRulesMessageId: (guildId: string, messageId: string | null): void => {
 			statements.setRulesMessageId.run(messageId, guildId)
+		},
+
+		setIntroTemplateText: (guildId: string, text: string, actorId: string, at: string): void => {
+			statements.setIntroTemplateText.run(text, guildId)
+			touch(guildId, actorId, at)
+		},
+
+		setIntroTemplateMessageId: (guildId: string, messageId: string | null): void => {
+			statements.setIntroTemplateMessageId.run(messageId, guildId)
 		},
 
 		enable: (guildId: string, grandfatherBefore: string, actorId: string, at: string): void => {

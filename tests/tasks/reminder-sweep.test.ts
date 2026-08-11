@@ -19,6 +19,8 @@ const config: ResolvedGuildConfig = {
 	unverifiedRoleId: '5',
 	rulesText: 'rules',
 	rulesMessageId: null,
+	introTemplateText: 'template',
+	introTemplateMessageId: null,
 	grandfatherBefore: null
 }
 

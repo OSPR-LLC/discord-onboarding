@@ -8,7 +8,7 @@ Full design: [`docs/superpowers/specs/2026-08-08-onboarding-verification-gate-de
 
 ## Status
 
-🟡 In Progress — plan 01 (bot foundation) is complete, and plan 02 (`/config`, live preflight, enable gate + grandfathering) is verified end-to-end against a live Discord server: configuring, enabling, and the rules message all work. Plan 03 (the actual verification gate — join handling, the rules/questionnaire/intro flow) is next. See [`PLAN.md`](PLAN.md) for phase status.
+🟡 In Progress — all 5 plans are code-complete (foundation, `/config`, the full verification gate, reminders/mod tooling, scale hardening) with `pnpm test` and `pnpm typecheck` green throughout. What's left everywhere is hands-on verification against a live Discord server — see [`PLAN.md`](PLAN.md) for the exact checklist.
 
 ## Hard Rules
 
@@ -95,10 +95,10 @@ Build an invite URL by hand rather than using the portal's "Default Install Link
 Use this URL instead, with your application's **Client ID** (Developer Portal → General Information) and both scopes:
 
 ```
-https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=268520448&scope=bot%20applications.commands
+https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=268528640&scope=bot%20applications.commands
 ```
 
-`268520448` is the minimum permission set this bot needs:
+`268528640` is the minimum permission set this bot needs:
 
 | Permission           | Bit value     |
 | -------------------- | ------------- |
@@ -106,8 +106,13 @@ https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=268520
 | Send Messages        | 2048          |
 | Embed Links          | 16384         |
 | Read Message History | 65536         |
+| Manage Messages      | 8192          |
 | Manage Roles         | 268435456     |
-| **Total**            | **268520448** |
+| **Total**            | **268528640** |
+
+Manage Messages is used for exactly one thing: pinning the introduction template message
+in the introductions channel when you run `/config enable`. If it's missing, pinning is
+skipped silently (logged, not fatal) — everything else still works.
 
 (Equivalently: Developer Portal → **OAuth2 → URL Generator** → check `bot` and `applications.commands` scopes, then check the same permissions under "Bot Permissions" — the page computes the URL for you.)
 
@@ -153,6 +158,7 @@ Nothing server-specific lives in env vars — every setting below is configured 
 /config role verified @Verified
 /config role unverified @Unverified
 /config rules-text                             # opens a modal — paste your server's actual rules
+/config intro-template                         # opens a modal — customize the introduction template
 /config enable
 ```
 
@@ -162,13 +168,39 @@ A successful `/config enable`:
 
 - Stamps a `grandfather_before` cutoff — every member already in the server at that moment is **permanently exempt** from the gate. Only members who join afterward go through onboarding.
 - Posts the rules message (with the "I agree" button) in the configured rules channel.
+- Posts (and pins, if the bot has Manage Messages) the introduction template message in the introductions channel.
 - Reports how many existing members were just grandfathered.
+
+Both the rules text and the introduction template default to a generic version if you never customize them, and re-running `/config rules-text` / `/config intro-template` after `/config enable` edits the already-posted message in place rather than posting a duplicate.
 
 To also require existing members to onboard, run `/config grandfather action:clear` — this clears the exemption cutoff, so members who joined before `/config enable` are no longer automatically exempt.
 
 `/config disable` turns the bot off in that server without discarding any configuration or member records — running `/config enable` again picks up exactly where it left off.
 
 See the [design spec](docs/superpowers/specs/2026-08-08-onboarding-verification-gate-design.md) for the full command surface (`/config`, `/onboarding`, `/intro`).
+
+### Restricting channels for new members
+
+The bot only ever manages **roles** and **messages** — it never touches Discord's channel
+permission overwrites. To make `#rules` the only channel a brand-new member can see (so
+they're effectively "forced" through it), configure this directly in Discord:
+
+1. **`#rules`** → Edit Channel → Permissions → for `@Unverified`, explicitly **allow** View
+   Channel and Send Messages (needed to click "I agree" and see the button). For `@everyone`,
+   **deny** View Channel here if you don't want non-members seeing it either.
+2. **Every other member channel** (including `#introductions`) → for `@Unverified`, **deny**
+   View Channel. `@Unverified` only needs `#rules` — the bot's own DM to new members and the
+   in-flow prompts are what point them back through the questionnaire; the introductions
+   channel only needs to open up once they're ready to post there.
+3. Once you want `#introductions` visible to members mid-flow (after rules, before the final
+   post), instead **allow** View Channel + Send Messages there for `@Unverified` too, alongside
+   `#rules` — this is the simplest setup and matches the built-in flow, since the bot tells
+   members to go post there right after the questionnaire.
+4. **`@Verified`** → allow View Channel on all your normal server channels, however you'd
+   normally configure member access.
+
+This is a one-time server setup step, not something `/config` manages — the bot has no
+`Manage Channels`/`Manage Permissions` permission and never requests one.
 
 ## Moderator commands
 

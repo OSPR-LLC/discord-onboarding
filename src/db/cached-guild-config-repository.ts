@@ -78,6 +78,16 @@ export const createCachedGuildConfigRepository = (inner: GuildConfigRepository) 
 			invalidate(guildId)
 		},
 
+		setIntroTemplateText: (guildId: string, text: string, actorId: string, at: string): void => {
+			inner.setIntroTemplateText(guildId, text, actorId, at)
+			invalidate(guildId)
+		},
+
+		setIntroTemplateMessageId: (guildId: string, messageId: string | null): void => {
+			inner.setIntroTemplateMessageId(guildId, messageId)
+			invalidate(guildId)
+		},
+
 		enable: (guildId: string, grandfatherBefore: string, actorId: string, at: string): void => {
 			inner.enable(guildId, grandfatherBefore, actorId, at)
 			invalidate(guildId)

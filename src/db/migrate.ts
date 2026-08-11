@@ -5,6 +5,26 @@ import type { Database } from 'better-sqlite3'
 
 const schemaPath = join(dirname(fileURLToPath(import.meta.url)), 'schema.sql')
 
+// Columns added after the initial schema. `CREATE TABLE IF NOT EXISTS` is a
+// no-op against a database that already has the table, so a column added to
+// schema.sql only reaches existing databases through an explicit, guarded
+// ALTER TABLE here. Each entry runs at most once per database, ever.
+const ADDED_COLUMNS: { table: string; column: string; ddl: string }[] = [
+	{
+		table: 'guild_config',
+		column: 'intro_template_text',
+		ddl: 'ALTER TABLE guild_config ADD COLUMN intro_template_text TEXT'
+	},
+	{
+		table: 'guild_config',
+		column: 'intro_template_message_id',
+		ddl: 'ALTER TABLE guild_config ADD COLUMN intro_template_message_id TEXT'
+	}
+]
+
+const hasColumn = (db: Database, table: string, column: string): boolean =>
+	(db.pragma(`table_info(${table})`) as { name: string }[]).some((row) => row.name === column)
+
 export const migrate = (db: Database): void => {
 	db.pragma('foreign_keys = ON')
 
@@ -21,4 +41,7 @@ export const migrate = (db: Database): void => {
 	}
 
 	db.exec(readFileSync(schemaPath, 'utf8'))
+
+	for (const { table, column, ddl } of ADDED_COLUMNS)
+		if (!hasColumn(db, table, column)) db.exec(ddl)
 }

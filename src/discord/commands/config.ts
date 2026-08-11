@@ -11,10 +11,15 @@ import {
 	type ChatInputCommandInteraction,
 	type ModalSubmitInteraction
 } from 'discord.js'
-import { DEFAULT_RULES_TEXT, resolveGuildConfig } from '../../core/guild-config.js'
+import {
+	DEFAULT_INTRO_TEMPLATE,
+	DEFAULT_RULES_TEXT,
+	resolveGuildConfig
+} from '../../core/guild-config.js'
 import type { GuildConfigRepository } from '../../db/guild-config-repository.js'
 import { isOk } from '../../types.js'
 import { CUSTOM_IDS } from '../components/custom-ids.js'
+import { publishIntroTemplateMessage } from '../components/intro-template-message.js'
 import { publishRulesMessage } from '../components/rules-message.js'
 import { runPreflight } from '../preflight.js'
 
@@ -66,6 +71,9 @@ export const configCommand = new SlashCommandBuilder()
 			)
 	)
 	.addSubcommand((sub) => sub.setName('rules-text').setDescription('Edit the rules text'))
+	.addSubcommand((sub) =>
+		sub.setName('intro-template').setDescription('Edit the introduction template')
+	)
 	.addSubcommand((sub) => sub.setName('enable').setDescription('Turn onboarding on'))
 	.addSubcommand((sub) => sub.setName('disable').setDescription('Turn onboarding off'))
 	.addSubcommand((sub) =>
@@ -198,6 +206,28 @@ export const handleConfigCommand = async (
 		return
 	}
 
+	if (subcommand === 'intro-template') {
+		const current = guildConfig.get(guild.id)?.introTemplateText ?? DEFAULT_INTRO_TEMPLATE
+
+		await interaction.showModal(
+			new ModalBuilder()
+				.setCustomId(CUSTOM_IDS.introTemplateModal)
+				.setTitle('Introduction template')
+				.addComponents(
+					new ActionRowBuilder<TextInputBuilder>().addComponents(
+						new TextInputBuilder()
+							.setCustomId(CUSTOM_IDS.introTemplateInput)
+							.setLabel('Shown in the introductions channel')
+							.setStyle(TextInputStyle.Paragraph)
+							.setMaxLength(4000)
+							.setRequired(true)
+							.setValue(current.slice(0, 4000))
+					)
+				)
+		)
+		return
+	}
+
 	if (subcommand === 'enable') {
 		await interaction.deferReply(ephemeral)
 
@@ -225,6 +255,11 @@ export const handleConfigCommand = async (
 		guildConfig.enable(guild.id, at, actorId, at)
 
 		const published = await publishRulesMessage(guild, { ...resolved.value }, guildConfig)
+		const templatePublished = await publishIntroTemplateMessage(
+			guild,
+			{ ...resolved.value },
+			guildConfig
+		)
 		const members = await guild.members.fetch()
 		const grandfathered = members.filter(
 			(member) => !member.user.bot && (member.joinedTimestamp ?? 0) < Date.parse(at)
@@ -239,6 +274,9 @@ export const handleConfigCommand = async (
 				isOk(published)
 					? `The rules message is posted in <#${resolved.value.rulesChannelId}>.`
 					: `⚠️ I could not post the rules message: ${published.error}`,
+				isOk(templatePublished)
+					? `The introduction template is posted in <#${resolved.value.introductionsChannelId}>.`
+					: `⚠️ I could not post the introduction template: ${templatePublished.error}`,
 				'',
 				'To also require existing members to onboard, run `/config grandfather action:clear`.'
 			].join('\n')
@@ -301,6 +339,29 @@ export const handleRulesTextModal = async (
 		content: republished
 			? 'Rules updated and the posted rules message has been refreshed.'
 			: 'Rules updated. They will be posted when you run `/config enable`.',
+		...ephemeral
+	})
+}
+
+export const handleIntroTemplateModal = async (
+	interaction: ModalSubmitInteraction,
+	deps: ConfigCommandDeps
+): Promise<void> => {
+	if (!interaction.guild) return
+
+	const text = interaction.fields.getTextInputValue(CUSTOM_IDS.introTemplateInput)
+	deps.guildConfig.setIntroTemplateText(interaction.guild.id, text, interaction.user.id, deps.now())
+
+	const resolved = resolveGuildConfig(deps.guildConfig.get(interaction.guild.id))
+	const republished =
+		isOk(resolved) && resolved.value.introTemplateMessageId
+			? await publishIntroTemplateMessage(interaction.guild, resolved.value, deps.guildConfig)
+			: null
+
+	await interaction.reply({
+		content: republished
+			? 'Introduction template updated and the posted message has been refreshed.'
+			: 'Introduction template updated. It will be posted when you run `/config enable`.',
 		...ephemeral
 	})
 }

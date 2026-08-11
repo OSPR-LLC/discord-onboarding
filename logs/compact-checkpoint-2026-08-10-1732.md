@@ -1,5 +1,7 @@
 ---
 type: compact-checkpoint
+project: discord-developer
+tags: [log, compact-checkpoint]
 date: 2026-08-10
 time: 17:32
 ---

@@ -51,6 +51,8 @@ export type GuildConfigRow = {
 	readonly unverifiedRoleId: string | null
 	readonly rulesText: string | null
 	readonly rulesMessageId: string | null
+	readonly introTemplateText: string | null
+	readonly introTemplateMessageId: string | null
 	readonly enabled: boolean
 	readonly grandfatherBefore: string | null
 	readonly joinedAt: string

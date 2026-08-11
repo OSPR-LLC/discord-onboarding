@@ -26,6 +26,8 @@ const config: ResolvedGuildConfig = {
 	unverifiedRoleId: UNVERIFIED,
 	rulesText: 'Be nice.',
 	rulesMessageId: null,
+	introTemplateText: 'template',
+	introTemplateMessageId: null,
 	grandfatherBefore: ENABLED_AT
 }
 

@@ -45,7 +45,9 @@ export const runPreflight = async (
 
 	for (const [field, label, channelId, needsSend] of [
 		['rulesChannelId', 'rules', config.rulesChannelId, true],
-		['introductionsChannelId', 'introductions', config.introductionsChannelId, false],
+		// The bot now posts the introduction template message on enable, so it
+		// needs Send Messages here too — no longer read-only.
+		['introductionsChannelId', 'introductions', config.introductionsChannelId, true],
 		['modLogChannelId', 'mod log', config.modLogChannelId, true]
 	] as const) {
 		const channel = await guild.channels.fetch(channelId).catch(() => null)

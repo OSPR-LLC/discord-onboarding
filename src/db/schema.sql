@@ -1,17 +1,19 @@
 CREATE TABLE IF NOT EXISTS guild_config (
-	guild_id                 TEXT PRIMARY KEY,
-	rules_channel_id         TEXT,
-	introductions_channel_id TEXT,
-	mod_log_channel_id       TEXT,
-	verified_role_id         TEXT,
-	unverified_role_id       TEXT,
-	rules_text               TEXT,
-	rules_message_id         TEXT,
-	enabled                  INTEGER NOT NULL DEFAULT 0,
-	grandfather_before       TEXT,
-	joined_at                TEXT NOT NULL,
-	configured_at            TEXT,
-	configured_by            TEXT
+	guild_id                   TEXT PRIMARY KEY,
+	rules_channel_id           TEXT,
+	introductions_channel_id   TEXT,
+	mod_log_channel_id         TEXT,
+	verified_role_id           TEXT,
+	unverified_role_id         TEXT,
+	rules_text                 TEXT,
+	rules_message_id           TEXT,
+	intro_template_text        TEXT,
+	intro_template_message_id  TEXT,
+	enabled                    INTEGER NOT NULL DEFAULT 0,
+	grandfather_before         TEXT,
+	joined_at                  TEXT NOT NULL,
+	configured_at              TEXT,
+	configured_by              TEXT
 );
 
 CREATE TABLE IF NOT EXISTS onboarding (
