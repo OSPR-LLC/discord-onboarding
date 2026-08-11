@@ -1,8 +1,8 @@
 ---
 plan: reminders-and-mod-tooling
 project: discord-developer
-updated: 2026-08-10
-status: 🔵 Planning
+updated: 2026-08-11
+status: 🟡 In Progress
 tags: [plan]
 ---
 
@@ -14,7 +14,7 @@ tags: [plan]
 
 ## Status
 
-🔵 Planning
+🟡 In Progress
 
 ## Goal
 
@@ -52,7 +52,7 @@ Inherits every constraint from [[01-bot-foundation]], [[02-guild-configuration]]
 - Produces: `runGuildReminderSweep(deps, config): Promise<number>`, `runReminderSweep(deps): Promise<number>`, and the constants `FIRST_REMINDER_MS` / `SECOND_REMINDER_MS`.
 - `deps` is `{ guildConfig, repo, port, now }` where `now: () => Date`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -184,12 +184,12 @@ describe('runGuildReminderSweep', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/tasks/reminder-sweep.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/tasks/reminder-sweep.ts`**
+- [x] **Step 3: Write `src/tasks/reminder-sweep.ts`**
 
 ```ts
 import type { DiscordPort } from '../core/discord-port.js'
@@ -282,12 +282,12 @@ export const runReminderSweep = async (deps: SweepDeps): Promise<number> => {
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/tasks/reminder-sweep.test.ts`
 Expected: PASS, 11 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/tasks/reminder-sweep.ts tests/tasks/reminder-sweep.test.ts

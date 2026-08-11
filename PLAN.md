@@ -21,14 +21,14 @@
 | 01  | [plans/01-bot-foundation](plans/01-bot-foundation.md)                       | ✅ Complete    | Scaffold, multi-guild schema, both repositories, client bootstrap   |
 | 02  | [plans/02-guild-configuration](plans/02-guild-configuration.md)             | 🟡 In Progress | `/config` commands, preflight, enable gate + grandfathering, README |
 | 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🟡 In Progress | Rules → questionnaire → intro → `verified`, plus reconciliation     |
-| 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🔵 Planning    | Reminder DMs, `/onboarding` mod commands, audit log                 |
+| 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🟡 In Progress | Reminder DMs, `/onboarding` mod commands, audit log                 |
 | 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🔵 Planning    | Priority queue, config cache, chunked reconcile, sharding, metrics  |
 
 Archived in [`plans/archive/`](plans/archive/) — superseded single-guild drafts, kept for history.
 
 ## Current Focus
 
-> Plan 03's code is complete — all 8 tasks done (gate, `DiscordPort` + fake, onboarding service, real `DiscordPort` adapter, questionnaire components, `/intro` command, event handlers, startup reconciliation), `pnpm typecheck` and `pnpm test` both green (92 tests). Plan 03 stays 🟡 until two human-only steps are run: Task 7 Step 6 (hands-on flow walkthrough) and Task 8 Step 5 (verify reconcile against the test guild) — same treatment as Plan 02's two open checklist items (Task 5 Step 4, Task 6 Step 2). Plan 04 (reminders & mod tooling) is next up.
+> Plan 04, Task 2 — the `/onboarding` moderator command (`src/discord/commands/onboarding.ts`). Task 1 (multi-guild reminder sweep, `src/tasks/reminder-sweep.ts`) is complete and verified — 11 tests, all repository plumbing it needed already existed from the Plan 01 schema. Plan 03's code is complete (all 8 tasks); it stays 🟡 until two human-only steps are run: Task 7 Step 6 (hands-on flow walkthrough) and Task 8 Step 5 (verify reconcile against the test guild) — same treatment as Plan 02's two open checklist items (Task 5 Step 4, Task 6 Step 2).
 
 ## Blockers
 
