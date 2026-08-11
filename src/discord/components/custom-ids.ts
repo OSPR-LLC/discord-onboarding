@@ -2,11 +2,10 @@ const NAMESPACE = 'onboarding'
 
 export const CUSTOM_IDS = {
 	rulesAgree: `${NAMESPACE}:rules-agree`,
-	purposeModal: `${NAMESPACE}:q1-modal`,
-	purposeInput: `${NAMESPACE}:q1-input`,
-	experienceSelect: `${NAMESPACE}:q2`,
-	builtYes: `${NAMESPACE}:q3:yes`,
-	builtNo: `${NAMESPACE}:q3:no`,
+	questionAnswerInput: `${NAMESPACE}:question-answer`,
+	questionModal: (questionId: number) => `${NAMESPACE}:question-modal:${questionId}`,
+	questionSelect: (questionId: number) => `${NAMESPACE}:question-select:${questionId}`,
+	questionSkip: (questionId: number) => `${NAMESPACE}:question-skip:${questionId}`,
 	rulesTextModal: `${NAMESPACE}:rules-text-modal`,
 	rulesTextInput: `${NAMESPACE}:rules-text-input`,
 	introTemplateModal: `${NAMESPACE}:intro-template-modal`,

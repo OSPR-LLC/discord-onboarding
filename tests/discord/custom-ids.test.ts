@@ -25,3 +25,29 @@ describe('parseCustomId', () => {
 		expect(parseCustomId('onboarding')).toBeNull()
 	})
 })
+
+describe('dynamic question custom ids', () => {
+	it('builds a parseable modal id for a question', () => {
+		expect(parseCustomId(CUSTOM_IDS.questionModal(42))).toEqual({
+			namespace: 'onboarding',
+			action: 'question-modal',
+			value: '42'
+		})
+	})
+
+	it('builds a parseable select id for a question', () => {
+		expect(parseCustomId(CUSTOM_IDS.questionSelect(7))).toEqual({
+			namespace: 'onboarding',
+			action: 'question-select',
+			value: '7'
+		})
+	})
+
+	it('builds a parseable skip id for a question', () => {
+		expect(parseCustomId(CUSTOM_IDS.questionSkip(7))).toEqual({
+			namespace: 'onboarding',
+			action: 'question-skip',
+			value: '7'
+		})
+	})
+})
