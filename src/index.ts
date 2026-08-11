@@ -80,8 +80,13 @@ client.once(
 
 		await registerCommands(ready, env.devGuildId)
 
+		// `.cache.get`, not `.fetch`: reconcile needs `guild.members.fetch()`, which
+		// requires this shard's own gateway connection to the guild. A REST fetch
+		// would happily return a guild owned by a different shard's gateway link,
+		// and a members fetch against that guild throws inside discord.js — this
+		// keeps startup reconciliation scoped to guilds this shard actually owns.
 		for (const config of guildConfig.listEnabled()) {
-			const guild = await ready.guilds.fetch(config.guildId).catch(() => null)
+			const guild = ready.guilds.cache.get(config.guildId)
 			if (guild)
 				await reconcile({ guild, guildConfig, repo: onboarding, service, port: bulkPort, shardId })
 		}

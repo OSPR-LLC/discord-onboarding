@@ -1018,6 +1018,28 @@ field (defaulting to `0` when absent), since that log line lives inside
 Run: `SHARD_COUNT=2 pnpm dev:sharded`
 Expected: two `shard-spawned` lines, two `ready` lines with different `shardId` values, and the guild counts across both summing to the bot's total. Onboarding must still work end to end in a test guild.
 
+Partially verified already: ran this locally against the real test guild. Found and fixed
+two real bugs in the process (both documented below and in `src/shard.ts`/`src/index.ts`):
+
+1. `src/shard.ts` pointed `ShardingManager` at `./index.js` unconditionally. That only
+   exists after `pnpm build` — running `tsx src/shard.ts` in dev has no compiled output,
+   so the constructor threw `ENOENT`. Fixed: detect dev (`import.meta.url.endsWith('.ts')`)
+   and point at `./index.ts` with `execArgv: ['--import', 'tsx']` so the forked child can
+   run TypeScript directly.
+2. The startup reconciliation loop in `src/index.ts` used `ready.guilds.fetch(guildId)` —
+   a REST call that succeeds for *any* guild the bot is in, even ones owned by a different
+   shard's gateway connection. `reconcile()` then calls `guild.members.fetch()`, which
+   needs that guild's actual gateway link; on a non-owning shard this crashed inside
+   discord.js with `Cannot read properties of undefined (reading 'send')`. Reproduced
+   directly: shard 0 (owning zero guilds) crashed every run, shard 1 (owning the one test
+   guild) always succeeded. Fixed: `ready.guilds.cache.get(guildId)` instead of `.fetch()`,
+   scoping reconciliation to guilds this shard's gateway connection actually owns.
+
+After both fixes: two shards spawned and readied cleanly with distinct `shardId` values
+(0 and 1), guild counts summed correctly (0 + 1 = 1), and neither shard crashed. Still
+open: confirming onboarding completes end-to-end against a live member under sharding —
+that needs your hands-on run.
+
 - [ ] **Step 6: Verify the database survives concurrent shards**
 
 With both shards running, trigger onboarding in two guilds served by different shards simultaneously.
@@ -1353,3 +1375,5 @@ _N/A — no web UI surface._
 - 2026-08-10 — Guilds reconcile sequentially. They share one rate-limit budget, so parallel reconciliation only deepens the queue and obscures which guild failed.
 - 2026-08-10 — Sharding uses processes rather than `mode: 'worker'`, giving each shard its own event loop and heap, and matching how the SQLite busy timeout was reasoned about.
 - 2026-08-10 — `listEnabled` is deliberately left uncached; it runs twice a tick at most, and caching a whole-table scan would require invalidating it on every write in every guild.
+- 2026-08-11 — `src/shard.ts` picks its entrypoint by its own file extension (`./index.ts` + `execArgv: ['--import', 'tsx']` in dev, `./index.js` in prod) rather than hardcoding one path, since `tsx src/shard.ts` has no compiled output to point at.
+- 2026-08-11 — Startup reconciliation looks up guilds via `ready.guilds.cache.get(guildId)`, not `.fetch(guildId)`. A REST fetch succeeds for any guild the bot is in regardless of which shard owns its gateway connection; `reconcile()`'s `guild.members.fetch()` needs that specific gateway link and crashes inside discord.js if it's missing. Only reproducible with `SHARD_COUNT` > 1 — invisible in single-process mode, where `ready.guilds` always contains every guild.
