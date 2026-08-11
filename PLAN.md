@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 03, Task 5 — questionnaire components (`src/discord/components/questionnaire.ts`). Tasks 1–4 (gate, `DiscordPort` + fake, onboarding service, real `DiscordPort` adapter) are complete and verified. Plan 02's two human-only checklist items (Task 5 Step 4, Task 6 Step 2) remain open whenever convenient.
+> Plan 03, Task 6 — `/intro` command and the question prompter (`src/discord/commands/intro.ts`). Tasks 1–5 (gate, `DiscordPort` + fake, onboarding service, real `DiscordPort` adapter, questionnaire components) are complete and verified. Plan 02's two human-only checklist items (Task 5 Step 4, Task 6 Step 2) remain open whenever convenient.
 
 ## Blockers
 

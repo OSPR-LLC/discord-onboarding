@@ -790,7 +790,7 @@ git commit -m "feat: add discord.js-backed DiscordPort adapter"
 - Produces: `buildPurposeModal()`, `buildExperienceSelect()`, `buildBuiltForDiscordButtons()`, and
   `nextQuestion(answers): 'purpose' | 'experience' | 'built' | 'done'`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 `nextQuestion` decides the whole resume behaviour, so it gets its own tests.
 
@@ -848,12 +848,12 @@ describe('nextQuestion', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/discord/questionnaire.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/discord/components/questionnaire.ts`**
+- [x] **Step 3: Write `src/discord/components/questionnaire.ts`**
 
 ```ts
 import {
@@ -922,12 +922,12 @@ export const nextQuestion = (
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/discord/questionnaire.test.ts`
 Expected: PASS, 5 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/discord/components/questionnaire.ts tests/discord/questionnaire.test.ts
