@@ -7,13 +7,16 @@ export const registerCommands = async (
 ): Promise<void> => {
 	const commands = [configCommand.toJSON()]
 
-	await client.application.commands.set(commands)
-
-	// Global commands can take up to an hour to propagate. A dev guild gets
-	// them immediately, which keeps iteration tolerable.
+	// Registering both scopes at once shows every command twice in the dev
+	// guild — Discord's command picker does not dedupe a global command
+	// against a guild command of the same name. A dev guild gets commands
+	// immediately and exclusively; global registration (up to an hour to
+	// propagate, but reaches every other guild) only runs without one.
 	if (devGuildId) {
 		const guild = await client.guilds.fetch(devGuildId).catch(() => null)
 		if (guild) await guild.commands.set(commands)
+	} else {
+		await client.application.commands.set(commands)
 	}
 
 	console.info(

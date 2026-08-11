@@ -818,6 +818,8 @@ git commit -m "feat: add /config command"
 
 - [x] **Step 1: Write `src/discord/register-commands.ts`**
 
+_Confirmed live in the OSPR test guild: registering both scopes unconditionally (as originally written below) makes every command appear twice in any guild that is both the dev guild and has already received the propagated global registration — Discord's command picker does not dedupe a global command against a guild command sharing its name. Fixed by making the two scopes mutually exclusive: a dev guild gets commands immediately and exclusively, global registration only runs without one. The stale global registration already live in OSPR was cleared with a one-off `PUT .../commands` with an empty array — that part doesn't self-heal from the code fix alone. Corrected code below._
+
 ```ts
 import type { Client } from 'discord.js'
 import { configCommand } from './commands/config.js'
@@ -828,13 +830,16 @@ export const registerCommands = async (
 ): Promise<void> => {
 	const commands = [configCommand.toJSON()]
 
-	await client.application.commands.set(commands)
-
-	// Global commands can take up to an hour to propagate. A dev guild gets
-	// them immediately, which keeps iteration tolerable.
+	// Registering both scopes at once shows every command twice in the dev
+	// guild — Discord's command picker does not dedupe a global command
+	// against a guild command of the same name. A dev guild gets commands
+	// immediately and exclusively; global registration (up to an hour to
+	// propagate, but reaches every other guild) only runs without one.
 	if (devGuildId) {
 		const guild = await client.guilds.fetch(devGuildId).catch(() => null)
 		if (guild) await guild.commands.set(commands)
+	} else {
+		await client.application.commands.set(commands)
 	}
 
 	console.info(
