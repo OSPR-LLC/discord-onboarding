@@ -816,7 +816,7 @@ git commit -m "feat: add /config command"
 
 - Produces: `registerCommands(client, devGuildId?): Promise<void>`. Plans 03 and 04 add their commands to the single array inside it.
 
-- [ ] **Step 1: Write `src/discord/register-commands.ts`**
+- [x] **Step 1: Write `src/discord/register-commands.ts`**
 
 ```ts
 import type { Client } from 'discord.js'
@@ -843,7 +843,7 @@ export const registerCommands = async (
 }
 ```
 
-- [ ] **Step 2: Wire into `src/index.ts`**
+- [x] **Step 2: Wire into `src/index.ts`**
 
 Inside the existing `ClientReady` handler, after the guild-config loop:
 
@@ -873,7 +873,7 @@ client.on(
 
 Add the matching imports.
 
-- [ ] **Step 3: Also ensure a config row exists when a guild is left and rejoined**
+- [x] **Step 3: Also ensure a config row exists when a guild is left and rejoined**
 
 Add a `GuildDelete` listener that logs but **does not delete data** — a bot removed and re-added should not lose its configuration:
 
@@ -886,7 +886,7 @@ client.on(
 )
 ```
 
-- [ ] **Step 4: Verify the whole flow by hand**
+- [ ] **Step 4: Verify the whole flow by hand** _(requires typing slash commands in a live Discord client — yours to run)_
 
 Against a throwaway guild:
 
@@ -898,7 +898,9 @@ Against a throwaway guild:
 6. `/config rules-text` → modal opens pre-filled; submitting edits the posted message in place
 7. `/config disable` then `/config show` → status Disabled, settings retained
 
-- [ ] **Step 5: Commit**
+_Command registration itself verified against the live OSPR bot: `pnpm dev` logged `{"event":"commands-registered","count":1}` after `ready`, confirming `/config` actually reached Discord. The 7-step interactive walkthrough above needs a human clicking through Discord — not something achievable from a terminal._
+
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/discord/register-commands.ts src/index.ts

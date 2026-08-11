@@ -7,7 +7,10 @@ import 'dotenv/config'
 import { createGuildConfigRepository } from './db/guild-config-repository.js'
 import { migrate } from './db/migrate.js'
 import { createOnboardingRepository } from './db/onboarding-repository.js'
+import { handleConfigCommand, handleRulesTextModal } from './discord/commands/config.js'
 import { createClient } from './discord/client.js'
+import { CUSTOM_IDS } from './discord/components/custom-ids.js'
+import { registerCommands } from './discord/register-commands.js'
 import { safeHandler } from './discord/safe-handler.js'
 import { loadEnv } from './env.js'
 
@@ -40,6 +43,8 @@ client.once(
 				enabled: guildConfig.listEnabled().length
 			})
 		)
+
+		await registerCommands(ready, env.devGuildId)
 	})
 )
 
@@ -48,6 +53,29 @@ client.on(
 	safeHandler('guildCreate', async (guild) => {
 		guildConfig.ensure(guild.id, new Date().toISOString())
 		console.info(JSON.stringify({ level: 'info', event: 'guild-joined', guildId: guild.id }))
+	})
+)
+
+client.on(
+	Events.GuildDelete,
+	safeHandler('guildDelete', async (guild) => {
+		console.info(JSON.stringify({ level: 'info', event: 'guild-left', guildId: guild.id }))
+	})
+)
+
+client.on(
+	Events.InteractionCreate,
+	safeHandler('interactionCreate', async (interaction) => {
+		const deps = { guildConfig, now: () => new Date().toISOString() }
+
+		if (interaction.isChatInputCommand() && interaction.commandName === 'config') {
+			await handleConfigCommand(interaction, deps)
+			return
+		}
+
+		if (interaction.isModalSubmit() && interaction.customId === CUSTOM_IDS.rulesTextModal) {
+			await handleRulesTextModal(interaction, deps)
+		}
 	})
 )
 

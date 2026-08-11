@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 02, Task 5 — command registration and wiring. Tasks 1–4 (config resolution, live preflight, custom ids + rules message, `/config` command) are complete and verified; awaiting commit.
+> Plan 02, Task 6 (final) — README. Tasks 1–5 are done; command registration verified live against the OSPR bot. One thing left before plan 02 closes: Task 5 Step 4's 7-step interactive `/config` walkthrough needs you clicking through a real Discord client — not something runnable from here.
 
 ## Blockers
 
