@@ -655,7 +655,7 @@ git commit -m "feat: add guild-scoped onboarding service"
 
 - Produces: `createDiscordPort(client): DiscordPort` — one instance for the whole process, resolving the guild per call.
 
-- [ ] **Step 1: Write `src/discord/port.ts`**
+- [x] **Step 1: Write `src/discord/port.ts`**
 
 ```ts
 import { DiscordAPIError, EmbedBuilder, type Client } from 'discord.js'
@@ -764,12 +764,12 @@ export const createDiscordPort = (client: Client): DiscordPort => {
 }
 ```
 
-- [ ] **Step 2: Verify it compiles**
+- [x] **Step 2: Verify it compiles**
 
 Run: `pnpm typecheck`
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/discord/port.ts
