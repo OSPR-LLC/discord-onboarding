@@ -22,17 +22,17 @@
 | 02  | [plans/02-guild-configuration](plans/02-guild-configuration.md)             | 🟡 In Progress | `/config` commands, preflight, enable gate + grandfathering, README |
 | 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🟡 In Progress | Rules → questionnaire → intro → `verified`, plus reconciliation     |
 | 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🟡 In Progress | Reminder DMs, `/onboarding` mod commands, audit log                 |
-| 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🔵 Planning    | Priority queue, config cache, chunked reconcile, sharding, metrics  |
+| 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🟡 In Progress | Priority queue, config cache, chunked reconcile, sharding, metrics  |
 
 Archived in [`plans/archive/`](plans/archive/) — superseded single-guild drafts, kept for history.
 
 ## Current Focus
 
-> Plan 04's code is complete — all 3 tasks done (reminder sweep, `/onboarding` command, command registration + hourly sweep wiring + README). `pnpm typecheck` and `pnpm test` both green (103 tests). Plan 04 stays 🟡 until its one human-only step is run: Task 3 Step 5 (verify the moderator commands by hand). Plan 05 (scale hardening) is next up — requires Plan 04, which is code-complete.
+> Plan 05, Task 2 — queued `DiscordPort` decorator (`src/discord/queued-port.ts`). Task 1 (priority task queue, `src/core/task-queue.ts`) is complete and verified — 8 tests. `pnpm typecheck` and `pnpm test` both green (111 tests).
 >
 > Plans 02, 03, and 04 all sit at 🟡 for the same reason: code and tests are done, only live-Discord-client verification steps remain, yours to run whenever convenient (Plan 02: Task 5 Step 4, Task 6 Step 2; Plan 03: Task 7 Step 6, Task 8 Step 5; Plan 04: Task 3 Step 5).
 >
-> **Known doc gap (not yet fixed):** README's "Running at Scale" section already describes `pnpm dev:sharded`/`pnpm start:sharded`, `SHARD_COUNT`, and `src/observability/metrics.ts` as if built — none of it exists yet; it's Plan 05's scope. Written prematurely in an earlier session pass. Needs a fix or a "planned" caveat before Plan 05 lands.
+> **Resolved doc gap:** README's "Running at Scale" section described sharding scripts and `src/observability/metrics.ts` before they existed. Rather than caveat the wording, we're building the real thing — Plan 05 Task 5 (sharding entrypoint) and Task 6 (observability) will make that section literally true. Until Task 6 lands, the section is aspirational but on a concrete path to accurate.
 
 ## Blockers
 

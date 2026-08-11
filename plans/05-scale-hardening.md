@@ -1,8 +1,8 @@
 ---
 plan: scale-hardening
 project: discord-developer
-updated: 2026-08-10
-status: 🔵 Planning
+updated: 2026-08-11
+status: 🟡 In Progress
 tags: [plan, performance]
 ---
 
@@ -15,7 +15,7 @@ tags: [plan, performance]
 
 ## Status
 
-🔵 Planning
+🟡 In Progress
 
 ## Goal
 
@@ -63,7 +63,7 @@ Inherits every constraint from plans [[01-bot-foundation]] through [[04-reminder
 - `Priority = 'interactive' | 'bulk'`. Options are `{ concurrency, maxQueued }`.
 - Task 2 wraps `DiscordPort` with it; Task 4 uses `'bulk'` for reconciliation.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it, vi } from 'vitest'
@@ -208,12 +208,12 @@ describe('createTaskQueue', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/core/task-queue.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/core/task-queue.ts`**
+- [x] **Step 3: Write `src/core/task-queue.ts`**
 
 ```ts
 export type Priority = 'interactive' | 'bulk'
@@ -306,12 +306,12 @@ export const createTaskQueue = (options: TaskQueueOptions): TaskQueue => {
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/core/task-queue.test.ts`
 Expected: PASS, 8 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/task-queue.ts tests/core/task-queue.test.ts
