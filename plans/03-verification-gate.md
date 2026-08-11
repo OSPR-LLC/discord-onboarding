@@ -2,7 +2,7 @@
 plan: verification-gate
 project: discord-developer
 updated: 2026-08-10
-status: 🔵 Planning
+status: 🟡 In Progress
 tags: [plan]
 ---
 
@@ -14,7 +14,7 @@ tags: [plan]
 
 ## Status
 
-🔵 Planning
+🟡 In Progress
 
 ## Goal
 
@@ -59,7 +59,7 @@ Inherits every constraint from [[01-bot-foundation]] and [[02-guild-configuratio
 - Consumes: `OnboardingRecord`.
 - Produces: `evaluateGate(record): GateDecision` where `GateDecision = 'grant' | 'already-verified' | 'held' | 'incomplete'`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -122,12 +122,12 @@ describe('evaluateGate', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/core/gate.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Write `src/core/gate.ts`**
+- [x] **Step 3: Write `src/core/gate.ts`**
 
 ```ts
 import type { OnboardingRecord } from '../types.js'
@@ -143,12 +143,12 @@ export const evaluateGate = (record: OnboardingRecord): GateDecision => {
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `pnpm test tests/core/gate.test.ts`
 Expected: PASS, 11 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/gate.ts tests/core/gate.test.ts
