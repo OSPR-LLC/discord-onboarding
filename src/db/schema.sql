@@ -34,13 +34,16 @@ CREATE TABLE IF NOT EXISTS onboarding (
 );
 
 CREATE TABLE IF NOT EXISTS questionnaire_questions (
-	id          INTEGER PRIMARY KEY AUTOINCREMENT,
-	guild_id    TEXT NOT NULL,
-	position    INTEGER NOT NULL,
-	prompt      TEXT NOT NULL,
-	type        TEXT NOT NULL CHECK (type IN ('text','single_select','multi_select')),
-	required    INTEGER NOT NULL DEFAULT 1,
-	created_at  TEXT NOT NULL
+	id           INTEGER PRIMARY KEY AUTOINCREMENT,
+	guild_id     TEXT NOT NULL,
+	position     INTEGER NOT NULL,
+	prompt       TEXT NOT NULL,
+	type         TEXT NOT NULL CHECK (type IN ('text','single_select','multi_select')),
+	required     INTEGER NOT NULL DEFAULT 1,
+	numeric_only INTEGER NOT NULL DEFAULT 0,
+	min_length   INTEGER,
+	max_length   INTEGER,
+	created_at   TEXT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_questionnaire_questions_guild

@@ -20,6 +20,9 @@ export type QuestionDefinition = {
 	readonly prompt: string
 	readonly type: QuestionType
 	readonly required: boolean
+	readonly numericOnly: boolean
+	readonly minLength: number | null
+	readonly maxLength: number | null
 	readonly options: readonly QuestionOption[]
 }
 

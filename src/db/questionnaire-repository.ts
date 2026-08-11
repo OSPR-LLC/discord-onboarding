@@ -10,11 +10,14 @@ export type NewQuestionInput = {
 	type: QuestionType
 	required: boolean
 	options: string[]
+	numericOnly: boolean
+	minLength: number | null
+	maxLength: number | null
 }
 
 export type EditQuestionInput = Partial<NewQuestionInput>
 
-export type AddEditError = 'too-many-questions' | 'too-many-options' | 'not-found'
+export type AddEditError = 'too-many-questions' | 'too-many-options' | 'not-found' | 'invalid-validation'
 export type MoveError = 'not-found' | 'invalid-position'
 
 const slugifyOne = (label: string): string => {
@@ -36,6 +39,19 @@ export const slugifyOptionLabels = (labels: string[]): { label: string; value: s
 	})
 }
 
+const isValidQuestionShape = (
+	type: QuestionType,
+	numericOnly: boolean,
+	minLength: number | null,
+	maxLength: number | null
+): boolean => {
+	if (type !== 'text' && (numericOnly || minLength !== null || maxLength !== null)) return false
+	if (minLength !== null && (minLength < 1 || minLength > 4000)) return false
+	if (maxLength !== null && (maxLength < 1 || maxLength > 4000)) return false
+	if (minLength !== null && maxLength !== null && minLength > maxLength) return false
+	return true
+}
+
 type QuestionRow = {
 	id: number
 	guild_id: string
@@ -43,6 +59,9 @@ type QuestionRow = {
 	prompt: string
 	type: QuestionType
 	required: number
+	numeric_only: number
+	min_length: number | null
+	max_length: number | null
 	created_at: string
 }
 
@@ -63,14 +82,20 @@ export const createQuestionnaireRepository = (db: Database) => {
 			'SELECT COUNT(*) AS n FROM questionnaire_questions WHERE guild_id = ?'
 		),
 		insertQuestion: db.prepare(
-			`INSERT INTO questionnaire_questions (guild_id, position, prompt, type, required, created_at)
-			 VALUES (?, ?, ?, ?, ?, ?)`
+			`INSERT INTO questionnaire_questions
+			 (guild_id, position, prompt, type, required, numeric_only, min_length, max_length, created_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
 		),
 		getQuestionAtPosition: db.prepare(
 			'SELECT * FROM questionnaire_questions WHERE guild_id = ? AND position = ?'
 		),
+		getQuestionById: db.prepare(
+			'SELECT * FROM questionnaire_questions WHERE guild_id = ? AND id = ?'
+		),
 		updateQuestion: db.prepare(
-			'UPDATE questionnaire_questions SET prompt = ?, type = ?, required = ? WHERE id = ?'
+			`UPDATE questionnaire_questions
+			 SET prompt = ?, type = ?, required = ?, numeric_only = ?, min_length = ?, max_length = ?
+			 WHERE id = ?`
 		),
 		deleteQuestion: db.prepare('DELETE FROM questionnaire_questions WHERE id = ?'),
 		shiftPositionsDown: db.prepare(
@@ -93,6 +118,9 @@ export const createQuestionnaireRepository = (db: Database) => {
 		prompt: row.prompt,
 		type: row.type,
 		required: row.required === 1,
+		numericOnly: row.numeric_only === 1,
+		minLength: row.min_length,
+		maxLength: row.max_length,
 		options: (statements.listOptions.all(row.id) as OptionRow[]).map(
 			(option): QuestionOption => ({
 				position: option.position,
@@ -119,6 +147,8 @@ export const createQuestionnaireRepository = (db: Database) => {
 		const count = (statements.countQuestions.get(guildId) as { n: number }).n
 		if (count >= MAX_QUESTIONS) return err('too-many-questions')
 		if (input.options.length > MAX_OPTIONS) return err('too-many-options')
+		if (!isValidQuestionShape(input.type, input.numericOnly, input.minLength, input.maxLength))
+			return err('invalid-validation')
 
 		const position = count + 1
 		const info = statements.insertQuestion.run(
@@ -127,6 +157,9 @@ export const createQuestionnaireRepository = (db: Database) => {
 			input.prompt,
 			input.type,
 			input.required ? 1 : 0,
+			input.numericOnly ? 1 : 0,
+			input.minLength,
+			input.maxLength,
 			createdAt
 		)
 		const questionId = Number(info.lastInsertRowid)
@@ -145,10 +178,40 @@ export const createQuestionnaireRepository = (db: Database) => {
 		if (!row) return err('not-found')
 		if (patch.options && patch.options.length > MAX_OPTIONS) return err('too-many-options')
 
+		const effectiveType = patch.type ?? row.type
+
+		// A type change away from text implicitly clears the three validation
+		// fields rather than being rejected — the command surface has no way to
+		// explicitly pass "clear" for min_length/max_length (Discord integer
+		// options can't distinguish "not supplied" from "clear"), so requiring the
+		// admin to clear them first would be a permanent dead end. Explicitly
+		// trying to *set* validation in the same call as a non-text type change is
+		// still rejected below via isValidQuestionShape.
+		const clearValidation = effectiveType !== 'text'
+		const effectiveNumericOnly = clearValidation
+			? (patch.numericOnly ?? false)
+			: (patch.numericOnly ?? row.numeric_only === 1)
+		const effectiveMinLength = clearValidation
+			? (patch.minLength ?? null)
+			: patch.minLength !== undefined
+				? patch.minLength
+				: row.min_length
+		const effectiveMaxLength = clearValidation
+			? (patch.maxLength ?? null)
+			: patch.maxLength !== undefined
+				? patch.maxLength
+				: row.max_length
+
+		if (!isValidQuestionShape(effectiveType, effectiveNumericOnly, effectiveMinLength, effectiveMaxLength))
+			return err('invalid-validation')
+
 		statements.updateQuestion.run(
 			patch.prompt ?? row.prompt,
-			patch.type ?? row.type,
+			effectiveType,
 			(patch.required ?? row.required === 1) ? 1 : 0,
+			effectiveNumericOnly ? 1 : 0,
+			effectiveMinLength,
+			effectiveMaxLength,
 			row.id
 		)
 
@@ -196,7 +259,12 @@ export const createQuestionnaireRepository = (db: Database) => {
 		statements.clearQuestions.run(guildId)
 	}
 
-	return { listQuestions, addQuestion, editQuestion, removeQuestion, moveQuestion, clearQuestions }
+	const getQuestionById = (guildId: string, questionId: number): QuestionDefinition | undefined => {
+		const row = statements.getQuestionById.get(guildId, questionId) as QuestionRow | undefined
+		return row ? toDefinition(row) : undefined
+	}
+
+	return { listQuestions, addQuestion, editQuestion, removeQuestion, moveQuestion, clearQuestions, getQuestionById }
 }
 
 export type QuestionnaireRepository = ReturnType<typeof createQuestionnaireRepository>

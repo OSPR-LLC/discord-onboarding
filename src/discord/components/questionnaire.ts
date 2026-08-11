@@ -10,20 +10,23 @@ import {
 import type { QuestionDefinition } from '../../types.js'
 import { CUSTOM_IDS } from './custom-ids.js'
 
-export const buildQuestionModal = (question: QuestionDefinition): ModalBuilder =>
-	new ModalBuilder()
+export const buildQuestionModal = (question: QuestionDefinition): ModalBuilder => {
+	const maxLength = question.maxLength ?? Math.max(question.minLength ?? 0, 1000)
+
+	const input = new TextInputBuilder()
+		.setCustomId(CUSTOM_IDS.questionAnswerInput)
+		.setLabel(question.prompt.slice(0, 45))
+		.setStyle(TextInputStyle.Paragraph)
+		.setMaxLength(maxLength)
+		.setRequired(question.required)
+
+	if (question.minLength !== null) input.setMinLength(question.minLength)
+
+	return new ModalBuilder()
 		.setCustomId(CUSTOM_IDS.questionModal(question.id))
 		.setTitle(question.prompt.slice(0, 45))
-		.addComponents(
-			new ActionRowBuilder<TextInputBuilder>().addComponents(
-				new TextInputBuilder()
-					.setCustomId(CUSTOM_IDS.questionAnswerInput)
-					.setLabel(question.prompt.slice(0, 45))
-					.setStyle(TextInputStyle.Paragraph)
-					.setMaxLength(1000)
-					.setRequired(question.required)
-			)
-		)
+		.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input))
+}
 
 export const buildQuestionSelectRow = (
 	question: QuestionDefinition

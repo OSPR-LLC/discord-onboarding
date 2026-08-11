@@ -37,6 +37,7 @@ tags: [plan]
 - 2026-08-10 — Terms of Service and Privacy Policy drafted for Discord app verification, operated by **OSPR**. Live in [`docs/legal/`](../docs/legal/)
 - 2026-08-11 — **Configurable introduction template.** `/config enable` now also posts (and best-effort pins) a per-guild-customizable template message in the introductions channel, mirroring the existing `/config rules-text` pattern. Requested directly by the user, not in the original spec. The bot deliberately does not manage channel permissions to "force" members into `#rules` — that's documented as an admin's own Discord server setup step. See [[06-intro-template-message]]
 - 2026-08-11 — **Configurable questionnaire.** The three hardcoded onboarding questions are replaced by a per-guild, admin-configurable question set (`/config question add/edit/remove/move/list/clear`), each question free-text or select (single/multi), each independently required. Requested directly by the user. The old fixed-column `questionnaire_answers` table was dropped and recreated in a normalized shape — a deliberate, accepted data-loss migration since no guild had live answer data yet. See [[07-configurable-questionnaire]]
+- 2026-08-11 — **Questionnaire answer validation.** Text-type questions can require numeric-only answers and/or a character limit. Character limits are enforced natively by Discord's modal text input; numeric-only has no native equivalent and is checked server-side, with a "Try Again" button reopening the modal on failure (Discord disallows responding to a modal submission with another modal). Requested directly by the user. See [[08-questionnaire-answer-validation]]
 
 ## Module Plans
 
@@ -49,6 +50,7 @@ tags: [plan]
 | [[05-scale-hardening]]               | 🟡 In Progress | —                                    |
 | [[06-intro-template-message]]        | 🟡 In Progress | —                                    |
 | [[07-configurable-questionnaire]]    | 🟡 In Progress | —                                    |
+| [[08-questionnaire-answer-validation]] | 🟡 In Progress | —                                    |
 
 ## UI/UX Pattern
 

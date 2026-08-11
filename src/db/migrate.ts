@@ -19,6 +19,21 @@ const ADDED_COLUMNS: { table: string; column: string; ddl: string }[] = [
 		table: 'guild_config',
 		column: 'intro_template_message_id',
 		ddl: 'ALTER TABLE guild_config ADD COLUMN intro_template_message_id TEXT'
+	},
+	{
+		table: 'questionnaire_questions',
+		column: 'numeric_only',
+		ddl: 'ALTER TABLE questionnaire_questions ADD COLUMN numeric_only INTEGER NOT NULL DEFAULT 0'
+	},
+	{
+		table: 'questionnaire_questions',
+		column: 'min_length',
+		ddl: 'ALTER TABLE questionnaire_questions ADD COLUMN min_length INTEGER'
+	},
+	{
+		table: 'questionnaire_questions',
+		column: 'max_length',
+		ddl: 'ALTER TABLE questionnaire_questions ADD COLUMN max_length INTEGER'
 	}
 ]
 

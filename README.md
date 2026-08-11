@@ -159,8 +159,8 @@ Nothing server-specific lives in env vars — every setting below is configured 
 /config role unverified @Unverified
 /config rules-text                             # opens a modal — paste your server's actual rules
 /config intro-template                         # opens a modal — customize the introduction template
-/config question add prompt:… type:… required:… options:…    # add a questionnaire question
-/config question edit position:… …                            # edit an existing question
+/config question add prompt:… type:… required:… options:… numeric:… min_length:… max_length:…   # add a questionnaire question
+/config question edit position:… …                                                                # edit an existing question
 /config question remove position:…                             # remove a question
 /config question move position:… to:…                          # reorder questions
 /config question list                                          # show the configured questions
@@ -179,7 +179,7 @@ A successful `/config enable`:
 
 Both the rules text and the introduction template default to a generic version if you never customize them, and re-running `/config rules-text` / `/config intro-template` after `/config enable` edits the already-posted message in place rather than posting a duplicate.
 
-The onboarding questionnaire is fully admin-configurable via `/config question` — any number of questions up to 10, each free-text or multiple-choice (single or multi-select), each independently required or optional, in whatever order you set. A server with zero configured questions skips the questionnaire step entirely, going straight from rules acceptance to the introduction post. See [`docs/superpowers/specs/2026-08-11-configurable-questionnaire-design.md`](docs/superpowers/specs/2026-08-11-configurable-questionnaire-design.md) for the full design, including why modal-only questions can't include multiple-choice options (a Discord platform constraint, not a choice).
+The onboarding questionnaire is fully admin-configurable via `/config question` — any number of questions up to 10, each free-text or multiple-choice (single or multi-select), each independently required or optional, in whatever order you set. A server with zero configured questions skips the questionnaire step entirely, going straight from rules acceptance to the introduction post. See [`docs/superpowers/specs/2026-08-11-configurable-questionnaire-design.md`](docs/superpowers/specs/2026-08-11-configurable-questionnaire-design.md) for the full design, including why modal-only questions can't include multiple-choice options (a Discord platform constraint, not a choice). Text questions can additionally require digits-only answers and/or a character limit (`numeric`, `min_length`, `max_length` on `/config question add`/`edit`) — see [`docs/superpowers/specs/2026-08-11-questionnaire-answer-validation-design.md`](docs/superpowers/specs/2026-08-11-questionnaire-answer-validation-design.md).
 
 To also require existing members to onboard, run `/config grandfather action:clear` — this clears the exemption cutoff, so members who joined before `/config enable` are no longer automatically exempt.
 

@@ -127,4 +127,62 @@ describe('migrate', () => {
 		expect(names).toContain('questionnaire_questions')
 		expect(names).toContain('questionnaire_question_options')
 	})
+
+	it('adds numeric_only/min_length/max_length columns to a questionnaire_questions table created before they existed', () => {
+		// Simulates a deployment on the configurable-questionnaire schema (2026-08-11)
+		// predating the answer-validation columns.
+		const db = new Database(':memory:')
+		db.exec(`
+			CREATE TABLE guild_config (
+				guild_id TEXT PRIMARY KEY,
+				joined_at TEXT NOT NULL
+			)
+		`)
+		db.exec(`
+			CREATE TABLE onboarding (
+				guild_id TEXT NOT NULL,
+				user_id TEXT NOT NULL,
+				first_joined_at TEXT NOT NULL,
+				last_joined_at TEXT NOT NULL,
+				rules_accepted_at TEXT,
+				questionnaire_completed_at TEXT,
+				intro_posted_at TEXT,
+				intro_message_id TEXT,
+				verified_at TEXT,
+				verification_hold_at TEXT,
+				verification_hold_by TEXT,
+				reminders_sent INTEGER NOT NULL DEFAULT 0,
+				last_reminder_at TEXT,
+				PRIMARY KEY (guild_id, user_id)
+			)
+		`)
+		db.exec(`
+			CREATE TABLE questionnaire_questions (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				guild_id TEXT NOT NULL,
+				position INTEGER NOT NULL,
+				prompt TEXT NOT NULL,
+				type TEXT NOT NULL,
+				required INTEGER NOT NULL DEFAULT 1,
+				created_at TEXT NOT NULL
+			)
+		`)
+		db.prepare(
+			"INSERT INTO questionnaire_questions (guild_id, position, prompt, type, required, created_at) VALUES ('g1', 1, 'Old question', 'text', 1, 'now')"
+		).run()
+
+		expect(() => migrate(db)).not.toThrow()
+
+		const columns = (db.pragma('table_info(questionnaire_questions)') as { name: string }[]).map(
+			(row) => row.name
+		)
+		expect(columns).toContain('numeric_only')
+		expect(columns).toContain('min_length')
+		expect(columns).toContain('max_length')
+
+		const row = db
+			.prepare('SELECT numeric_only FROM questionnaire_questions WHERE guild_id = ?')
+			.get('g1') as { numeric_only: number }
+		expect(row.numeric_only).toBe(0)
+	})
 })

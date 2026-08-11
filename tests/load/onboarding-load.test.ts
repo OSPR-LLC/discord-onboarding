@@ -39,7 +39,7 @@ describe('load', () => {
 			const config = configFor(`guild-${guildIndex}`)
 			const created = questionnaireRepo.addQuestion(
 				config.guildId,
-				{ prompt: 'Why are you here?', type: 'text', required: true, options: [] },
+				{ prompt: 'Why are you here?', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null },
 				AT
 			)
 			const questionId = isOk(created) ? created.value.id : -1

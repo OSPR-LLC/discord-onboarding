@@ -6,6 +6,7 @@ export const CUSTOM_IDS = {
 	questionModal: (questionId: number) => `${NAMESPACE}:question-modal:${questionId}`,
 	questionSelect: (questionId: number) => `${NAMESPACE}:question-select:${questionId}`,
 	questionSkip: (questionId: number) => `${NAMESPACE}:question-skip:${questionId}`,
+	questionRetry: (questionId: number) => `${NAMESPACE}:question-retry:${questionId}`,
 	rulesTextModal: `${NAMESPACE}:rules-text-modal`,
 	rulesTextInput: `${NAMESPACE}:rules-text-input`,
 	introTemplateModal: `${NAMESPACE}:intro-template-modal`,

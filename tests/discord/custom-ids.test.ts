@@ -50,4 +50,12 @@ describe('dynamic question custom ids', () => {
 			value: '7'
 		})
 	})
+
+	it('builds a parseable retry id for a question', () => {
+		expect(parseCustomId(CUSTOM_IDS.questionRetry(7))).toEqual({
+			namespace: 'onboarding',
+			action: 'question-retry',
+			value: '7'
+		})
+	})
 })

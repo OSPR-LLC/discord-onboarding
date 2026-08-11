@@ -2,6 +2,7 @@ import { EmbedBuilder, MessageFlags, type ChatInputCommandInteraction } from 'di
 import type { GuildConfigRepository } from '../../db/guild-config-repository.js'
 import type { QuestionnaireRepository } from '../../db/questionnaire-repository.js'
 import { isOk } from '../../types.js'
+import type { QuestionDefinition } from '../../types.js'
 
 export type ConfigQuestionDeps = {
 	readonly guildConfig: GuildConfigRepository
@@ -25,6 +26,22 @@ const TYPE_LABEL: Record<string, string> = {
 	multi_select: 'Multiple choice'
 }
 
+export const validationSuffix = (question: QuestionDefinition): string => {
+	if (question.type !== 'text') return ''
+	const parts: string[] = []
+	if (question.numericOnly) parts.push('digits only')
+	if (question.minLength !== null || question.maxLength !== null) {
+		parts.push(
+			question.minLength !== null && question.maxLength !== null
+				? `${question.minLength}-${question.maxLength} chars`
+				: question.minLength !== null
+					? `min ${question.minLength} chars`
+					: `max ${question.maxLength} chars`
+		)
+	}
+	return parts.length > 0 ? ` · ${parts.join(' · ')}` : ''
+}
+
 export const handleConfigQuestionCommand = async (
 	interaction: ChatInputCommandInteraction,
 	deps: ConfigQuestionDeps
@@ -41,6 +58,9 @@ export const handleConfigQuestionCommand = async (
 			'text' | 'single_select' | 'multi_select'
 		const required = interaction.options.getBoolean('required', true)
 		const options = parseOptionsInput(interaction.options.getString('options'))
+		const numericOnly = interaction.options.getBoolean('numeric') ?? false
+		const minLength = interaction.options.getInteger('min_length')
+		const maxLength = interaction.options.getInteger('max_length')
 
 		if (type === 'text' && options.length > 0) {
 			await interaction.reply({
@@ -57,13 +77,19 @@ export const handleConfigQuestionCommand = async (
 			return
 		}
 
-		const result = questionnaireRepo.addQuestion(guild.id, { prompt, type, required, options }, now())
+		const result = questionnaireRepo.addQuestion(
+			guild.id,
+			{ prompt, type, required, options, numericOnly, minLength, maxLength },
+			now()
+		)
 		if (!isOk(result)) {
 			await interaction.reply({
 				content:
 					result.error === 'too-many-questions'
 						? 'This server already has the maximum of 10 questions.'
-						: 'A question can have at most 25 options.',
+						: result.error === 'too-many-options'
+							? 'A question can have at most 25 options.'
+							: 'Numeric/length validation only applies to text questions, lengths must be 1-4000, and `min_length` cannot exceed `max_length`.',
 				...ephemeral
 			})
 			return
@@ -84,6 +110,9 @@ export const handleConfigQuestionCommand = async (
 		const required = interaction.options.getBoolean('required') ?? undefined
 		const rawOptions = interaction.options.getString('options')
 		const options = rawOptions === null ? undefined : parseOptionsInput(rawOptions)
+		const numericOnly = interaction.options.getBoolean('numeric') ?? undefined
+		const minLength = interaction.options.getInteger('min_length') ?? undefined
+		const maxLength = interaction.options.getInteger('max_length') ?? undefined
 
 		const result = questionnaireRepo.editQuestion(
 			guild.id,
@@ -92,7 +121,10 @@ export const handleConfigQuestionCommand = async (
 				...(prompt !== undefined && { prompt }),
 				...(type !== undefined && { type }),
 				...(required !== undefined && { required }),
-				...(options !== undefined && { options })
+				...(options !== undefined && { options }),
+				...(numericOnly !== undefined && { numericOnly }),
+				...(minLength !== undefined && { minLength }),
+				...(maxLength !== undefined && { maxLength })
 			},
 			now()
 		)
@@ -101,7 +133,9 @@ export const handleConfigQuestionCommand = async (
 				content:
 					result.error === 'not-found'
 						? `No question at position ${position}.`
-						: 'A question can have at most 25 options.',
+						: result.error === 'too-many-options'
+							? 'A question can have at most 25 options.'
+							: 'Numeric/length validation only applies to text questions (pass `numeric:False` if changing away from Text while it was previously set), lengths must be 1-4000, and `min_length` cannot exceed `max_length`.',
 				...ephemeral
 			})
 			return
@@ -154,7 +188,7 @@ export const handleConfigQuestionCommand = async (
 						(q) =>
 							`**${q.position}.** ${q.prompt}\n_${TYPE_LABEL[q.type]}${q.required ? '' : ' · optional'}${
 								q.options.length > 0 ? ` · ${q.options.map((o) => o.label).join(', ')}` : ''
-							}_`
+							}${validationSuffix(q)}_`
 					)
 					.join('\n\n')
 			)

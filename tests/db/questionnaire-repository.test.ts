@@ -33,8 +33,8 @@ describe('slugifyOptionLabels', () => {
 
 describe('addQuestion', () => {
 	it('appends at the next position, starting at 1', () => {
-		const first = repo.addQuestion(GUILD, { prompt: 'Q1', type: 'text', required: true, options: [] }, AT)
-		const second = repo.addQuestion(GUILD, { prompt: 'Q2', type: 'text', required: true, options: [] }, AT)
+		const first = repo.addQuestion(GUILD, { prompt: 'Q1', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
+		const second = repo.addQuestion(GUILD, { prompt: 'Q2', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 
 		expect(isOk(first) && first.value.position).toBe(1)
 		expect(isOk(second) && second.value.position).toBe(2)
@@ -43,7 +43,7 @@ describe('addQuestion', () => {
 	it('stores slugified options for a select question', () => {
 		const result = repo.addQuestion(
 			GUILD,
-			{ prompt: 'Pick', type: 'single_select', required: true, options: ['New to everything', 'Advanced'] },
+			{ prompt: 'Pick', type: 'single_select', required: true, options: ['New to everything', 'Advanced'], numericOnly: false, minLength: null, maxLength: null },
 			AT
 		)
 
@@ -57,25 +57,25 @@ describe('addQuestion', () => {
 
 	it('rejects a guild that already has 10 questions', () => {
 		for (let i = 0; i < 10; i += 1)
-			repo.addQuestion(GUILD, { prompt: `Q${i}`, type: 'text', required: true, options: [] }, AT)
+			repo.addQuestion(GUILD, { prompt: `Q${i}`, type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 
-		const result = repo.addQuestion(GUILD, { prompt: 'Q11', type: 'text', required: true, options: [] }, AT)
+		const result = repo.addQuestion(GUILD, { prompt: 'Q11', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 		expect(isOk(result)).toBe(false)
 		expect(!isOk(result) && result.error).toBe('too-many-questions')
 	})
 
 	it('rejects more than 25 options', () => {
 		const options = Array.from({ length: 26 }, (_, i) => `Option ${i}`)
-		const result = repo.addQuestion(GUILD, { prompt: 'Q', type: 'multi_select', required: true, options }, AT)
+		const result = repo.addQuestion(GUILD, { prompt: 'Q', type: 'multi_select', required: true, options, numericOnly: false, minLength: null, maxLength: null }, AT)
 		expect(isOk(result)).toBe(false)
 		expect(!isOk(result) && result.error).toBe('too-many-options')
 	})
 
 	it('keeps question counts and positions independent across guilds', () => {
-		repo.addQuestion(GUILD, { prompt: 'Q1', type: 'text', required: true, options: [] }, AT)
+		repo.addQuestion(GUILD, { prompt: 'Q1', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 		const otherFirst = repo.addQuestion(
 			OTHER_GUILD,
-			{ prompt: 'Other Q1', type: 'text', required: true, options: [] },
+			{ prompt: 'Other Q1', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null },
 			AT
 		)
 		expect(isOk(otherFirst) && otherFirst.value.position).toBe(1)
@@ -84,8 +84,8 @@ describe('addQuestion', () => {
 
 describe('listQuestions', () => {
 	it('returns questions ordered by position', () => {
-		repo.addQuestion(GUILD, { prompt: 'First', type: 'text', required: true, options: [] }, AT)
-		repo.addQuestion(GUILD, { prompt: 'Second', type: 'text', required: true, options: [] }, AT)
+		repo.addQuestion(GUILD, { prompt: 'First', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
+		repo.addQuestion(GUILD, { prompt: 'Second', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 
 		expect(repo.listQuestions(GUILD).map((q) => q.prompt)).toEqual(['First', 'Second'])
 	})
@@ -97,7 +97,7 @@ describe('listQuestions', () => {
 
 describe('editQuestion', () => {
 	beforeEach(() => {
-		repo.addQuestion(GUILD, { prompt: 'Original', type: 'text', required: true, options: [] }, AT)
+		repo.addQuestion(GUILD, { prompt: 'Original', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 	})
 
 	it('updates only the supplied fields', () => {
@@ -121,9 +121,9 @@ describe('editQuestion', () => {
 
 describe('removeQuestion', () => {
 	beforeEach(() => {
-		repo.addQuestion(GUILD, { prompt: 'A', type: 'text', required: true, options: [] }, AT)
-		repo.addQuestion(GUILD, { prompt: 'B', type: 'text', required: true, options: [] }, AT)
-		repo.addQuestion(GUILD, { prompt: 'C', type: 'text', required: true, options: [] }, AT)
+		repo.addQuestion(GUILD, { prompt: 'A', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
+		repo.addQuestion(GUILD, { prompt: 'B', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
+		repo.addQuestion(GUILD, { prompt: 'C', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 	})
 
 	it('removes the question and renumbers the rest contiguously', () => {
@@ -142,9 +142,9 @@ describe('removeQuestion', () => {
 
 describe('moveQuestion', () => {
 	beforeEach(() => {
-		repo.addQuestion(GUILD, { prompt: 'A', type: 'text', required: true, options: [] }, AT)
-		repo.addQuestion(GUILD, { prompt: 'B', type: 'text', required: true, options: [] }, AT)
-		repo.addQuestion(GUILD, { prompt: 'C', type: 'text', required: true, options: [] }, AT)
+		repo.addQuestion(GUILD, { prompt: 'A', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
+		repo.addQuestion(GUILD, { prompt: 'B', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
+		repo.addQuestion(GUILD, { prompt: 'C', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 	})
 
 	it('moves a question to a new position, shifting the others', () => {
@@ -160,16 +160,179 @@ describe('moveQuestion', () => {
 
 describe('clearQuestions', () => {
 	it('removes every question for the guild', () => {
-		repo.addQuestion(GUILD, { prompt: 'A', type: 'text', required: true, options: [] }, AT)
-		repo.addQuestion(GUILD, { prompt: 'B', type: 'text', required: true, options: [] }, AT)
+		repo.addQuestion(GUILD, { prompt: 'A', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
+		repo.addQuestion(GUILD, { prompt: 'B', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 		repo.clearQuestions(GUILD)
 		expect(repo.listQuestions(GUILD)).toEqual([])
 	})
 
 	it('leaves other guilds untouched', () => {
-		repo.addQuestion(GUILD, { prompt: 'A', type: 'text', required: true, options: [] }, AT)
-		repo.addQuestion(OTHER_GUILD, { prompt: 'B', type: 'text', required: true, options: [] }, AT)
+		repo.addQuestion(GUILD, { prompt: 'A', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
+		repo.addQuestion(OTHER_GUILD, { prompt: 'B', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null }, AT)
 		repo.clearQuestions(GUILD)
 		expect(repo.listQuestions(OTHER_GUILD)).toHaveLength(1)
+	})
+})
+
+describe('answer validation fields', () => {
+	it('stores numericOnly/minLength/maxLength on a text question', () => {
+		const result = repo.addQuestion(
+			GUILD,
+			{
+				prompt: 'Birth year?',
+				type: 'text',
+				required: true,
+				options: [],
+				numericOnly: true,
+				minLength: 4,
+				maxLength: 4
+			},
+			AT
+		)
+
+		expect(isOk(result)).toBe(true)
+		if (!isOk(result)) return
+		expect(result.value.numericOnly).toBe(true)
+		expect(result.value.minLength).toBe(4)
+		expect(result.value.maxLength).toBe(4)
+	})
+
+	it('defaults to no validation when not supplied', () => {
+		const result = repo.addQuestion(
+			GUILD,
+			{ prompt: 'Q', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null },
+			AT
+		)
+
+		expect(isOk(result)).toBe(true)
+		if (!isOk(result)) return
+		expect(result.value.numericOnly).toBe(false)
+		expect(result.value.minLength).toBeNull()
+		expect(result.value.maxLength).toBeNull()
+	})
+
+	it('rejects numeric/length validation on a select question', () => {
+		const result = repo.addQuestion(
+			GUILD,
+			{
+				prompt: 'Pick',
+				type: 'single_select',
+				required: true,
+				options: ['A', 'B'],
+				numericOnly: true,
+				minLength: null,
+				maxLength: null
+			},
+			AT
+		)
+
+		expect(isOk(result)).toBe(false)
+		expect(!isOk(result) && result.error).toBe('invalid-validation')
+	})
+
+	it('rejects a length outside 1-4000', () => {
+		const result = repo.addQuestion(
+			GUILD,
+			{ prompt: 'Q', type: 'text', required: true, options: [], numericOnly: false, minLength: 0, maxLength: null },
+			AT
+		)
+
+		expect(isOk(result)).toBe(false)
+		expect(!isOk(result) && result.error).toBe('invalid-validation')
+	})
+
+	it('rejects min_length greater than max_length', () => {
+		const result = repo.addQuestion(
+			GUILD,
+			{ prompt: 'Q', type: 'text', required: true, options: [], numericOnly: false, minLength: 10, maxLength: 5 },
+			AT
+		)
+
+		expect(isOk(result)).toBe(false)
+		expect(!isOk(result) && result.error).toBe('invalid-validation')
+	})
+
+	it('editQuestion implicitly clears numeric validation when changing type away from text', () => {
+		repo.addQuestion(
+			GUILD,
+			{ prompt: 'Year', type: 'text', required: true, options: [], numericOnly: true, minLength: 4, maxLength: 4 },
+			AT
+		)
+
+		const result = repo.editQuestion(GUILD, 1, { type: 'single_select', options: ['A', 'B'] }, AT)
+		expect(isOk(result)).toBe(true)
+		if (!isOk(result)) return
+		expect(result.value.numericOnly).toBe(false)
+		expect(result.value.minLength).toBeNull()
+		expect(result.value.maxLength).toBeNull()
+	})
+
+	it('editQuestion allows the type change once numeric validation is explicitly cleared in the same edit', () => {
+		repo.addQuestion(
+			GUILD,
+			{ prompt: 'Year', type: 'text', required: true, options: [], numericOnly: true, minLength: null, maxLength: null },
+			AT
+		)
+
+		const result = repo.editQuestion(
+			GUILD,
+			1,
+			{ type: 'single_select', options: ['A', 'B'], numericOnly: false },
+			AT
+		)
+		expect(isOk(result)).toBe(true)
+	})
+
+	it('editQuestion still rejects explicitly enabling numeric validation in the same call as a non-text type change', () => {
+		repo.addQuestion(
+			GUILD,
+			{ prompt: 'Q', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null },
+			AT
+		)
+
+		const result = repo.editQuestion(GUILD, 1, { type: 'single_select', options: ['A', 'B'], numericOnly: true }, AT)
+		expect(isOk(result)).toBe(false)
+		expect(!isOk(result) && result.error).toBe('invalid-validation')
+	})
+
+	it('editQuestion updates only the supplied validation fields, leaving the rest untouched', () => {
+		repo.addQuestion(
+			GUILD,
+			{ prompt: 'Year', type: 'text', required: true, options: [], numericOnly: true, minLength: 4, maxLength: 4 },
+			AT
+		)
+
+		const result = repo.editQuestion(GUILD, 1, { maxLength: 10 }, AT)
+		expect(isOk(result) && result.value.numericOnly).toBe(true)
+		expect(isOk(result) && result.value.minLength).toBe(4)
+		expect(isOk(result) && result.value.maxLength).toBe(10)
+	})
+})
+
+describe('getQuestionById', () => {
+	it('returns the question when it exists for the guild', () => {
+		const added = repo.addQuestion(
+			GUILD,
+			{ prompt: 'Q', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null },
+			AT
+		)
+		if (!isOk(added)) throw new Error('setup failed')
+
+		expect(repo.getQuestionById(GUILD, added.value.id)?.prompt).toBe('Q')
+	})
+
+	it('returns undefined for an id that does not exist', () => {
+		expect(repo.getQuestionById(GUILD, 999)).toBeUndefined()
+	})
+
+	it('returns undefined when the id belongs to a different guild', () => {
+		const added = repo.addQuestion(
+			GUILD,
+			{ prompt: 'Q', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null },
+			AT
+		)
+		if (!isOk(added)) throw new Error('setup failed')
+
+		expect(repo.getQuestionById(OTHER_GUILD, added.value.id)).toBeUndefined()
 	})
 })

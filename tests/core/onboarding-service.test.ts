@@ -43,7 +43,7 @@ beforeEach(() => {
 	const questionnaireRepo = createQuestionnaireRepository(db)
 	const created = questionnaireRepo.addQuestion(
 		GUILD,
-		{ prompt: 'Why are you here?', type: 'text', required: true, options: [] },
+		{ prompt: 'Why are you here?', type: 'text', required: true, options: [], numericOnly: false, minLength: null, maxLength: null },
 		CLOCK
 	)
 	questionId = isOk(created) ? created.value.id : (() => {

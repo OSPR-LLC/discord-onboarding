@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { nextUnansweredQuestion } from '../../src/core/questionnaire.js'
+import {
+	isValidNumericAnswer,
+	nextUnansweredQuestion,
+	numericAnswerIsInvalid
+} from '../../src/core/questionnaire.js'
 import type { QuestionAnswer, QuestionDefinition } from '../../src/types.js'
 
 const textQuestion: QuestionDefinition = {
@@ -8,6 +12,9 @@ const textQuestion: QuestionDefinition = {
 	prompt: 'What brings you here?',
 	type: 'text',
 	required: true,
+	numericOnly: false,
+	minLength: null,
+	maxLength: null,
 	options: []
 }
 
@@ -17,6 +24,9 @@ const selectQuestion: QuestionDefinition = {
 	prompt: 'Pick one',
 	type: 'single_select',
 	required: false,
+	numericOnly: false,
+	minLength: null,
+	maxLength: null,
 	options: [
 		{ position: 1, label: 'A', value: 'a' },
 		{ position: 2, label: 'B', value: 'b' }
@@ -54,5 +64,52 @@ describe('nextUnansweredQuestion', () => {
 		expect(nextUnansweredQuestion([textQuestion, selectQuestion], [answered(2)])).toEqual(
 			textQuestion
 		)
+	})
+})
+
+describe('isValidNumericAnswer', () => {
+	it('accepts digits only', () => {
+		expect(isValidNumericAnswer('1990')).toBe(true)
+	})
+
+	it('rejects letters', () => {
+		expect(isValidNumericAnswer('nineteen ninety')).toBe(false)
+	})
+
+	it('rejects a decimal point', () => {
+		expect(isValidNumericAnswer('19.90')).toBe(false)
+	})
+
+	it('rejects an empty string', () => {
+		expect(isValidNumericAnswer('')).toBe(false)
+	})
+
+	it('trims surrounding whitespace before checking', () => {
+		expect(isValidNumericAnswer('  1990  ')).toBe(true)
+	})
+
+	it('rejects a leading minus sign', () => {
+		expect(isValidNumericAnswer('-5')).toBe(false)
+	})
+})
+
+describe('numericAnswerIsInvalid', () => {
+	const numericRequired: QuestionDefinition = { ...textQuestion, numericOnly: true, required: true }
+	const numericOptional: QuestionDefinition = { ...textQuestion, numericOnly: true, required: false }
+
+	it('rejects a whitespace-only answer to a required numeric question', () => {
+		expect(numericAnswerIsInvalid(numericRequired, '   ')).toBe(true)
+	})
+
+	it('accepts a valid numeric answer', () => {
+		expect(numericAnswerIsInvalid(numericRequired, '1990')).toBe(false)
+	})
+
+	it('allows a blank answer to an optional numeric question', () => {
+		expect(numericAnswerIsInvalid(numericOptional, '')).toBe(false)
+	})
+
+	it('does not apply to a non-numeric question', () => {
+		expect(numericAnswerIsInvalid({ ...numericRequired, numericOnly: false }, 'not a number')).toBe(false)
 	})
 })

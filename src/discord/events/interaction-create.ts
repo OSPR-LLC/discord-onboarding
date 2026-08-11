@@ -1,10 +1,18 @@
-import { MessageFlags, type Interaction } from 'discord.js'
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	MessageFlags,
+	type Interaction
+} from 'discord.js'
+import { numericAnswerIsInvalid } from '../../core/questionnaire.js'
 import type { OnboardingService } from '../../core/onboarding-service.js'
 import type { GuildConfigRepository } from '../../db/guild-config-repository.js'
 import type { OnboardingRepository } from '../../db/onboarding-repository.js'
 import type { QuestionnaireRepository } from '../../db/questionnaire-repository.js'
 import { promptNextQuestion, type PromptableInteraction } from '../commands/intro.js'
 import { handleOnboardingCommand } from '../commands/onboarding.js'
+import { buildQuestionModal } from '../components/questionnaire.js'
 import { CUSTOM_IDS, parseCustomId } from '../components/custom-ids.js'
 import { resolveActiveConfig } from '../resolve-active-config.js'
 
@@ -69,12 +77,30 @@ export const handleOnboardingInteraction = async (
 			if (!config) return
 
 			const questionId = Number(parsed.value)
+			const question = questionnaireRepo.getQuestionById(config.guildId, questionId)
 			const textValue = interaction.fields.getTextInputValue(CUSTOM_IDS.questionAnswerInput)
+
+			if (question && numericAnswerIsInvalid(question, textValue)) {
+				await interaction.reply({
+					content: 'This question requires a number. Try again.',
+					components: [
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							new ButtonBuilder()
+								.setCustomId(CUSTOM_IDS.questionRetry(questionId))
+								.setLabel('Try Again')
+								.setStyle(ButtonStyle.Primary)
+						)
+					],
+					flags: MessageFlags.Ephemeral
+				})
+				return
+			}
+
 			repo.saveAnswer(
 				config.guildId,
 				userId,
 				questionId,
-				{ textValue: textValue || null, selectedValues: [] },
+				{ textValue: textValue.trim() || null, selectedValues: [] },
 				now()
 			)
 			await interaction.reply({ content: 'Answer saved.', flags: MessageFlags.Ephemeral })
@@ -127,5 +153,15 @@ export const handleOnboardingInteraction = async (
 		repo.saveAnswer(config.guildId, userId, questionId, { textValue: null, selectedValues: [] }, now())
 		await interaction.update({ content: 'Skipped.', components: [] })
 		await advance(interaction, config)
+		return
+	}
+
+	if (parsed.action === 'question-retry' && parsed.value) {
+		const questionId = Number(parsed.value)
+		const question = questionnaireRepo.getQuestionById(config.guildId, questionId)
+		// The question may have been removed or reconfigured since the error
+		// was shown — nothing to reopen a modal for in that case.
+		if (!question) return
+		await interaction.showModal(buildQuestionModal(question))
 	}
 }

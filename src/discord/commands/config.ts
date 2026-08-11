@@ -107,6 +107,28 @@ export const configCommand = new SlashCommandBuilder()
 							.setDescription('Comma-separated choices (only for Single/Multiple choice)')
 							.setRequired(false)
 					)
+					.addBooleanOption((option) =>
+						option
+							.setName('numeric')
+							.setDescription('Text only: require the answer to be digits only')
+							.setRequired(false)
+					)
+					.addIntegerOption((option) =>
+						option
+							.setName('min_length')
+							.setDescription('Text only: minimum answer length (1-4000)')
+							.setRequired(false)
+							.setMinValue(1)
+							.setMaxValue(4000)
+					)
+					.addIntegerOption((option) =>
+						option
+							.setName('max_length')
+							.setDescription('Text only: maximum answer length (1-4000)')
+							.setRequired(false)
+							.setMinValue(1)
+							.setMaxValue(4000)
+					)
 			)
 			.addSubcommand((sub) =>
 				sub
@@ -137,6 +159,28 @@ export const configCommand = new SlashCommandBuilder()
 							.setName('options')
 							.setDescription('New comma-separated choices (replaces the old list)')
 							.setRequired(false)
+					)
+					.addBooleanOption((option) =>
+						option
+							.setName('numeric')
+							.setDescription('Text only: require the answer to be digits only')
+							.setRequired(false)
+					)
+					.addIntegerOption((option) =>
+						option
+							.setName('min_length')
+							.setDescription('Text only: minimum answer length (1-4000)')
+							.setRequired(false)
+							.setMinValue(1)
+							.setMaxValue(4000)
+					)
+					.addIntegerOption((option) =>
+						option
+							.setName('max_length')
+							.setDescription('Text only: maximum answer length (1-4000)')
+							.setRequired(false)
+							.setMinValue(1)
+							.setMaxValue(4000)
 					)
 			)
 			.addSubcommand((sub) =>

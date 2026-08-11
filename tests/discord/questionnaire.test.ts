@@ -5,6 +5,7 @@ import {
 	buildQuestionSkipRow
 } from '../../src/discord/components/questionnaire.js'
 import type { QuestionDefinition } from '../../src/types.js'
+import { ActionRowBuilder, TextInputBuilder } from 'discord.js'
 
 const textQuestion: QuestionDefinition = {
 	id: 1,
@@ -12,6 +13,9 @@ const textQuestion: QuestionDefinition = {
 	prompt: 'What brings you here?',
 	type: 'text',
 	required: true,
+	numericOnly: false,
+	minLength: null,
+	maxLength: null,
 	options: []
 }
 
@@ -21,6 +25,9 @@ const optionalSelect: QuestionDefinition = {
 	prompt: 'Pick one',
 	type: 'single_select',
 	required: false,
+	numericOnly: false,
+	minLength: null,
+	maxLength: null,
 	options: [
 		{ position: 1, label: 'A', value: 'a' },
 		{ position: 2, label: 'B', value: 'b' }
@@ -38,6 +45,26 @@ describe('buildQuestionModal', () => {
 	it('builds a modal whose custom id encodes the question id', () => {
 		const modal = buildQuestionModal(textQuestion)
 		expect(modal.data.custom_id).toBe('onboarding:question-modal:1')
+	})
+
+	it('defaults max length to 1000 when no character limit is configured', () => {
+		const modal = buildQuestionModal(textQuestion)
+		const input = (modal.components[0] as ActionRowBuilder<TextInputBuilder>)?.components[0]
+		expect((input?.data as { max_length?: number })?.max_length).toBe(1000)
+		expect((input?.data as { min_length?: number })?.min_length).toBeUndefined()
+	})
+
+	it('applies a configured min and max length', () => {
+		const modal = buildQuestionModal({ ...textQuestion, minLength: 4, maxLength: 4 })
+		const input = (modal.components[0] as ActionRowBuilder<TextInputBuilder>)?.components[0]
+		expect((input?.data as { min_length?: number })?.min_length).toBe(4)
+		expect((input?.data as { max_length?: number })?.max_length).toBe(4)
+	})
+
+	it('raises the default max length so it never sits below a configured min length', () => {
+		const modal = buildQuestionModal({ ...textQuestion, minLength: 4000, maxLength: null })
+		const input = (modal.components[0] as ActionRowBuilder<TextInputBuilder>)?.components[0]
+		expect((input?.data as { max_length?: number })?.max_length).toBe(4000)
 	})
 })
 
