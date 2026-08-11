@@ -167,7 +167,7 @@ git commit -m "feat: add verification gate decision function"
 
 - Produces: `DiscordPort` (every method takes `guildId`), `RoleError`, `DmError`, `ChannelError`, `AuditEntry`, `DmContent`, and `createFakeDiscordPort()` exposing `{ port, addedRoles, removedRoles, dms, audits, failDmFor, failRoleFor }`.
 
-- [ ] **Step 1: Write `src/core/discord-port.ts`**
+- [x] **Step 1: Write `src/core/discord-port.ts`**
 
 ```ts
 import type { Result } from '../types.js'
@@ -197,7 +197,7 @@ export type DiscordPort = {
 }
 ```
 
-- [ ] **Step 2: Write `tests/helpers/fake-discord-port.ts`**
+- [x] **Step 2: Write `tests/helpers/fake-discord-port.ts`**
 
 ```ts
 import type { AuditEntry, DiscordPort, DmContent } from '../../src/core/discord-port.js'
@@ -246,12 +246,12 @@ export const createFakeDiscordPort = () => {
 }
 ```
 
-- [ ] **Step 3: Verify it compiles**
+- [x] **Step 3: Verify it compiles**
 
 Run: `pnpm typecheck`
 Expected: no errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/core/discord-port.ts tests/helpers/fake-discord-port.ts

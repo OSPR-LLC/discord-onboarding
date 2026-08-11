@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 02's code is done (all 6 tasks) and its core flow is confirmed working live in OSPR; two human-only checklist items remain open whenever convenient (Task 5 Step 4, Task 6 Step 2). Plan 03, Task 2 — `DiscordPort` and the test fake. Task 1 (the gate decision function, `src/core/gate.ts`) is complete and verified.
+> Plan 03, Task 3 — onboarding service (`src/core/onboarding-service.ts`). Tasks 1–2 (the gate, `DiscordPort` + test fake) are complete and verified. Plan 02's two human-only checklist items (Task 5 Step 4, Task 6 Step 2) remain open whenever convenient.
 
 ## Blockers
 
