@@ -103,3 +103,39 @@ describe('reconcileMembers', () => {
 		expect(summary.grandfathered).toBe(1)
 	})
 })
+
+describe('chunking', () => {
+	it('processes every member across multiple chunks', async () => {
+		const many = Array.from({ length: 25 }, (_unused, index) => member(`u${index}`))
+
+		const summary = await reconcileMembers(deps, config, many, { chunkSize: 10 })
+
+		expect(summary.created).toBe(25)
+	})
+
+	it('reports progress once per chunk', async () => {
+		const many = Array.from({ length: 25 }, (_unused, index) => member(`u${index}`))
+		const progress: number[] = []
+
+		await reconcileMembers(deps, config, many, {
+			chunkSize: 10,
+			onProgress: (processed) => progress.push(processed)
+		})
+
+		expect(progress).toEqual([10, 20, 25])
+	})
+
+	it('yields to the event loop between chunks', async () => {
+		const many = Array.from({ length: 20 }, (_unused, index) => member(`u${index}`))
+		let interleaved = false
+
+		const reconciling = reconcileMembers(deps, config, many, { chunkSize: 5 })
+		// If the loop never yields, this timer cannot run before it finishes.
+		setTimeout(() => {
+			interleaved = true
+		}, 0)
+
+		await reconciling
+		expect(interleaved).toBe(true)
+	})
+})

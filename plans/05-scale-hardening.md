@@ -719,7 +719,7 @@ git commit -m "perf: cache guild config in memory"
 
 **Why:** the current loop `await`s per member with no yield boundary and no ceiling. A 50,000-member guild would hold the event loop's attention for the whole backfill and issue 50,000 unbounded role calls. Chunking bounds the work per turn and lets interactive traffic interleave.
 
-- [ ] **Step 1: Write the failing test (append to the existing file)**
+- [x] **Step 1: Write the failing test (append to the existing file)**
 
 ```ts
 describe('chunking', () => {
@@ -759,12 +759,12 @@ describe('chunking', () => {
 })
 ```
 
-- [ ] **Step 2: Run it to confirm it fails**
+- [x] **Step 2: Run it to confirm it fails**
 
 Run: `pnpm test tests/tasks/reconcile.test.ts`
 Expected: FAIL — `reconcileMembers` takes three arguments.
 
-- [ ] **Step 3: Modify `src/tasks/reconcile.ts`**
+- [x] **Step 3: Modify `src/tasks/reconcile.ts`**
 
 Add above `reconcileMembers`:
 
@@ -819,7 +819,7 @@ export const reconcileMembers = async (
 
 Keep the per-member body exactly as it is — only the loop around it changes.
 
-- [ ] **Step 4: Update the `reconcile` wrapper to use the bulk port and log progress**
+- [x] **Step 4: Update the `reconcile` wrapper to use the bulk port and log progress**
 
 ```ts
 export const reconcile = async (deps: {
@@ -876,7 +876,11 @@ export const reconcile = async (deps: {
 }
 ```
 
-- [ ] **Step 5: Reconcile guilds sequentially, not in parallel, in `src/index.ts`**
+- [x] **Step 5: Reconcile guilds sequentially, not in parallel, in `src/index.ts`**
+
+Already satisfied by Task 2's wiring: `src/index.ts`'s `ClientReady` handler loops over
+`guildConfig.listEnabled()` with a plain `for...of` and `await`s each `reconcile(...)` call
+in turn, and already passes `port: bulkPort`. No further change needed here.
 
 ```ts
 // Sequential on purpose. Every guild's reconciliation shares one rate-limit
@@ -889,12 +893,12 @@ for (const row of guildConfig.listEnabled()) {
 }
 ```
 
-- [ ] **Step 6: Run the tests**
+- [x] **Step 6: Run the tests**
 
 Run: `pnpm test tests/tasks/reconcile.test.ts`
 Expected: PASS, 11 tests.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/tasks/reconcile.ts tests/tasks/reconcile.test.ts src/index.ts

@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 05, Task 4 — chunked, yielding reconciliation (modifies `src/tasks/reconcile.ts`, extends its test file). Tasks 1–3 (priority task queue, queued `DiscordPort` decorator, cached guild config repository) are complete and verified. `pnpm typecheck` and `pnpm test` both green (128 tests). `guildConfig` in `src/index.ts` is now the cached wrapper around the SQLite-backed repository — every consumer gets the cached view automatically.
+> Plan 05, Task 5 — sharding entrypoint (`src/shard.ts`, plus `env.ts`, `index.ts`, `package.json`, README changes). Tasks 1–4 (priority task queue, queued `DiscordPort` decorator, cached guild config repository, chunked/yielding reconciliation) are complete and verified. `pnpm typecheck` and `pnpm test` both green (131 tests). Task 5 is what makes the README's existing "Running at Scale" wording (sharding scripts, `SHARD_COUNT`) actually true — see the doc-gap note logged when Plan 04 finished.
 >
 > Plans 02, 03, and 04 all sit at 🟡 for the same reason: code and tests are done, only live-Discord-client verification steps remain, yours to run whenever convenient (Plan 02: Task 5 Step 4, Task 6 Step 2; Plan 03: Task 7 Step 6, Task 8 Step 5; Plan 04: Task 3 Step 5).
 >
