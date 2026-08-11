@@ -480,7 +480,7 @@ git commit -m "feat: add custom ids and publishable rules message"
 - Produces: `configCommand` (the builder) and `handleConfigCommand(interaction, deps)` plus
   `handleRulesTextModal(interaction, deps)`, where `deps` is `{ guildConfig, now }`.
 
-- [ ] **Step 1: Write `src/discord/commands/config.ts`**
+- [x] **Step 1: Write `src/discord/commands/config.ts`**
 
 ```ts
 import {
@@ -791,12 +791,12 @@ export const handleRulesTextModal = async (
 }
 ```
 
-- [ ] **Step 2: Verify it compiles**
+- [x] **Step 2: Verify it compiles**
 
 Run: `pnpm typecheck`
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/discord/commands/config.ts

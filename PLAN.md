@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 02, Task 4 — the `/config` command. Tasks 1–3 (config resolution, live preflight, custom ids + rules message) are complete and verified; awaiting commit.
+> Plan 02, Task 5 — command registration and wiring. Tasks 1–4 (config resolution, live preflight, custom ids + rules message, `/config` command) are complete and verified; awaiting commit.
 
 ## Blockers
 
