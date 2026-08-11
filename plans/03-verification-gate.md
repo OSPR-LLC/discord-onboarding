@@ -1046,7 +1046,7 @@ git commit -m "feat: add /intro command and question prompter"
 - Produces: `handleGuildMemberAdd(member, deps)`, `handleMessageCreate(message, deps)`, `handleOnboardingInteraction(interaction, deps)` where `deps` is `{ guildConfig, repo, service, now }`.
 - Each resolves guild config first and returns early when the guild is disabled or unconfigured.
 
-- [ ] **Step 1: Write a shared config resolver**
+- [x] **Step 1: Write a shared config resolver**
 
 Create `src/discord/resolve-active-config.ts`:
 
@@ -1068,7 +1068,7 @@ export const resolveActiveConfig = (
 }
 ```
 
-- [ ] **Step 2: Write `src/discord/events/guild-member-add.ts`**
+- [x] **Step 2: Write `src/discord/events/guild-member-add.ts`**
 
 ```ts
 import type { GuildMember } from 'discord.js'
@@ -1112,7 +1112,7 @@ export const handleGuildMemberAdd = async (
 }
 ```
 
-- [ ] **Step 3: Write `src/discord/events/message-create.ts`**
+- [x] **Step 3: Write `src/discord/events/message-create.ts`**
 
 ```ts
 import type { Message } from 'discord.js'
@@ -1149,7 +1149,7 @@ export const handleMessageCreate = async (message: Message, deps: MessageDeps): 
 }
 ```
 
-- [ ] **Step 4: Write `src/discord/events/interaction-create.ts`**
+- [x] **Step 4: Write `src/discord/events/interaction-create.ts`**
 
 ```ts
 import { MessageFlags, type Interaction } from 'discord.js'
@@ -1259,37 +1259,41 @@ export const handleOnboardingInteraction = async (
 }
 ```
 
-- [ ] **Step 5: Wire into `src/index.ts`**
+- [x] **Step 5: Wire into `src/index.ts`**
 
-Inside `ClientReady`, after command registration:
+**Deviation from the code below:** this step's snippet calls `reconcile({...})`, but
+`reconcile` is Task 8's deliverable (`src/tasks/reconcile.ts`) and doesn't exist yet at
+this point in the plan. Implemented everything else in this step now — `port`, `service`,
+and the three new listeners — and moved `port`/`service` construction to module scope
+(right after `createClient()`) instead of inside `ClientReady`, so the same instances are
+in scope for the `GuildMemberAdd`, `MessageCreate`, and `InteractionCreate` listeners
+without threading them through the ready callback. `createDiscordPort` only closes over
+`client`; none of its methods run before `ClientReady` fires, so this is equivalent.
+The reconciliation loop itself is added in Task 8, once `reconcile()` exists.
 
 ```ts
-const port = createDiscordPort(ready)
+const client = createClient()
+const port = createDiscordPort(client)
 const service = createOnboardingService({
 	repo: onboarding,
 	port,
 	now: () => new Date().toISOString()
 })
-
-for (const config of guildConfig.listEnabled()) {
-	const guild = await ready.guilds.fetch(config.guildId).catch(() => null)
-	if (guild) await reconcile({ guild, guildConfig, repo: onboarding, service, port })
-}
-```
-
-Add the listeners, all through `safeHandler`:
-
-```ts
 const onboardingDeps = {
 	guildConfig,
 	repo: onboarding,
 	service,
 	now: () => new Date().toISOString()
 }
+```
 
+Add the listeners, all through `safeHandler` (`onboardingDeps` is the module-scope value
+from the block above; `MemberAddDeps` only needs the `guildConfig`/`service` subset of it):
+
+```ts
 client.on(
 	Events.GuildMemberAdd,
-	safeHandler('guildMemberAdd', (member) => handleGuildMemberAdd(member, onboardingDeps))
+	safeHandler('guildMemberAdd', (member) => handleGuildMemberAdd(member, { guildConfig, service }))
 )
 
 client.on(
@@ -1313,7 +1317,7 @@ On a throwaway guild with onboarding enabled, using a second account:
 
 Then confirm the negative cases: an account that was already in the guild before `/config enable` is untouched throughout, and `/intro` in a disabled guild replies that onboarding is not set up.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/discord src/index.ts

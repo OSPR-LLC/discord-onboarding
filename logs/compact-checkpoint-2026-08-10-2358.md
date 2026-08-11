@@ -9,7 +9,7 @@ time: 23:58
 ## Plan State at Compaction
 
 | #   | Plan                                                                        | Status         | Notes                                                               |
-| --- | ---------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------- |
 | 01  | [plans/01-bot-foundation](plans/01-bot-foundation.md)                       | ✅ Complete    | Scaffold, multi-guild schema, both repositories, client bootstrap   |
 | 02  | [plans/02-guild-configuration](plans/02-guild-configuration.md)             | 🟡 In Progress | `/config` commands, preflight, enable gate + grandfathering, README |
 | 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🟡 In Progress | Rules → questionnaire → intro → `verified`, plus reconciliation     |

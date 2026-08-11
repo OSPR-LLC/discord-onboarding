@@ -4,12 +4,17 @@ import process from 'node:process'
 import Database from 'better-sqlite3'
 import { Events } from 'discord.js'
 import 'dotenv/config'
+import { createOnboardingService } from './core/onboarding-service.js'
 import { createGuildConfigRepository } from './db/guild-config-repository.js'
 import { migrate } from './db/migrate.js'
 import { createOnboardingRepository } from './db/onboarding-repository.js'
-import { handleConfigCommand, handleRulesTextModal } from './discord/commands/config.js'
 import { createClient } from './discord/client.js'
+import { handleConfigCommand, handleRulesTextModal } from './discord/commands/config.js'
 import { CUSTOM_IDS } from './discord/components/custom-ids.js'
+import { handleGuildMemberAdd } from './discord/events/guild-member-add.js'
+import { handleOnboardingInteraction } from './discord/events/interaction-create.js'
+import { handleMessageCreate } from './discord/events/message-create.js'
+import { createDiscordPort } from './discord/port.js'
 import { registerCommands } from './discord/register-commands.js'
 import { safeHandler } from './discord/safe-handler.js'
 import { loadEnv } from './env.js'
@@ -24,6 +29,18 @@ const guildConfig = createGuildConfigRepository(db)
 const onboarding = createOnboardingRepository(db)
 
 const client = createClient()
+const port = createDiscordPort(client)
+const service = createOnboardingService({
+	repo: onboarding,
+	port,
+	now: () => new Date().toISOString()
+})
+const onboardingDeps = {
+	guildConfig,
+	repo: onboarding,
+	service,
+	now: () => new Date().toISOString()
+}
 
 client.once(
 	Events.ClientReady,
@@ -64,6 +81,16 @@ client.on(
 )
 
 client.on(
+	Events.GuildMemberAdd,
+	safeHandler('guildMemberAdd', (member) => handleGuildMemberAdd(member, { guildConfig, service }))
+)
+
+client.on(
+	Events.MessageCreate,
+	safeHandler('messageCreate', (message) => handleMessageCreate(message, onboardingDeps))
+)
+
+client.on(
 	Events.InteractionCreate,
 	safeHandler('interactionCreate', async (interaction) => {
 		const deps = { guildConfig, now: () => new Date().toISOString() }
@@ -75,7 +102,10 @@ client.on(
 
 		if (interaction.isModalSubmit() && interaction.customId === CUSTOM_IDS.rulesTextModal) {
 			await handleRulesTextModal(interaction, deps)
+			return
 		}
+
+		await handleOnboardingInteraction(interaction, onboardingDeps)
 	})
 )
 

@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 03, Task 7 — event handlers (shared config resolver, `guild-member-add`, `message-create`, `interaction-create`, wired into `src/index.ts`). Tasks 1–6 (gate, `DiscordPort` + fake, onboarding service, real `DiscordPort` adapter, questionnaire components, `/intro` command) are complete and verified. Plan 02's two human-only checklist items (Task 5 Step 4, Task 6 Step 2) remain open whenever convenient.
+> Plan 03, Task 8 — startup reconciliation (`src/tasks/reconcile.ts`), which also completes the `reconcile()` wiring deferred from Task 7 Step 5. Tasks 1–7 (gate, `DiscordPort` + fake, onboarding service, real `DiscordPort` adapter, questionnaire components, `/intro` command, event handlers) are complete and verified. Task 7 Step 6 (hands-on flow walkthrough) and Plan 02's two human-only checklist items (Task 5 Step 4, Task 6 Step 2) remain open whenever convenient.
 
 ## Blockers
 
