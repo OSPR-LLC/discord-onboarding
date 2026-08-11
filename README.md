@@ -8,7 +8,7 @@ Full design: [`docs/superpowers/specs/2026-08-08-onboarding-verification-gate-de
 
 ## Status
 
-🟡 In Progress — plan 01 (bot foundation, multi-guild data layer, client bootstrap) is complete and verified against a live Discord connection. See [`PLAN.md`](PLAN.md) for phase status.
+🟡 In Progress — plan 01 (bot foundation) is complete, and plan 02 (`/config`, live preflight, enable gate + grandfathering) is verified end-to-end against a live Discord server: configuring, enabling, and the rules message all work. Plan 03 (the actual verification gate — join handling, the rules/questionnaire/intro flow) is next. See [`PLAN.md`](PLAN.md) for phase status.
 
 ## Hard Rules
 
@@ -78,11 +78,13 @@ DATABASE_PATH=./data/onboarding.db
 DEV_GUILD_ID=        # optional — registers commands to one guild instantly instead of waiting up to an hour for global propagation
 ```
 
+**That's the entire environment surface.** Every per-server setting — channels, roles, rules text, enabled/disabled — is configured from inside Discord with `/config`, not in `.env` or any config file. This is what lets one deployment of the bot serve any number of unrelated servers.
+
 ### Getting a bot token
 
 1. [Discord Developer Portal](https://discord.com/developers/applications) → **New Application** (or select an existing one).
 2. Left sidebar → **Bot** → under **Token**, click **Reset Token** (first time) or **Copy**. Discord only shows the full token once — copy it straight into `.env` as `DISCORD_TOKEN`.
-3. On the same page, enable **Server Members Intent** under Privileged Gateway Intents. Leave **Message Content Intent** off — this project never requests it (see Hard Rules above).
+3. On the same page, enable **Server Members Intent** under Privileged Gateway Intents. **This one is not optional** — without it the bot never receives join events, and onboarding will silently do nothing on every new member with no error anywhere. Leave **Message Content Intent** off — this project never requests it (see Hard Rules above).
 4. Treat the token like a password: never commit it (`.env` is already gitignored), never paste it anywhere public. If it ever leaks, hit **Reset Token** again to invalidate it immediately.
 
 ### Inviting the bot to a server
@@ -92,24 +94,25 @@ Build an invite URL by hand rather than using the portal's "Default Install Link
 Use this URL instead, with your application's **Client ID** (Developer Portal → General Information) and both scopes:
 
 ```
-https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=268504064&scope=bot%20applications.commands
+https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=268520448&scope=bot%20applications.commands
 ```
 
-`268504064` is the minimum permission set this bot needs:
+`268520448` is the minimum permission set this bot needs:
 
 | Permission           | Bit value     |
 | -------------------- | ------------- |
 | View Channels        | 1024          |
 | Send Messages        | 2048          |
+| Embed Links          | 16384         |
 | Read Message History | 65536         |
 | Manage Roles         | 268435456     |
-| **Total**            | **268504064** |
+| **Total**            | **268520448** |
 
 (Equivalently: Developer Portal → **OAuth2 → URL Generator** → check `bot` and `applications.commands` scopes, then check the same permissions under "Bot Permissions" — the page computes the URL for you.)
 
 Opening the URL should show a consent screen listing real bot permissions (not just "Create commands") and a server picker requiring **Manage Server** in the target guild.
 
-After inviting: open **Server Settings → Roles** and drag the bot's role **above** any role it needs to manage (`verified`/`unverified`) — `Manage Roles` alone doesn't let a bot touch roles positioned above its own.
+After inviting: open **Server Settings → Roles** and drag the bot's role **above** any role it needs to manage (`verified`/`unverified`) — `Manage Roles` alone doesn't let a bot touch roles positioned above its own. **This is the most common cause of silent role-assignment failure** — everything else succeeds, the bot just can't apply the role and there's no error visible in Discord's UI.
 
 ### Verifying the connection
 
@@ -139,16 +142,41 @@ A single process is fine below ~2,000 guilds. Above that, use `pnpm start:sharde
 
 ## Configuration
 
-Nothing server-specific lives in env vars. Once the bot is in a server, an admin runs:
+Nothing server-specific lives in env vars — every setting below is configured per-server, from inside Discord, by an admin with **Manage Server**.
 
 ```
+/config show                                   # see what's set and what's still missing
 /config channel rules #rules
 /config channel introductions #introductions
+/config channel modlog #mod-log
 /config role verified @Verified
+/config role unverified @Unverified
+/config rules-text                             # opens a modal — paste your server's actual rules
 /config enable
 ```
 
-`/config enable` stamps a `grandfather_before` cutoff — every member already in the server at that moment is permanently exempt from the gate. See the [design spec](docs/superpowers/specs/2026-08-08-onboarding-verification-gate-design.md) for the full command surface (`/config`, `/onboarding`, `/intro`).
+`/config show` works even on a completely unconfigured server and lists every missing setting by name — run it first, and again after each change, to see what's still needed. `/config enable` refuses (naming everything still missing) until all three channels and both roles are set, and again if the bot's role sits at or below either onboarding role in the hierarchy.
+
+A successful `/config enable`:
+
+- Stamps a `grandfather_before` cutoff — every member already in the server at that moment is **permanently exempt** from the gate. Only members who join afterward go through onboarding.
+- Posts the rules message (with the "I agree" button) in the configured rules channel.
+- Reports how many existing members were just grandfathered.
+
+To also require existing members to onboard, run `/config grandfather action:clear` — this clears the exemption cutoff, so members who joined before `/config enable` are no longer automatically exempt.
+
+`/config disable` turns the bot off in that server without discarding any configuration or member records — running `/config enable` again picks up exactly where it left off.
+
+See the [design spec](docs/superpowers/specs/2026-08-08-onboarding-verification-gate-design.md) for the full command surface (`/config`, `/onboarding`, `/intro`).
+
+## Troubleshooting
+
+| Symptom                                | Likely cause                                                                                                                            |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| New members never get prompted to join | **Server Members Intent** isn't enabled for the bot application (Developer Portal → Bot → Privileged Gateway Intents)                   |
+| Roles never get applied                | The bot's role sits **below** `verified`/`unverified` in Server Settings → Roles — drag it above both                                   |
+| `/config` doesn't show up at all       | Global command registration takes up to an hour to propagate — set `DEV_GUILD_ID` in `.env` for instant registration during development |
+| Nothing happens at all in a server     | The guild hasn't been enabled — run `/config show` to confirm, then `/config enable` once everything required is set                    |
 
 ## Legal
 

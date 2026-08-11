@@ -20,7 +20,7 @@
 | --- | --------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------- |
 | 01  | [plans/01-bot-foundation](plans/01-bot-foundation.md)                       | ✅ Complete    | Scaffold, multi-guild schema, both repositories, client bootstrap   |
 | 02  | [plans/02-guild-configuration](plans/02-guild-configuration.md)             | 🟡 In Progress | `/config` commands, preflight, enable gate + grandfathering, README |
-| 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🔵 Planning    | Rules → questionnaire → intro → `verified`, plus reconciliation     |
+| 03  | [plans/03-verification-gate](plans/03-verification-gate.md)                 | 🟡 In Progress | Rules → questionnaire → intro → `verified`, plus reconciliation     |
 | 04  | [plans/04-reminders-and-mod-tooling](plans/04-reminders-and-mod-tooling.md) | 🔵 Planning    | Reminder DMs, `/onboarding` mod commands, audit log                 |
 | 05  | [plans/05-scale-hardening](plans/05-scale-hardening.md)                     | 🔵 Planning    | Priority queue, config cache, chunked reconcile, sharding, metrics  |
 
@@ -28,7 +28,7 @@ Archived in [`plans/archive/`](plans/archive/) — superseded single-guild draft
 
 ## Current Focus
 
-> Plan 02, Task 6 (final) — README. Tasks 1–5 are done; command registration verified live against the OSPR bot. One thing left before plan 02 closes: Task 5 Step 4's 7-step interactive `/config` walkthrough needs you clicking through a real Discord client — not something runnable from here.
+> Plan 02's code is done (all 6 tasks) and its core flow is confirmed working live in OSPR; two human-only checklist items remain open whenever convenient (Task 5 Step 4, Task 6 Step 2). Plan 03, Task 2 — `DiscordPort` and the test fake. Task 1 (the gate decision function, `src/core/gate.ts`) is complete and verified.
 
 ## Blockers
 

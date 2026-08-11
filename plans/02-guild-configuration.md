@@ -920,7 +920,7 @@ git commit -m "feat: register commands and wire /config"
 
 - Create: `README.md`
 
-- [ ] **Step 1: Write the README**
+- [x] **Step 1: Write the README**
 
 Cover, in this order:
 
@@ -936,11 +936,13 @@ Cover, in this order:
 10. **Run** — `pnpm i`, `pnpm dev`, `pnpm test`, `pnpm build && pnpm start`.
 11. **Troubleshooting** — table: no join events → Server Members intent; roles not applied → hierarchy; commands missing → wait for global propagation or set `DEV_GUILD_ID`; nothing happening at all → guild not enabled.
 
-- [ ] **Step 2: Verify the README end to end**
+- [ ] **Step 2: Verify the README end to end** _(requires literally following it against a fresh throwaway guild — yours to run)_
 
 Follow it literally against a fresh throwaway guild. Any step requiring knowledge not written down is a bug in the README.
 
-- [ ] **Step 3: Commit**
+_Partially covered already: every command, permission value, and piece of wording in the README was cross-checked against what you actually did today in the OSPR guild (token, intent, invite URL scopes, role hierarchy, `/config` walkthrough, the duplicate-command and "didn't respond in time" issues) and matches. What's not yet verified is following it literally start-to-finish on a **fresh** guild that's never seen the bot before — that's the remaining gap._
+
+- [x] **Step 3: Commit**
 
 ```bash
 git add README.md
