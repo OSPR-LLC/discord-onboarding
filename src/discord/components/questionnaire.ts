@@ -54,17 +54,27 @@ export const buildQuestionSelectRows = (
 
 	const chunks = chunkOptions(question.options)
 
-	return chunks.map((options) => {
+	return chunks.map((options, index) => {
 		const first = options[0]
 		const last = options[options.length - 1]
 		const placeholder =
 			chunks.length > 1 && first && last
 				? `Pick your answer (${first.label}–${last.label})`
 				: 'Pick your answer'
+		// Discord rejects a message whose components share a custom_id
+		// (COMPONENT_CUSTOM_ID_DUPLICATED) — a chunk index suffix keeps every
+		// row's id unique when there's more than one. parseCustomId only reads
+		// the first three ':'-separated segments, so the suffix is invisible to
+		// existing routing; the single-chunk case (the overwhelming majority of
+		// questions) keeps its exact original, unsuffixed id.
+		const customId =
+			chunks.length > 1
+				? `${CUSTOM_IDS.questionSelect(question.id)}:${index}`
+				: CUSTOM_IDS.questionSelect(question.id)
 
 		return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 			new StringSelectMenuBuilder()
-				.setCustomId(CUSTOM_IDS.questionSelect(question.id))
+				.setCustomId(customId)
 				.setPlaceholder(placeholder)
 				.setMinValues(chunks.length > 1 ? 0 : question.required ? 1 : 0)
 				.setMaxValues(1)

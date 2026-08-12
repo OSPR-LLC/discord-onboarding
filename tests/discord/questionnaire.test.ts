@@ -160,6 +160,24 @@ describe('buildQuestionSelectRows', () => {
 		expect(skipRow).not.toBeNull()
 		expect(selectRows.length + 1).toBe(5)
 	})
+
+	it('gives each chunk a distinct custom id, since Discord rejects a message with duplicate component ids', () => {
+		const manyOptions = Array.from({ length: 47 }, (_, i) => ({
+			position: i + 1,
+			label: String(1980 + i),
+			value: String(1980 + i)
+		}))
+		const rangeQuestion: QuestionDefinition = { ...optionalSelect, options: manyOptions }
+
+		const rows = buildQuestionSelectRows(rangeQuestion)
+		const customIds = rows.map((row) => row.components[0]?.data.custom_id)
+		expect(new Set(customIds).size).toBe(customIds.length)
+	})
+
+	it('keeps the original unsuffixed custom id for a single-row question', () => {
+		const rows = buildQuestionSelectRows(optionalSelect)
+		expect(rows[0]?.components[0]?.data.custom_id).toBe('onboarding:question-select:2')
+	})
 })
 
 describe('buildQuestionSkipRow', () => {
